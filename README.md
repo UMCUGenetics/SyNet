@@ -1,0 +1,2 @@
+# SPADE
+Synergistic pair detection
