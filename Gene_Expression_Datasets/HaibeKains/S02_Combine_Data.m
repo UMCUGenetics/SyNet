@@ -26,6 +26,7 @@ for di=1:n_data
 	%% Save Probs
 	All_Entrez{di} = {Batch_Prb{di}.EntrezID};
 end
+fprintf('\n');
 
 %% Map probs to genes
 fprintf('Mapping probes to genes ...\n');
@@ -54,8 +55,13 @@ for di=1:n_data
 			ge_ind = GMap(prob_set(1).EntrezID);
 			pr_ind = Prb_grp{gi}(1);
 			tmp_Expr(:, ge_ind) = Batch_Expr{di}(:, pr_ind);
+			Prob_ID{ge_ind} = [Prob_ID{ge_ind} {prob_set.ProbID}];
 		end
 	end
+	
+	%% Add to collection
+	GeneExpression = [GeneExpression; tmp_Expr];
+	Patient_Info = [Patient_Info; Batch_Pat{di}];
 end
 
 %% Order Genes
