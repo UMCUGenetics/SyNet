@@ -4,14 +4,20 @@ clear
 %% Initialization
 addpath('../../../../Useful_Sample_Codes/ShowProgress/');
 data_path = './csv_data/';
-data_lst = {'UPP' 'VDX'};
+data_lst = {'VDX', 'UPP'};
+% , 'UNT', 'UNC4', 'UCSF', 'TRANSBIG', ...
+% 	'SUPERTAM_HGU133PLUS2', 'SUPERTAM_HGU133A', 'STNO2', 'STK', ...
+% 	'PNC', 'NKI', 'NCI', 'NCCS', 'MUG', 'MSK', 'MDA4', 'MCCC', 'MAQC2', ...
+% 	'MAINZ', 'LUND2', 'LUND', 'KOO', 'IRB', 'HLP', 'FNCLCC', 'EXPO', ...
+% 	'EORTC10994', 'EMC2', 'DUKE2', 'DUKE', 'DFHCC3', 'DFHCC2', 'DFHCC', 'CAL'
+% };
 n_data = numel(data_lst);
 
 %% Load data files
 Batch_Pat = cell(n_data, 1);
 Batch_Prb = cell(n_data, 1);
 Batch_Expr = cell(n_data, 1);
-All_Entrez = cell(n_data, 1);
+Gene_Entrez = cell(n_data, 1);
 for di=1:n_data
 	fprintf('[%d/%d] Reading [%s] study:\n', di, n_data, data_lst{di});
 	
@@ -24,26 +30,27 @@ for di=1:n_data
 	end
 	
 	%% Save Probs
-	All_Entrez{di} = {Batch_Prb{di}.EntrezID};
+	Gene_Entrez{di} = {Batch_Prb{di}.EntrezID};
 end
 fprintf('\n');
 
 %% Map probs to genes
 fprintf('Mapping probes to genes ...\n');
-All_Entrez = unique([All_Entrez{:}])';
-All_Entrez(strcmp(All_Entrez, 'NA')) = [];
-n_All_Genes = numel(All_Entrez);
-GMap = containers.Map(All_Entrez, 1:n_All_Genes);
-GeneExpression = zeros(0, n_All_Genes);
+Gene_Entrez = unique([Gene_Entrez{:}])';
+Gene_Entrez(strcmp(Gene_Entrez, 'NA')) = [];
+n_Entz = numel(Gene_Entrez);
+GMap = containers.Map(Gene_Entrez, 1:n_Entz);
+GeneExpression = zeros(0, n_Entz);
 Patient_Info = [];
-Prob_ID = cell(n_All_Genes, 1);
+Prob_ID = cell(n_Entz, 1);
+Gene_Name = cell(n_Entz, 1);
 for di=1:n_data
 	fprintf('[%d/%d] Adjusting [%s] study:\n', di, n_data, data_lst{di});
 	Batch_Entrz = {Batch_Prb{di}.EntrezID}';
-	[n_pat, n_gene] = size(Batch_Expr{di});
-	Prb_grp = accumarray(grp2idx(Batch_Entrz), 1:n_gene, [], @(i) {i});
+	[n_pat, n_prob] = size(Batch_Expr{di});
+	Prb_grp = accumarray(grp2idx(Batch_Entrz), 1:n_prob, [], @(i) {i});
 	n_grp = numel(Prb_grp);
-	tmp_Expr = nan(n_pat, n_All_Genes);
+	tmp_Expr = nan(n_pat, n_Entz);
 	for gi=1:n_grp
 		showprogress(gi, n_grp);
 		prob_set = Batch_Prb{di}(Prb_grp{gi});
@@ -56,6 +63,7 @@ for di=1:n_data
 			pr_ind = Prb_grp{gi}(1);
 			tmp_Expr(:, ge_ind) = Batch_Expr{di}(:, pr_ind);
 			Prob_ID{ge_ind} = [Prob_ID{ge_ind} {prob_set.ProbID}];
+			Gene_Name{ge_ind} = [Gene_Name{ge_ind} {prob_set.GeneName}];
 		end
 	end
 	
@@ -64,35 +72,19 @@ for di=1:n_data
 	Patient_Info = [Patient_Info; Batch_Pat{di}];
 end
 
-%% Order Genes
-fprintf('Ordering the data.');
-for di=1:n_data
-	showprogress(di, n_data);
-	
-	[n_pat, n_gene] = size(Batch_Expr{di});
-	Gene_Ind = zeros(n_gene, 1);
-	for gi=1:n_gene
-		Gene_Ind(gi) = GMap(Batch_Prb{di}(gi).GeneName);
-	end
-	Bat_Exp = zeros(n_pat, GMap.Count);
-	Bat_Exp(:) = Batch_Expr{di}(:, Gene_Ind);
-end
-if isempty(PatientID)
-	PatientInfo = Batch_Pat;
-	ProbInfo = Batch_Prb;
-	ExpressionData = Batch_Expr;
-	
-	for pi=1:numel(Batch_PatID)
-		s
-		if isempty(ProbInfo)
-			ProbInfo = PI;
-		else
-			for pi=1:size(PI,1)
-			end
-		end
-	end
+%% Combine probs
+fprintf('Combining prob IDs ...\n');
+for gi=1:n_Entz
+	Prob_ID{gi} = strjoin(unique(Prob_ID{gi}), ';');
+	Gene_Name{gi} = strjoin(unique(Gene_Name{gi}), ';');
 end
 
+%% Saving Data
+sav_name = 'HaibeKains.mat';
+fprintf('Saving data in [%s]\n', sav_name);
+save(sav_name, 'GeneExpression', 'Patient_Info', 'Prob_ID', 'Gene_Name', 'Gene_Entrez');
+
+%% Functions \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 function [ExpressionData, PatientID, ProbID] = readExpression(csv_name)
 fprintf('Reading expressions from [%s]: ', csv_name);
 fid = fopen(csv_name, 'r');
