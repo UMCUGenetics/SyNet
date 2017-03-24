@@ -11,7 +11,7 @@ n_data = numel(data_lst);
 Batch_Pat = cell(n_data, 1);
 Batch_Prb = cell(n_data, 1);
 Batch_Expr = cell(n_data, 1);
-All_Genes = cell(n_data, 1);
+All_Entrez = cell(n_data, 1);
 for di=1:n_data
 	fprintf('[%d/%d] Reading [%s] study:\n', di, n_data, data_lst{di});
 	
@@ -24,26 +24,37 @@ for di=1:n_data
 	end
 	
 	%% Save Probs
-	All_Genes{di} = {Batch_Prb{di}.GeneName};
+	All_Entrez{di} = {Batch_Prb{di}.EntrezID};
 end
 
 %% Map probs to genes
-fprintf('Mapping probes to genes: ');
-All_Genes = unique([All_Genes{:}])';
-n_gene = numel(All_Genes);
-GMap = containers.Map(All_Genes, 1:n_gene);
-GeneExpression = zeros(0, n_gene);
-PatientInfo = [];
-Gene_Info = [];
+fprintf('Mapping probes to genes ...\n');
+All_Entrez = unique([All_Entrez{:}])';
+All_Entrez(strcmp(All_Entrez, 'NA')) = [];
+n_All_Genes = numel(All_Entrez);
+GMap = containers.Map(All_Entrez, 1:n_All_Genes);
+GeneExpression = zeros(0, n_All_Genes);
+Patient_Info = [];
+Prob_ID = cell(n_All_Genes, 1);
 for di=1:n_data
-	showprogress(di, n_data);
-	Batch_GN = {Batch_Prb{di}.GeneName}';
-	gnid = grp2idx(Batch_GN);
-	g_grp = accumarray(gnid, 1:numel(gnid), [], @(i) {i});
-	for gi=1:numel(g_grp)
-		prob_set = Batch_Prb{di}(g_grp{gi});
-		ge_ind = GMap(prob_set(1).EntrezID);
-		corr(Batch_Expr{di}(:, g_grp{gi}))
+	fprintf('[%d/%d] Adjusting [%s] study:\n', di, n_data, data_lst{di});
+	Batch_Entrz = {Batch_Prb{di}.EntrezID}';
+	[n_pat, n_gene] = size(Batch_Expr{di});
+	Prb_grp = accumarray(grp2idx(Batch_Entrz), 1:n_gene, [], @(i) {i});
+	n_grp = numel(Prb_grp);
+	tmp_Expr = nan(n_pat, n_All_Genes);
+	for gi=1:n_grp
+		showprogress(gi, n_grp);
+		prob_set = Batch_Prb{di}(Prb_grp{gi});
+		if GMap.isKey(prob_set(1).EntrezID)
+			[~, sid] = sort(std(Batch_Expr{di}(:, Prb_grp{gi})), 'Descend');
+			prob_set = prob_set(sid);
+			Prb_grp{gi} = Prb_grp{gi}(sid);
+			
+			ge_ind = GMap(prob_set(1).EntrezID);
+			pr_ind = Prb_grp{gi}(1);
+			tmp_Expr(:, ge_ind) = Batch_Expr{di}(:, pr_ind);
+		end
 	end
 end
 
