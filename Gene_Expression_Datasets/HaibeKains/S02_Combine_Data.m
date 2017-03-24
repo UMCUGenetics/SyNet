@@ -4,13 +4,12 @@ clear
 %% Initialization
 addpath('../../../../Useful_Sample_Codes/ShowProgress/');
 data_path = './csv_data/';
-data_lst = {'VDX', 'UPP'};
-% , 'UNT', 'UNC4', 'UCSF', 'TRANSBIG', ...
-% 	'SUPERTAM_HGU133PLUS2', 'SUPERTAM_HGU133A', 'STNO2', 'STK', ...
-% 	'PNC', 'NKI', 'NCI', 'NCCS', 'MUG', 'MSK', 'MDA4', 'MCCC', 'MAQC2', ...
-% 	'MAINZ', 'LUND2', 'LUND', 'KOO', 'IRB', 'HLP', 'FNCLCC', 'EXPO', ...
-% 	'EORTC10994', 'EMC2', 'DUKE2', 'DUKE', 'DFHCC3', 'DFHCC2', 'DFHCC', 'CAL'
-% };
+data_lst = {'VDX', 'UPP', 'UNT', 'UNC4', 'UCSF', 'TRANSBIG', ...
+	'SUPERTAM_HGU133PLUS2', 'SUPERTAM_HGU133A', 'STNO2', 'STK', ...
+	'PNC', 'NKI', 'NCI', 'NCCS', 'MUG', 'MSK', 'MDA4', 'MCCC', 'MAQC2', ...
+	'MAINZ', 'LUND2', 'LUND', 'KOO', 'IRB', 'HLP', 'FNCLCC', 'EXPO', ...
+	'EORTC10994', 'EMC2', 'DUKE2', 'DUKE', 'DFHCC3', 'DFHCC2', 'DFHCC', 'CAL'
+};
 n_data = numel(data_lst);
 
 %% Load data files
@@ -80,7 +79,7 @@ for gi=1:n_Entz
 end
 
 %% Saving Data
-sav_name = 'HaibeKains.mat';
+sav_name = 'HaibeKains_Combined.mat';
 fprintf('Saving data in [%s]\n', sav_name);
 save(sav_name, 'GeneExpression', 'Patient_Info', 'Prob_ID', 'Gene_Name', 'Gene_Entrez');
 
