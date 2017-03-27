@@ -10,6 +10,7 @@ data_lst = {'VDX', 'UPP', 'UNT', 'UNC4', 'UCSF', 'TRANSBIG', ...
 	'MAINZ', 'LUND2', 'LUND', 'KOO', 'IRB', 'HLP', 'FNCLCC', 'EXPO', ...
 	'EORTC10994', 'EMC2', 'DUKE2', 'DUKE', 'DFHCC3', 'DFHCC2', 'DFHCC', 'CAL'
 };
+if ismac, data_lst = data_lst(1:2); end
 n_data = numel(data_lst);
 
 %% Load data files
@@ -30,6 +31,7 @@ for di=1:n_data
 	
 	%% Save Probs
 	Gene_Entrez{di} = {Batch_Prb{di}.EntrezID};
+	fprintf('=====\n');
 end
 fprintf('\n');
 
@@ -46,15 +48,33 @@ Gene_Name = cell(n_Entz, 1);
 for di=1:n_data
 	fprintf('[%d/%d] Adjusting [%s] study:\n', di, n_data, data_lst{di});
 	Batch_Entrz = {Batch_Prb{di}.EntrezID}';
-	[n_pat, n_prob] = size(Batch_Expr{di});
-	Prb_grp = accumarray(grp2idx(Batch_Entrz), 1:n_prob, [], @(i) {i});
+	Prb_grp = accumarray(grp2idx(Batch_Entrz), 1:numel(Batch_Entrz), [], @(i) {i});
 	n_grp = numel(Prb_grp);
+	n_pat = size(Batch_Expr{di}, 1);
 	tmp_Expr = nan(n_pat, n_Entz);
 	for gi=1:n_grp
 		showprogress(gi, n_grp);
-		prob_set = Batch_Prb{di}(Prb_grp{gi});
-		if GMap.isKey(prob_set(1).EntrezID)
-			[~, sid] = sort(std(Batch_Expr{di}(:, Prb_grp{gi})), 'Descend');
+
+		if GMap.isKey(Batch_Prb{di}(Prb_grp{gi}(1)).EntrezID)
+			
+			%% Check for nan ratio
+			prb_ind = Prb_grp{gi};
+			for pi=1:numel(prb_ind)
+				is_nan = isnan(Batch_Expr{di}(:, prb_ind(pi)));
+				if sum(is_nan)/n_pat>0.5
+					prb_ind(pi) = nan;
+				else
+					Batch_Expr{di}(is_nan, prb_ind(pi)) = median(Batch_Expr{di}(~is_nan, prb_ind(pi)));
+				end
+			end
+			Prb_grp{gi} = prb_ind(~isnan(prb_ind));
+			if numel(Prb_grp{gi})<1, error('No probs left for expr.'); end
+			
+			%% Get the top variable prob
+			prob_set = Batch_Prb{di}(Prb_grp{gi});
+			prb_std = std(Batch_Expr{di}(:, Prb_grp{gi}));
+			if any(isnan(prb_std)), error('Std of a prob is NaN.'); end
+			[~, sid] = sort(prb_std, 'Descend');
 			prob_set = prob_set(sid);
 			Prb_grp{gi} = Prb_grp{gi}(sid);
 			
@@ -141,13 +161,23 @@ n_Prob = size(f_cell{1}, 1);
 Prob_Info = repmat(struct(), n_Prob, 1);
 [Prob_Info(:).RowName] = deal(f_cell{1}{:});
 f_cell(1) = [];
+ign_lst = {};
 for hi=1:n_Header
 	showprogress(hi, n_Header);
 	ind = find(ismember(Struct_Headers(:,1), f_Header{hi}));
-	if numel(ind)~=1, error(); end
+	if numel(ind)==0
+		ign_lst = [ign_lst f_Header{hi}];
+		continue;
+	elseif numel(ind)>1
+		error('Duplicated header found.\n');
+	end
 	
 	[Prob_Info.(Struct_Headers{ind,2})] = deal(f_cell{hi}{:});
 end
+if numel(ign_lst)>0
+	fprintf('Warning: [%s] fields are ignored.\n', strjoin(ign_lst, ', '));
+end
+fprintf('[%0.1f%%] of probs have EntrezID.\n', numel(unique({Prob_Info(:).EntrezID}))*100/numel(Prob_Info));
 end
 
 function Patient_Info = readClinical(csv_name)
