@@ -54,21 +54,22 @@ for di=1:n_data
 	tmp_Expr = nan(n_pat, n_Entz);
 	for gi=1:n_grp
 		showprogress(gi, n_grp);
-
 		if GMap.isKey(Batch_Prb{di}(Prb_grp{gi}(1)).EntrezID)
-			
 			%% Check for nan ratio
 			prb_ind = Prb_grp{gi};
 			for pi=1:numel(prb_ind)
 				is_nan = isnan(Batch_Expr{di}(:, prb_ind(pi)));
-				if sum(is_nan)/n_pat>0.5
+				if sum(is_nan)/n_pat>0.75
 					prb_ind(pi) = nan;
 				else
 					Batch_Expr{di}(is_nan, prb_ind(pi)) = median(Batch_Expr{di}(~is_nan, prb_ind(pi)));
 				end
 			end
+			if sum(~isnan(prb_ind))<1
+				fprintf('Warning: No probs left for [%s] gene.\n', Batch_Prb{di}(Prb_grp{gi}(1)).GeneName);
+				continue;
+			end
 			Prb_grp{gi} = prb_ind(~isnan(prb_ind));
-			if numel(Prb_grp{gi})<1, error('No probs left for expr.'); end
 			
 			%% Get the top variable prob
 			prob_set = Batch_Prb{di}(Prb_grp{gi});
