@@ -4,13 +4,13 @@ clear
 %% Initialization
 addpath('../../../../Useful_Sample_Codes/ShowProgress/');
 data_path = './csv_data/';
-data_lst = {'VDX', 'UPP', 'UNT', 'UNC4', 'UCSF', 'TRANSBIG', ...
+data_lst = {'VDX', 'UPP', 'LUND2', 'LUND', 'UNT', 'UNC4', 'UCSF', 'TRANSBIG', ...
 	'SUPERTAM_HGU133PLUS2', 'SUPERTAM_HGU133A', 'STNO2', 'STK', ...
 	'PNC', 'NKI', 'NCI', 'NCCS', 'MUG', 'MSK', 'MDA4', 'MCCC', 'MAQC2', ...
-	'MAINZ', 'LUND2', 'LUND', 'KOO', 'IRB', 'HLP', 'FNCLCC', 'EXPO', ...
+	'MAINZ', 'KOO', 'IRB', 'HLP', 'FNCLCC', 'EXPO', ...
 	'EORTC10994', 'EMC2', 'DUKE2', 'DUKE', 'DFHCC3', 'DFHCC2', 'DFHCC', 'CAL'
 };
-if ismac, data_lst = data_lst(1:2); end
+if ismac, data_lst = data_lst(1:3); end
 n_data = numel(data_lst);
 
 %% Load data files
@@ -41,7 +41,7 @@ Gene_Entrez = unique([Gene_Entrez{:}])';
 Gene_Entrez(strcmp(Gene_Entrez, 'NA')) = [];
 n_Entz = numel(Gene_Entrez);
 GMap = containers.Map(Gene_Entrez, 1:n_Entz);
-GeneExpression = zeros(0, n_Entz);
+Gene_Expression = zeros(0, n_Entz);
 Patient_Info = [];
 Prob_ID = cell(n_Entz, 1);
 Gene_Name = cell(n_Entz, 1);
@@ -66,7 +66,8 @@ for di=1:n_data
 				end
 			end
 			if sum(~isnan(prb_ind))<1
-				fprintf('Warning: No probs left for [%s] gene.\n', Batch_Prb{di}(Prb_grp{gi}(1)).GeneName);
+				fprintf('Warning: No probs left for [%s] Entrez, [%s] gene. [%0.1f%%] are NANs\n', ...
+					Batch_Prb{di}(Prb_grp{gi}(1)).EntrezID, Batch_Prb{di}(Prb_grp{gi}(1)).GeneName, sum(is_nan)*100/n_pat);
 				continue;
 			end
 			Prb_grp{gi} = prb_ind(~isnan(prb_ind));
@@ -88,21 +89,25 @@ for di=1:n_data
 	end
 	
 	%% Add to collection
-	GeneExpression = [GeneExpression; tmp_Expr];
+	Gene_Expression = [Gene_Expression; tmp_Expr];
 	Patient_Info = [Patient_Info; Batch_Pat{di}];
 end
 
 %% Combine probs
 fprintf('Combining prob IDs ...\n');
 for gi=1:n_Entz
-	Prob_ID{gi} = strjoin(unique(Prob_ID{gi}), ';');
-	Gene_Name{gi} = strjoin(unique(Gene_Name{gi}), ';');
+	if numel(Prob_ID{gi})<1
+		fprintf('Warning: No probs is used for [%s] entrez.\n', Gene_Entrez{gi});
+	else
+		Prob_ID{gi} = strjoin(unique(Prob_ID{gi}), ';');
+		Gene_Name{gi} = strjoin(unique(Gene_Name{gi}), ';');
+	end
 end
 
 %% Saving Data
 sav_name = 'HaibeKains_Combined.mat';
 fprintf('Saving data in [%s]\n', sav_name);
-save(sav_name, 'GeneExpression', 'Patient_Info', 'Prob_ID', 'Gene_Name', 'Gene_Entrez');
+save(sav_name, 'Gene_Expression', 'Patient_Info', 'Prob_ID', 'Gene_Name', 'Gene_Entrez');
 
 %% Functions \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 function [ExpressionData, PatientID, ProbID] = readExpression(csv_name)
