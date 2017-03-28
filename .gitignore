@@ -1,4 +1,6 @@
 .DS_Store
+*.*
+!*.m
 *.mat
 *.zip
 *.RData
