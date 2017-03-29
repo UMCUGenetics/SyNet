@@ -4,33 +4,31 @@ clear
 %% Initialization
 addpath('../../../../Useful_Sample_Codes/ShowProgress/');
 data_path = './csv_data/';
-data_lst = {'VDX', 'UPP', 'LUND2', 'LUND', 'UNT', 'UNC4', 'UCSF', 'TRANSBIG', ...
-	'SUPERTAM_HGU133PLUS2', 'SUPERTAM_HGU133A', 'STNO2', 'STK', ...
-	'PNC', 'NKI', 'NCI', 'NCCS', 'MUG', 'MSK', 'MDA4', 'MCCC', 'MAQC2', ...
-	'MAINZ', 'KOO', 'IRB', 'HLP', 'FNCLCC', 'EXPO', ...
-	'EORTC10994', 'EMC2', 'DUKE2', 'DUKE', 'DFHCC3', 'DFHCC2', 'DFHCC', 'CAL'
-};
-if ismac, data_lst = data_lst(1:3); end
-n_data = numel(data_lst);
+
+%% Load study info
+Study_Info = readtable('./csv_data/Data_DDB_ddb.csv', 'HeaderLines', 0);
+Study_Info.Properties.VariableNames = {'RowName' 'StudyName' 'Citation' 'Platform' 'Reference' 'DFSTime' 'OSTime' 'Auto'};
+if ismac, Study_Info = Study_Info(1:3, :); end
+n_study = size(Study_Info, 1);
 
 %% Load data files
-Batch_Pat = cell(n_data, 1);
-Batch_Prb = cell(n_data, 1);
-Batch_Expr = cell(n_data, 1);
-Gene_Entrez = cell(n_data, 1);
-for di=1:n_data
-	fprintf('[%d/%d] Reading [%s] study:\n', di, n_data, data_lst{di});
+Batch_Pat = cell(n_study, 1);
+Batch_Prb = cell(n_study, 1);
+Batch_Expr = cell(n_study, 1);
+Gene_Entrez = cell(n_study, 1);
+for si=1:n_study
+	fprintf('[%d/%d] Reading [%s] study:\n', si, n_study, Study_Info.StudyName{si});
 	
 	%% Read files
-	Batch_Pat{di} = readClinical([data_path 'Data_' data_lst{di} '_demo.csv']);
-	Batch_Prb{di} = readProb([data_path 'Data_' data_lst{di} '_annot.csv']);
-	[Batch_Expr{di}, Batch_PatID, BatchPrbID] = readExpression([data_path 'Data_' data_lst{di} '_data.csv']);
-	if ~isequal({Batch_Pat{di}.RowName}', Batch_PatID) || ~isequal({Batch_Prb{di}.RowName}', BatchPrbID)
+	Batch_Pat{si} = readClinical([data_path 'Data_' Study_Info.StudyName{si} '_demo.csv'], Study_Info(si,:));
+	Batch_Prb{si} = readProb([data_path 'Data_' Study_Info.StudyName{si} '_annot.csv']);
+	[Batch_Expr{si}, Batch_PatID, BatchPrbID] = readExpression([data_path 'Data_' Study_Info.StudyName{si} '_data.csv']);
+	if ~isequal({Batch_Pat{si}.RowName}', Batch_PatID) || ~isequal({Batch_Prb{si}.RowName}', BatchPrbID)
 		error('Data are not consistent');
 	end
 	
 	%% Save Probs
-	Gene_Entrez{di} = {Batch_Prb{di}.EntrezID};
+	Gene_Entrez{si} = {Batch_Prb{si}.EntrezID};
 	fprintf('=====\n');
 end
 fprintf('\n');
@@ -45,36 +43,36 @@ Gene_Expression = zeros(0, n_Entz);
 Patient_Info = [];
 Prob_ID = cell(n_Entz, 1);
 Gene_Name = cell(n_Entz, 1);
-for di=1:n_data
-	fprintf('[%d/%d] Adjusting [%s] study:\n', di, n_data, data_lst{di});
-	Batch_Entrz = {Batch_Prb{di}.EntrezID}';
+for si=1:n_study
+	fprintf('[%d/%d] Adjusting [%s] study:\n', si, n_study, Study_Info.StudyName{si});
+	Batch_Entrz = {Batch_Prb{si}.EntrezID}';
 	Prb_grp = accumarray(grp2idx(Batch_Entrz), 1:numel(Batch_Entrz), [], @(i) {i});
 	n_grp = numel(Prb_grp);
-	n_pat = size(Batch_Expr{di}, 1);
+	n_pat = size(Batch_Expr{si}, 1);
 	tmp_Expr = nan(n_pat, n_Entz);
 	for gi=1:n_grp
 		showprogress(gi, n_grp);
-		if GMap.isKey(Batch_Prb{di}(Prb_grp{gi}(1)).EntrezID)
+		if GMap.isKey(Batch_Prb{si}(Prb_grp{gi}(1)).EntrezID)
 			%% Check for nan ratio
 			prb_ind = Prb_grp{gi};
 			for pi=1:numel(prb_ind)
-				is_nan = isnan(Batch_Expr{di}(:, prb_ind(pi)));
+				is_nan = isnan(Batch_Expr{si}(:, prb_ind(pi)));
 				if sum(is_nan)/n_pat>0.75
 					prb_ind(pi) = nan;
 				else
-					Batch_Expr{di}(is_nan, prb_ind(pi)) = median(Batch_Expr{di}(~is_nan, prb_ind(pi)));
+					Batch_Expr{si}(is_nan, prb_ind(pi)) = median(Batch_Expr{si}(~is_nan, prb_ind(pi)));
 				end
 			end
 			if sum(~isnan(prb_ind))<1
 				fprintf('Warning: No probs left for [%s] Entrez, [%s] gene. [%0.1f%%] are NANs\n', ...
-					Batch_Prb{di}(Prb_grp{gi}(1)).EntrezID, Batch_Prb{di}(Prb_grp{gi}(1)).GeneName, sum(is_nan)*100/n_pat);
+					Batch_Prb{si}(Prb_grp{gi}(1)).EntrezID, Batch_Prb{si}(Prb_grp{gi}(1)).GeneName, sum(is_nan)*100/n_pat);
 				continue;
 			end
 			Prb_grp{gi} = prb_ind(~isnan(prb_ind));
 			
 			%% Get the top variable prob
-			prob_set = Batch_Prb{di}(Prb_grp{gi});
-			prb_std = std(Batch_Expr{di}(:, Prb_grp{gi}));
+			prob_set = Batch_Prb{si}(Prb_grp{gi});
+			prb_std = std(Batch_Expr{si}(:, Prb_grp{gi}));
 			if any(isnan(prb_std)), error('Std of a prob is NaN.'); end
 			[~, sid] = sort(prb_std, 'Descend');
 			prob_set = prob_set(sid);
@@ -82,7 +80,7 @@ for di=1:n_data
 			
 			ge_ind = GMap(prob_set(1).EntrezID);
 			pr_ind = Prb_grp{gi}(1);
-			tmp_Expr(:, ge_ind) = Batch_Expr{di}(:, pr_ind);
+			tmp_Expr(:, ge_ind) = Batch_Expr{si}(:, pr_ind);
 			Prob_ID{ge_ind} = [Prob_ID{ge_ind} {prob_set.ProbID}];
 			Gene_Name{ge_ind} = [Gene_Name{ge_ind} {prob_set.GeneName}];
 		end
@@ -90,7 +88,7 @@ for di=1:n_data
 	
 	%% Add to collection
 	Gene_Expression = [Gene_Expression; tmp_Expr];
-	Patient_Info = [Patient_Info; Batch_Pat{di}];
+	Patient_Info = [Patient_Info; Batch_Pat{si}];
 end
 
 %% Combine probs
@@ -107,7 +105,7 @@ end
 %% Saving Data
 sav_name = 'HaibeKains_Combined.mat';
 fprintf('Saving data in [%s]\n', sav_name);
-save(sav_name, 'Gene_Expression', 'Patient_Info', 'Prob_ID', 'Gene_Name', 'Gene_Entrez');
+save(sav_name, 'Gene_Expression', 'Patient_Info', 'Prob_ID', 'Gene_Name', 'Gene_Entrez', 'Study_Info');
 
 %% Functions \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 function [ExpressionData, PatientID, ProbID] = readExpression(csv_name)
@@ -186,7 +184,7 @@ end
 fprintf('[%0.1f%%] of probs have EntrezID.\n', numel(unique({Prob_Info(:).EntrezID}))*100/numel(Prob_Info));
 end
 
-function Patient_Info = readClinical(csv_name)
+function Patient_Info = readClinical(csv_name, Study_Info)
 Struct_Headers = {
 	'samplename'	'PatientID' %1
 	'dataset'		'StudyName' %2
@@ -194,7 +192,7 @@ Struct_Headers = {
 	'id'			'PatientOrgID' %4
 	'er'			'ERStatus' %5
 	'pgr'			'PGRStatus' %6
-	'her2'			'HerTStatus' %7
+	'her2'			'Her2Status' %7
 	'size'			'TumorSize' %8
 	'node'			'LymphNodeStatus' %9
 	'age'			'Age' %10
@@ -226,4 +224,5 @@ for hi=1:n_Header
 	
 	[Patient_Info.(Struct_Headers{ind,2})] = deal(f_cell{hi}{:});
 end
+[Patient_Info(:).Platform] = deal(Study_Info.Platform);
 end
