@@ -85,8 +85,8 @@ data_tcga = load('../TCGA/TCGA_Combined.mat');
 data_tcga.Patient_Info = SelectFromTable(data_tcga.Patient_Info, Header_List(:,5), Header_List(:,1));
 data_tcga.Patient_Info = RepFieldsWithValue(data_tcga.Patient_Info, Header_List([5:7 9],1), {'Positive' 'Negative' 'Equivocal'}, {'1' '0' 'NA'});
 data_tcga.Patient_Info = CastFields2Num(data_tcga.Patient_Info, Header_List([5:7 9],1));
-% data_tcga.Patient_Info.Age = str2double(data_tcga.Patient_Info.Age);
 data_tcga.Patient_Info = getSurvivalTime(data_tcga.Patient_Info);
+data_tcga.Patient_Info.Prognostic_Status = data_tcga.Patient_Info.SurvivalTime <= 1825;
 is_normal = ~cellfun('isempty', regexp(data_tcga.Patient_Info.PatientID, '-11$'));
 data_tcga.Patient_Info(is_normal, :) = [];
 data_tcga.Gene_Expression(is_normal, :) = [];
@@ -113,37 +113,44 @@ data_syne.Gene_Expression = [Expr_aces; Expr_haib; Expr_meta; Expr_tcga];
 data_syne.Patient_Info = [data_aces.Patient_Info; data_haib.Patient_Info; data_meta.Patient_Info; data_tcga.Patient_Info];
 
 %% Saving combined data
-% sav_name = 'SyNet_Combined.mat';
-% fprintf('Saving combined data in [%s]\n', sav_name);
-% save(sav_name, '-struct', 'data_syne');
+sav_name = 'SyNet_Combined.mat';
+fprintf('Saving combined data in [%s]\n', sav_name);
+save(sav_name, '-struct', 'data_syne');
 
 %% Replacing nans with median and normalize
 fprintf('Normalize data per study ...\n');
-data_syne.Gene_Expression = NormalizePerStudy(data_syne.Gene_Expression, data_syne.Patient_Info);
-% fprintf('Replace nans by median ...\n');
-% if any(isnan(data_syne.Gene_Expression(:))), error(); end
+data_syne.Gene_Expression = NormalizePerStudy(data_syne.Gene_Expression, data_syne.Patient_Info.StudyName);
+fprintf('Replacing nans by median ...\n');
+[n_pat, n_gene] = size(data_syne.Gene_Expression);
+data_syne.Gene_Expression = NormalizePerStudy(data_syne.Gene_Expression, repmat({'All'}, n_pat, 1));
+if any(isnan(data_syne.Gene_Expression(:))), error(); end
 
 %% Export data to csv
 fexpr_name = 'SyNet_Combined_Expression.csv';
 fprintf('Saving data in [%s]: ', fexpr_name);
-[n_pat, n_gene] = size(data_syne.Gene_Expression);
 fid = fopen(fexpr_name, 'w');
-cid = fopen('SyNet_Combined_Clinical.csv', 'w');
-fprintf(fid, '%s\n', strjoin(['Patient_ID;Study_Name'; data_syne.Gene_Entrez], '\t'));
-frmt_str = ['%s\t' repmat('%0.5f\t', 1, n_gene-1) '%0.5f\n'];
-for pi=1:n_pat
-	showprogress(pi, n_pat);
-	row_name = [data_syne.Patient_Info.PatientID{pi} ';' data_syne.Patient_Info.StudyName{pi}];
-% 	fprintf(fid, frmt_str, row_name, data_syne.Gene_Expression(pi,:));
-	fprintf(cid, '%s\t%d\t%d\t%s\t%s\t%s\n', row_name, ...
-												floor(data_syne.Patient_Info.SurvivalTime(pi)), ...
-												data_syne.Patient_Info.Prognostic_Status(pi), ...
-												data_syne.Patient_Info.Subtype{pi}, ...
-												data_syne.Patient_Info.Platform{pi}, ...
-												data_syne.Patient_Info.StudyName{pi});
+pat_id = strcat(data_syne.Patient_Info.PatientID, ';', data_syne.Patient_Info.StudyName);
+fprintf(fid, '%s\n', strjoin(['Gene_Entrez'; pat_id], '\t'));
+frmt_str = ['%s\t' repmat('%0.5f\t', 1, n_pat-1) '%0.5f\n'];
+for gi=1:n_gene
+	showprogress(gi, n_gene);
+	fprintf(fid, frmt_str, data_syne.Gene_Entrez{gi}, data_syne.Gene_Expression(:, gi));
 end
 fclose(fid);
-fclose(cid);
+
+fid = fopen('SyNet_Combined_Clinical.csv', 'w');
+fprintf(fid, '%s\n', strjoin({'Patient_ID', 'StudyName', 'Platform', 'Prognostic_Status', 'SurvivalTime', 'Subtype'}, '\t'));
+for pi=1:n_pat
+	showprogress(pi, n_pat);
+	fprintf(fid, '%s\t%s\t%s\t%d\t%d\t%s\n', ...
+							pat_id{pi}, ...
+							data_syne.Patient_Info.StudyName{pi}, ...
+							data_syne.Patient_Info.Platform{pi}, ...
+							data_syne.Patient_Info.Prognostic_Status(pi), ...
+							floor(data_syne.Patient_Info.SurvivalTime(pi)), ...
+							data_syne.Patient_Info.Subtype{pi});
+end
+fclose(fid);
 
 %% Test correctness
 % tmp_expr = table2array(readtable(sav_name, 'HeaderLines', 0, 'ReadVariableNames', 1, 'ReadRowNames', 1)); % , 'TreatAsEmpty', 'NA'
@@ -208,37 +215,31 @@ for fi=1:numel(field_lst)
 end
 end
 
-function tbl = ReplaceNAN(tbl, field_lst, str)
-fprintf('Replacing fields [%s]: ', str{1});
-for fi=1:numel(field_lst)
-	fprintf('%s, ', field_lst{fi});
-	if any(~isnan(tbl.(field_lst{fi})))
-		error();
-	end
-	tbl.(field_lst{fi}) = repmat(str, size(tbl,1), 1);
-end
-end
-
-function Gene_Expression = NormalizePerStudy(Gene_Expression, Patient_Info)
+function Gene_Expression = NormalizePerStudy(Gene_Expression, StudyName)
 n_gene = size(Gene_Expression, 2);
-study_lst = unique(Patient_Info.StudyName, 'stable');
+study_lst = unique(StudyName, 'stable');
 for si=1:numel(study_lst)
 	fprintf('Normalizing [%s]\n', study_lst{si});
-	in_study = strcmp(Patient_Info.StudyName, study_lst{si});
+	in_study = strcmp(StudyName, study_lst{si});
 	n_pat = sum(in_study);
 	n_nan = 0;
 	for gi=1:n_gene
 		is_nan = in_study & isnan(Gene_Expression(:, gi));
 		if any(is_nan)
 			is_val = in_study & ~isnan(Gene_Expression(:, gi));
-			if sum(is_nan)/n_pat > 0.75
+			if sum(is_nan)/n_pat > 0.95
+				Gene_Expression(is_nan, gi) = mean(Gene_Expression(is_nan, randperm(n_gene, 50)), 2, 'omitnan');
 				n_nan = n_nan + 1;
+			else
+				Gene_Expression(is_nan, gi) = median(Gene_Expression(is_val, gi));
 			end
-			Gene_Expression(is_nan, gi) = median(Gene_Expression(is_val, gi));
 		end
 	end
 	if n_nan>0
-		fprintf('Warning: Study [%s] has too many nans [%d, %0.1f%%]\n', study_lst{si}, n_nan, n_nan*100/n_gene);
+		fprintf('Warning: Study [%s] has nans [%d, %0.1f%%]\n', study_lst{si}, n_nan, n_nan*100/n_gene);
+	end
+	if min(std(Gene_Expression(in_study,:))) < 0.0001
+		fprintf('Warning: Some genes have small std.\n');
 	end
 	Gene_Expression(in_study,:) = zscore(Gene_Expression(in_study,:));
 end
