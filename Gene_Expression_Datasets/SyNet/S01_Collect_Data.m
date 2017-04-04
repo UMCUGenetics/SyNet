@@ -130,7 +130,7 @@ fexpr_name = 'SyNet_Combined_Expression.csv';
 fprintf('Saving data in [%s]: ', fexpr_name);
 fid = fopen(fexpr_name, 'w');
 pat_id = strcat(data_syne.Patient_Info.PatientID, ';', data_syne.Patient_Info.StudyName);
-fprintf(fid, '%s\n', strjoin(['Gene_Entrez'; pat_id], '\t'));
+fprintf(fid, '%s\n', strjoin(pat_id, '\t'));
 frmt_str = ['%s\t' repmat('%0.5f\t', 1, n_pat-1) '%0.5f\n'];
 for gi=1:n_gene
 	showprogress(gi, n_gene);
