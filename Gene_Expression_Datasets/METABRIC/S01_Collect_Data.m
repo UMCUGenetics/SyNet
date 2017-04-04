@@ -21,6 +21,7 @@ n_clic = size(Patient_Info,1);
 if ~isequal(data_expr.SampleID, {Patient_Info.patient_id{:}}')
 	error();
 end
+Patient_Info.Platform = repmat({'Illumina_Human_WG-v3'}, size(Patient_Info,1), 1);
 
 %% Combine probs to Entrez
 [Gene_Entrez, ~, Prob_idx] = unique(Prob_ID);

@@ -90,6 +90,32 @@ for si=1:n_study
 	Gene_Expression = [Gene_Expression; tmp_Expr];
 	Patient_Info = [Patient_Info; Batch_Pat{si}];
 end
+Patient_Info = struct2table(Patient_Info);
+
+%% Add subtype and duplicated status
+fprintf('Adding "subtype" and "duplicity" information.\n');
+Subtype_Info = readtable('./sbtrobustnessres/demo_sbt_all5.csv', 'HeaderLines', 0, 'TreatAsEmpty', 'NA');
+Subtype_Map = containers.Map(Subtype_Info.samplename, 1:size(Subtype_Info,1));
+if Subtype_Map.Count~=size(Subtype_Info,1), error(); end
+Unique_Info = readtable('./sbtrobustnessres/demo_sbt_all5_rmdupl.csv', 'HeaderLines', 0, 'TreatAsEmpty', 'NA');
+Unique_Map = containers.Map(Unique_Info.samplename, 1:size(Unique_Info,1));
+if Unique_Map.Count~=size(Unique_Info,1), error(); end
+n_pat = size(Patient_Info, 1);
+Patient_Info.Subtype = repmat({'NA'}, n_pat, 1);
+Patient_Info.IsDuplicated = zeros(n_pat, 1);
+for pi=1:n_pat
+	if Subtype_Map.isKey(Patient_Info.PatientID{pi})
+		pat_ind = Subtype_Map(Patient_Info.PatientID{pi});
+		Patient_Info.Subtype{pi} = Subtype_Info.PAM50{pat_ind};
+		if Unique_Map.isKey(Patient_Info.PatientID{pi})
+			Patient_Info.IsDuplicated(pi) = 0;
+		else
+			Patient_Info.IsDuplicated(pi) = 1;
+		end
+	end
+end
+fprintf('[%d/%d] samples had no subtype.\n', sum(strcmp(Patient_Info.Subtype, 'NA')), n_pat);
+fprintf('[%d/%d] samples were duplicated.\n', sum(Patient_Info.IsDuplicated), n_pat);
 
 %% Combine probs
 fprintf('Combining prob IDs ...\n');
@@ -225,4 +251,19 @@ for hi=1:n_Header
 	[Patient_Info.(Struct_Headers{ind,2})] = deal(f_cell{hi}{:});
 end
 [Patient_Info(:).Platform] = deal(Study_Info.Platform);
+
+%% Alternative method to read this (sometimes matlab convert patient ID to numbers, makes it difficult to combine datasets later on)
+% Patient_new = readtable(csv_name, 'HeaderLines', 0, 'TreatAsEmpty', 'NA');
+% Patient_new.Properties.VariableNames = ['RowName' Patient_new.Properties.VariableNames(1:end-1)];
+% [n_item, n_col] = size(Patient_new);
+% for hi=1:n_col
+% 	is_in = ismember(Struct_Headers(:,1), Patient_new.Properties.VariableNames{hi});
+% 	if any(is_in)
+% 		Patient_new.Properties.VariableNames{hi} = Struct_Headers{is_in,2};
+% 	end
+% 	if sum(is_in)>1
+% 		error();
+% 	end
+% end
+% Patient_new.Platform = repmat(Study_Info.Platform, n_item, 1);
 end

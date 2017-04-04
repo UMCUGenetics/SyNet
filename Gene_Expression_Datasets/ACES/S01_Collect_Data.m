@@ -3,6 +3,7 @@
 % ! tar -xvzf ACES.tar.gz
 
 %% Initialization
+addpath('../../../../Useful_Sample_Codes/ShowProgress/');
 clc;
 clear;
 h5f_All = './ACES/experiments/data/U133A_combat.h5';
@@ -55,41 +56,53 @@ Gene_Entrez = deblank(Gene_Entrez);
 fprintf('Reading clinical data from [%s]\n', xls_Clic);
 Clic_tbl = readtable(xls_Clic);
 n_item = size(Clic_tbl, 1);
+Clic_Map = containers.Map(Clic_tbl.AffyID, 1:n_item);
 Patient_Info = struct('PatientID', Patient_ID, ...
 					  'StudyName', Study_Name(Study_Index), ...
 					  'AcesPatientClassLabel', num2cell(strcmp(Patient_Class_Labels, 'TRUE')));
-for ti=1:n_item
-	if Pat_Map.isKey(Clic_tbl.AffyID{ti})
-		pat_ind = Pat_Map(Clic_tbl.AffyID{ti});
-		if ~isequal(Patient_Info(pat_ind).PatientID, Clic_tbl.AffyID{ti}), error(); end
-		Patient_Info(pat_ind).StudyGSE = Clic_tbl.DataSet{ti};
-		Patient_Info(pat_ind).PatientOrgID = Clic_tbl.PatientID{ti};
-		Patient_Info(pat_ind).ERStatus = str2double(Clic_tbl.ERStatus{ti});
-		Patient_Info(pat_ind).ERStatusArray = Clic_tbl.ER_status_array(ti);
-		Patient_Info(pat_ind).ESR1ExpressionOnArray = str2double(Clic_tbl.ESR1ExpressionOnArray(ti));
-		Patient_Info(pat_ind).PGRStatus = nan;
-		Patient_Info(pat_ind).Her2StatusOnArray = Clic_tbl.HER2_status_array(ti);
-		Patient_Info(pat_ind).Her2ExpressionOnArray = Clic_tbl.HER2ExpressionOnArray(ti);
-		Patient_Info(pat_ind).TumorSize = Clic_tbl.Size(ti);
-		Patient_Info(pat_ind).LymphNodeStatus = str2double(Clic_tbl.LymphNodeStatus{ti});
-		Patient_Info(pat_ind).Age = str2double(Clic_tbl.Age{ti});
-		Patient_Info(pat_ind).Grade = str2double(Clic_tbl.Grade{ti});
-		Patient_Info(pat_ind).DMFSTime = floor(str2double(Clic_tbl.DMFS_time{ti}) * 365);
-		Patient_Info(pat_ind).DMFSEvent = str2double(Clic_tbl.DMFS_event_1_relapse_{ti});
-		Patient_Info(pat_ind).RFSTime = floor(str2double(Clic_tbl.RFS_time{ti}) * 365);
-		Patient_Info(pat_ind).RFSEvent = str2double(Clic_tbl.RFS_event_1_relapse_{ti});
-		Patient_Info(pat_ind).OSTime = 0;
-		Patient_Info(pat_ind).OSEvent = 0;
-		Patient_Info(pat_ind).Tissue = 0;
-		Patient_Info(pat_ind).Treatment = Clic_tbl.Treatment{ti};
-		Patient_Info(pat_ind).NoTreatment = Clic_tbl.No_treatment(ti);
-		Patient_Info(pat_ind).Platform = Clic_tbl.Platform{ti};
-		Patient_Info(pat_ind).DeathTime = floor(str2double(Clic_tbl.Death_time{ti}) * 365);
-		Patient_Info(pat_ind).DeathEvent = str2double(Clic_tbl.Death_event_1_death_{ti});
-		Patient_Info(pat_ind).DeathFromBC = str2double(Clic_tbl.DeathFromBC{ti});
-		Patient_Info(pat_ind).SEER_500 = Clic_tbl.SEER_500(ti);
-		Patient_Info(pat_ind).EREndocrine = Clic_tbl.ER_endocrine(ti);
-		Patient_Info(pat_ind).TripleNegative = Clic_tbl.Triple_negative(ti);
+for pi=1:n_pat
+	if Clic_Map.isKey(Patient_ID{pi})
+		pat_ind = Clic_Map(Patient_ID{pi});
+		if ~isequal(Patient_Info(pi).PatientID, Clic_tbl.AffyID{pat_ind}), error(); end
+		Patient_Info(pi).StudyGSE = Clic_tbl.DataSet{pat_ind};
+		Patient_Info(pi).PatientOrgID = Clic_tbl.PatientID{pat_ind};
+		Patient_Info(pi).ERStatus = str2double(Clic_tbl.ERStatus{pat_ind});
+		Patient_Info(pi).ERStatusArray = Clic_tbl.ER_status_array(pat_ind);
+		Patient_Info(pi).ESR1ExpressionOnArray = str2double(Clic_tbl.ESR1ExpressionOnArray(pat_ind));
+		Patient_Info(pi).PGRStatus = nan;
+		Patient_Info(pi).Her2StatusOnArray = Clic_tbl.HER2_status_array(pat_ind);
+		Patient_Info(pi).Her2ExpressionOnArray = Clic_tbl.HER2ExpressionOnArray(pat_ind);
+		Patient_Info(pi).TumorSize = Clic_tbl.Size(pat_ind);
+		Patient_Info(pi).LymphNodeStatus = str2double(Clic_tbl.LymphNodeStatus{pat_ind});
+		Patient_Info(pi).Age = str2double(Clic_tbl.Age{pat_ind});
+		Patient_Info(pi).Grade = str2double(Clic_tbl.Grade{pat_ind});
+		Patient_Info(pi).DMFSTime = floor(str2double(Clic_tbl.DMFS_time{pat_ind}) * 365);
+		Patient_Info(pi).DMFSEvent = str2double(Clic_tbl.DMFS_event_1_relapse_{pat_ind});
+		Patient_Info(pi).RFSTime = floor(str2double(Clic_tbl.RFS_time{pat_ind}) * 365);
+		Patient_Info(pi).RFSEvent = str2double(Clic_tbl.RFS_event_1_relapse_{pat_ind});
+		Patient_Info(pi).OSTime = nan;
+		Patient_Info(pi).OSEvent = nan;
+		Patient_Info(pi).Tissue = '';
+		Patient_Info(pi).Treatment = Clic_tbl.Treatment{pat_ind};
+		Patient_Info(pi).NoTreatment = Clic_tbl.No_treatment(pat_ind);
+		Patient_Info(pi).Platform = Clic_tbl.Platform{pat_ind};
+		Patient_Info(pi).DeathTime = floor(str2double(Clic_tbl.Death_time{pat_ind}) * 365);
+		Patient_Info(pi).DeathEvent = str2double(Clic_tbl.Death_event_1_death_{pat_ind});
+		Patient_Info(pi).DeathFromBC = str2double(Clic_tbl.DeathFromBC{pat_ind});
+		Patient_Info(pi).SEER_500 = Clic_tbl.SEER_500(pat_ind);
+		Patient_Info(pi).EREndocrine = Clic_tbl.ER_endocrine(pat_ind);
+		Patient_Info(pi).TripleNegative = Clic_tbl.Triple_negative(pat_ind);
+	else
+		%% Filling up the empty items
+		for fn=fieldnames(Patient_Info(pi))'
+			if numel(Patient_Info(pi).(fn{1}))==0
+				if isnumeric(Patient_Info(1).(fn{1}))
+					Patient_Info(pi).(fn{1}) = nan;
+				else
+					Patient_Info(pi).(fn{1}) = '';
+				end
+			end
+		end
 	end
 end
 % if ~isequal(Patient_ID, {Patient_Info.PatientID}')
@@ -114,6 +127,7 @@ for pi=1:numel(Clic_PatID)
 		Patient_Info(pat_ind).Unknown = Clic_Unknown(pi,:);
 	end
 end
+Patient_Info = struct2table(Patient_Info);
 
 %% Saving Data
 sav_name = 'ACES_Combined.mat';
