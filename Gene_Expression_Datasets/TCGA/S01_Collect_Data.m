@@ -37,6 +37,7 @@ if ~isequal(Patient_ID, Patient_Info.sampleID)
 	error();
 end
 Patient_Info.Platform = repmat({'AgilentG4502A_07_3'}, size(Patient_Info,1), 1);
+Patient_Info.Subtype = repmat({'NA'}, size(Patient_Info,1), 1);
 
 %% Replacing nans with median
 for gi=1:n_gene

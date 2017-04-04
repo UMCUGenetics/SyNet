@@ -8,7 +8,7 @@ Header_List = {
 	'SurvivalTime'			''								''					''						''
 	'Prognostic_Status'		'AcesPatientClassLabel'			''					''						''
 	'Age'					'Age'							'Age'				'age_at_diagnosis'		'Age_at_Initial_Pathologic_Diagnosis_nature2012'
-	'Subtype'				'CancerSubtype'					''					'Pam50Subtype'			''
+	'Subtype'				'CancerSubtype'					'Subtype'			'Pam50Subtype'			'Subtype'
 	'ERStatus'				'ERStatus'						'ERStatus'			'ER_Expr'				'ER_Status_nature2012'
 	'Her2Status'			'Her2StatusOnArray'				'Her2Status'		'Her2_Expr'				'HER2_Final_Status_nature2012'
 	'PGRStatus'				'PGRStatus'						'PGRStatus'			'PR_Expr'				'PR_Status_nature2012'
@@ -22,7 +22,7 @@ Header_List = {
 	'DMFSTime'				'DMFSTime'						'DMFSTime'			''						''
 	'OSEvent'				'OSEvent'						'OSEvent'			'os_event'				'OS_event_nature2012'
 	'OSTime'				'OSTime'						'OSTime'			'survival_time'			'OS_Time_nature2012'
-	'PatientID'				'PatientID'						'PatientID'			'patient_id'			'patient_id'
+	'PatientID'				'PatientID'						'PatientID'			'patient_id'			'sampleID'
 	'Treatment'				'Treatment'						'Treatment'			'Treatment'				'history_of_neoadjuvant_treatment'
 	'StudyName'				'StudyName'						'StudyName'			''						''
 	'StudyGSE'				'StudyGSE'						''					''						''
@@ -38,8 +38,10 @@ data_aces.Gene_Entrez = strrep(data_aces.Gene_Entrez, 'Entrez_', '');
 %% Loading HaibeKains data
 fprintf('Reading Haibe data.\n');
 data_haib = load('../HaibeKains/HaibeKains_Combined.mat');
+is_dup = data_haib.Patient_Info.IsDuplicated == 1;
+data_haib.Patient_Info(is_dup, :) = [];
+data_haib.Gene_Expression(is_dup, :) = [];
 data_haib.Patient_Info = SelectFromTable(data_haib.Patient_Info, Header_List(:,3), Header_List(:,1));
-data_haib.Patient_Info = ReplaceNAN(data_haib.Patient_Info, Header_List(4,1), {'NA'});
 data_haib.Patient_Info = CastFields2Num(data_haib.Patient_Info, Header_List([3 5:10 12:17],1));
 data_haib.Patient_Info = getSurvivalTime(data_haib.Patient_Info);
 data_haib.Patient_Info.Prognostic_Status = data_haib.Patient_Info.SurvivalTime <= 1825;
@@ -49,27 +51,11 @@ fprintf('Reading Metabric data.\n');
 data_meta = load('../METABRIC/METABRIC_Combined.mat');
 data_meta.Patient_Info = SelectFromTable(data_meta.Patient_Info, Header_List(:,4), Header_List(:,1));
 data_meta.Patient_Info = RepFieldsWithValue(data_meta.Patient_Info, Header_List(5:7,1), {'\+' '\-'}, {'1' '0'});
+data_meta.Patient_Info = CastFields2Num(data_meta.Patient_Info, Header_List(5:7,1));
 data_meta.Patient_Info.SurvivalTime = data_meta.Patient_Info.OSTime;
 data_meta.Patient_Info.Prognostic_Status = data_meta.Patient_Info.SurvivalTime <= 1825;
-
-%% Load TCGA data
-fprintf('Reading TCGA data.\n');
-data_tcga = load('../TCGA/TCGA_Combined.mat');
-data_tcga.Patient_Info = SelectFromTable(data_tcga.Patient_Info, Header_List(:,5), Header_List(:,1));
-data_tcga.Patient_Info = ReplaceNAN(data_tcga.Patient_Info, Header_List([4],1), {'NA'});
-data_tcga.Patient_Info = ReplaceNAN(data_tcga.Patient_Info, Header_List(11,1), {'AgilentG4502A_07_3'});
-data_tcga.Patient_Info = RepFieldsWithValue(data_tcga.Patient_Info, Header_List([5:7 9],1), {'Positive' 'Negative' 'Equivocal'}, {'1' '0' 'NA'});
-% data_tcga.Patient_Info.Age = str2double(data_tcga.Patient_Info.Age);
-data_tcga.Patient_Info = getSurvivalTime(data_tcga.Patient_Info);
-n_gene = numel(data_tcga.Gene_Name);
-data_tcga.Gene_Entrez = cell(n_gene, 1);
-for gi=1:n_gene
-	if Syn2Ent.isKey(data_tcga.Gene_Name{gi})
-		data_tcga.Gene_Entrez{gi} = Syn2Ent(data_tcga.Gene_Name{gi});
-	else
-		data_tcga.Gene_Entrez{gi} = '';
-	end
-end
+data_meta.Patient_Info.StudyName = repmat({'METABRIC'}, size(data_meta.Patient_Info,1), 1);
+data_meta.Patient_Info.StudyGSE = repmat({'NA'}, size(data_meta.Patient_Info,1), 1);
 
 %% Converting Entrez to Hugo GeneName
 % ! wget ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz
@@ -87,6 +73,29 @@ for si=1:numel(f_cell{3})
 		if ~strcmp(gene_lst{gi}, '-') && ~Syn2Ent.isKey(gene_lst{gi}) % If gene has an Entrez already, we keep it
 			Syn2Ent(gene_lst{gi}) = f_cell{1}{si};
 		end
+	end
+end
+
+%% Load TCGA data
+fprintf('Reading TCGA data.\n');
+data_tcga = load('../TCGA/TCGA_Combined.mat');
+data_tcga.Patient_Info = SelectFromTable(data_tcga.Patient_Info, Header_List(:,5), Header_List(:,1));
+data_tcga.Patient_Info = RepFieldsWithValue(data_tcga.Patient_Info, Header_List([5:7 9],1), {'Positive' 'Negative' 'Equivocal'}, {'1' '0' 'NA'});
+data_tcga.Patient_Info = CastFields2Num(data_tcga.Patient_Info, Header_List([5:7 9],1));
+% data_tcga.Patient_Info.Age = str2double(data_tcga.Patient_Info.Age);
+data_tcga.Patient_Info = getSurvivalTime(data_tcga.Patient_Info);
+is_normal = ~cellfun('isempty', regexp(data_tcga.Patient_Info.PatientID, '-11$'));
+data_tcga.Patient_Info(is_normal, :) = [];
+data_tcga.Gene_Expression(is_normal, :) = [];
+data_tcga.Patient_Info.StudyName = repmat({'TCGA'}, size(data_tcga.Patient_Info,1), 1);
+data_tcga.Patient_Info.StudyGSE = repmat({'NA'}, size(data_tcga.Patient_Info,1), 1);
+n_gene = numel(data_tcga.Gene_Name);
+data_tcga.Gene_Entrez = cell(n_gene, 1);
+for gi=1:n_gene
+	if Syn2Ent.isKey(data_tcga.Gene_Name{gi})
+		data_tcga.Gene_Entrez{gi} = Syn2Ent(data_tcga.Gene_Name{gi});
+	else
+		data_tcga.Gene_Entrez{gi} = '';
 	end
 end
 
@@ -152,15 +161,15 @@ for ti=1:size(tbl, 1)
 end
 end
 
-function Gene_Expression = UnifyExpression(data, Gene_Entrez)
+function Gene_Expression = UnifyExpression(tbl, Gene_Entrez)
 n_targene = numel(Gene_Entrez);
-[n_pat, n_srcgene] = size(data.Gene_Expression);
-Gene_Map = containers.Map(data.Gene_Entrez, 1:n_srcgene);
+[n_pat, n_srcgene] = size(tbl.Gene_Expression);
+Gene_Map = containers.Map(tbl.Gene_Entrez, 1:n_srcgene);
 Gene_Expression = nan(n_pat, n_targene);
 for gi=1:n_targene
 	if Gene_Map.isKey(Gene_Entrez{gi})
 		gene_ind = Gene_Map(Gene_Entrez{gi});
-		Gene_Expression(:, gi) = data.Gene_Expression(:, gene_ind);
+		Gene_Expression(:, gi) = tbl.Gene_Expression(:, gene_ind);
 	end
 end
 end
