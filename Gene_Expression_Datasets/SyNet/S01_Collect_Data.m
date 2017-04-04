@@ -25,7 +25,6 @@ Header_List = {
 	'PatientID'				'PatientID'						'PatientID'			'patient_id'			'sampleID'
 	'Treatment'				'Treatment'						'Treatment'			'Treatment'				'history_of_neoadjuvant_treatment'
 	'StudyName'				'StudyName'						'StudyName'			''						''
-	'StudyGSE'				'StudyGSE'						''					''						''
 };
 
 %% Loading ACES data
@@ -41,6 +40,11 @@ data_haib = load('../HaibeKains/HaibeKains_Combined.mat');
 is_dup = data_haib.Patient_Info.IsDuplicated == 1;
 data_haib.Patient_Info(is_dup, :) = [];
 data_haib.Gene_Expression(is_dup, :) = [];
+many_nan = sum(isnan(data_haib.Gene_Expression),1)/size(data_haib.Gene_Expression,1) > 0.4;
+data_haib.Gene_Expression(:, many_nan) = [];
+data_haib.Gene_Entrez(many_nan) = [];
+data_haib.Prob_ID(many_nan) = [];
+data_haib.Gene_Name(many_nan) = [];
 data_haib.Patient_Info = SelectFromTable(data_haib.Patient_Info, Header_List(:,3), Header_List(:,1));
 data_haib.Patient_Info = CastFields2Num(data_haib.Patient_Info, Header_List([3 5:10 12:17],1));
 data_haib.Patient_Info = getSurvivalTime(data_haib.Patient_Info);
@@ -55,7 +59,6 @@ data_meta.Patient_Info = CastFields2Num(data_meta.Patient_Info, Header_List(5:7,
 data_meta.Patient_Info.SurvivalTime = data_meta.Patient_Info.OSTime;
 data_meta.Patient_Info.Prognostic_Status = data_meta.Patient_Info.SurvivalTime <= 1825;
 data_meta.Patient_Info.StudyName = repmat({'METABRIC'}, size(data_meta.Patient_Info,1), 1);
-data_meta.Patient_Info.StudyGSE = repmat({'NA'}, size(data_meta.Patient_Info,1), 1);
 
 %% Converting Entrez to Hugo GeneName
 % ! wget ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz
@@ -88,7 +91,6 @@ is_normal = ~cellfun('isempty', regexp(data_tcga.Patient_Info.PatientID, '-11$')
 data_tcga.Patient_Info(is_normal, :) = [];
 data_tcga.Gene_Expression(is_normal, :) = [];
 data_tcga.Patient_Info.StudyName = repmat({'TCGA'}, size(data_tcga.Patient_Info,1), 1);
-data_tcga.Patient_Info.StudyGSE = repmat({'NA'}, size(data_tcga.Patient_Info,1), 1);
 n_gene = numel(data_tcga.Gene_Name);
 data_tcga.Gene_Entrez = cell(n_gene, 1);
 for gi=1:n_gene
@@ -110,32 +112,45 @@ Expr_tcga = UnifyExpression(data_tcga, data_syne.Gene_Entrez);
 data_syne.Gene_Expression = [Expr_aces; Expr_haib; Expr_meta; Expr_tcga];
 data_syne.Patient_Info = [data_aces.Patient_Info; data_haib.Patient_Info; data_meta.Patient_Info; data_tcga.Patient_Info];
 
-%% Loading clinical data
-Item_Info = readtable(fn_clic, 'HeaderLines', 0, 'TreatAsEmpty', 'NA');
-n_item = size(Item_Info.sampleID, 1);
-Item_Map = containers.Map(Item_Info.sampleID, 1:n_item);
-Patient_Info = table();
+%% Saving combined data
+% sav_name = 'SyNet_Combined.mat';
+% fprintf('Saving combined data in [%s]\n', sav_name);
+% save(sav_name, '-struct', 'data_syne');
+
+%% Replacing nans with median and normalize
+fprintf('Normalize data per study ...\n');
+data_syne.Gene_Expression = NormalizePerStudy(data_syne.Gene_Expression, data_syne.Patient_Info);
+% fprintf('Replace nans by median ...\n');
+% if any(isnan(data_syne.Gene_Expression(:))), error(); end
+
+%% Export data to csv
+fexpr_name = 'SyNet_Combined_Expression.csv';
+fprintf('Saving data in [%s]: ', fexpr_name);
+[n_pat, n_gene] = size(data_syne.Gene_Expression);
+fid = fopen(fexpr_name, 'w');
+cid = fopen('SyNet_Combined_Clinical.csv', 'w');
+fprintf(fid, '%s\n', strjoin(['Patient_ID;Study_Name'; data_syne.Gene_Entrez], '\t'));
+frmt_str = ['%s\t' repmat('%0.5f\t', 1, n_gene-1) '%0.5f\n'];
 for pi=1:n_pat
-	item_ind = Item_Map(Patient_ID{pi});
-	Patient_Info(pi, :) = Item_Info(item_ind, :);
+	showprogress(pi, n_pat);
+	row_name = [data_syne.Patient_Info.PatientID{pi} ';' data_syne.Patient_Info.StudyName{pi}];
+% 	fprintf(fid, frmt_str, row_name, data_syne.Gene_Expression(pi,:));
+	fprintf(cid, '%s\t%d\t%d\t%s\t%s\t%s\n', row_name, ...
+												floor(data_syne.Patient_Info.SurvivalTime(pi)), ...
+												data_syne.Patient_Info.Prognostic_Status(pi), ...
+												data_syne.Patient_Info.Subtype{pi}, ...
+												data_syne.Patient_Info.Platform{pi}, ...
+												data_syne.Patient_Info.StudyName{pi});
 end
-if ~isequal(Patient_ID, Patient_Info.sampleID)
-	error();
-end
+fclose(fid);
+fclose(cid);
 
-%% Replacing nans with median
-for gi=1:n_gene
-	is_nan = isnan(Gene_Expression(:, gi));
-	if any(is_nan)
-		Gene_Expression(is_nan, gi) = median(Gene_Expression(~is_nan, gi));
-	end
-end
-if any(isnan(Gene_Expression(:))), error(); end
+%% Test correctness
+% tmp_expr = table2array(readtable(sav_name, 'HeaderLines', 0, 'ReadVariableNames', 1, 'ReadRowNames', 1)); % , 'TreatAsEmpty', 'NA'
+% sum(sum(abs(tmp_expr(1:100,1:100) - round(data_syne.Gene_Expression(1:100,1:100),5))))
 
-%% Saving Data
-sav_name = 'TCGA_Combined.mat';
-fprintf('Saving data in [%s]\n', sav_name);
-save(sav_name, 'Gene_Expression', 'Patient_Info', 'Gene_Name');
+%% Use Combat (in R) to remove batch effects
+
 
 %% ///////////////////// Functions
 function out_tbl = SelectFromTable(in_tbl, SrcHeader, TarHeader)
@@ -201,5 +216,30 @@ for fi=1:numel(field_lst)
 		error();
 	end
 	tbl.(field_lst{fi}) = repmat(str, size(tbl,1), 1);
+end
+end
+
+function Gene_Expression = NormalizePerStudy(Gene_Expression, Patient_Info)
+n_gene = size(Gene_Expression, 2);
+study_lst = unique(Patient_Info.StudyName, 'stable');
+for si=1:numel(study_lst)
+	fprintf('Normalizing [%s]\n', study_lst{si});
+	in_study = strcmp(Patient_Info.StudyName, study_lst{si});
+	n_pat = sum(in_study);
+	n_nan = 0;
+	for gi=1:n_gene
+		is_nan = in_study & isnan(Gene_Expression(:, gi));
+		if any(is_nan)
+			is_val = in_study & ~isnan(Gene_Expression(:, gi));
+			if sum(is_nan)/n_pat > 0.75
+				n_nan = n_nan + 1;
+			end
+			Gene_Expression(is_nan, gi) = median(Gene_Expression(is_val, gi));
+		end
+	end
+	if n_nan>0
+		fprintf('Warning: Study [%s] has too many nans [%d, %0.1f%%]\n', study_lst{si}, n_nan, n_nan*100/n_gene);
+	end
+	Gene_Expression(in_study,:) = zscore(Gene_Expression(in_study,:));
 end
 end
