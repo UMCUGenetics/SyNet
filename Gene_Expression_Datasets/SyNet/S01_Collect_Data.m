@@ -122,7 +122,7 @@ data_syne.Gene_Expression = [Expr_aces; Expr_haib; Expr_meta; Expr_tcga];
 data_syne.Patient_Info = [data_aces.Patient_Info; data_haib.Patient_Info; data_meta.Patient_Info; data_tcga.Patient_Info];
 
 %% Saving combined data
-sav_name = 'SyNet_Combined_Par.mat';
+sav_name = 'SyNet_Combined_Random.mat';
 fprintf('Saving combined data in [%s]\n', sav_name);
 save(sav_name, '-struct', 'data_syne');
 
@@ -133,7 +133,7 @@ data_syne.Gene_Expression = NormalizePerStudy(data_syne.Gene_Expression, data_sy
 % if any(isnan(data_syne.Gene_Expression(:))), error(); end
 
 %% Saving normalized data
-sav_name = 'SyNet_Normalized_Par.mat';
+sav_name = 'SyNet_Normalized_Random.mat';
 fprintf('Saving combined data in [%s]\n', sav_name);
 save(sav_name, '-struct', 'data_syne');
 
@@ -144,7 +144,7 @@ data_syne.Gene_Expression(invalid_survival, :) = [];
 [n_pat, n_gene] = size(data_syne.Patient_Info);
 
 %% Export data to csv
-fexpr_name = 'SyNet_Normalized_Expression_Par.csv';
+fexpr_name = 'SyNet_Normalized_Expression_Random.csv';
 fprintf('Saving data in [%s]: ', fexpr_name);
 fid = fopen(fexpr_name, 'w');
 pat_id = strcat(data_syne.Patient_Info.PatientID, ';', data_syne.Patient_Info.StudyName);
@@ -156,7 +156,7 @@ for gi=1:n_gene
 end
 fclose(fid);
 
-fid = fopen('SyNet_Normalized_Clinical_Par.csv', 'w');
+fid = fopen('SyNet_Normalized_Clinical_Random.csv', 'w');
 fprintf(fid, '%s\n', strjoin({'Patient_ID', 'StudyName', 'Platform', 'Prognostic_Status', 'SurvivalTime', 'Subtype'}, '\t'));
 for pi=1:n_pat
 	showprogress(pi, n_pat);
@@ -231,15 +231,15 @@ function Gene_Expression = NormalizePerStudy(Gene_Expression, StudyName)
 n_gene = size(Gene_Expression, 2);
 
 %% Computing correlation
-fprintf('Calculating pairwise correlation for [%d] genes: ', n_gene);
-cr_mat = zeros(n_gene);
-parfor gi=1:n_gene
-	% showprogress(gi, n_gene, 200);
-	fprintf('%d\n', gi);
-	cr_mat(gi, :) = corr(Gene_Expression(:,gi), Gene_Expression, 'type', 'Spearman', 'rows', 'pairwise');
-end
-cr_mat(1:n_gene+1:end) = -inf;
-[~, cr_top] = sort(cr_mat, 2, 'Descend');
+% fprintf('Calculating pairwise correlation for [%d] genes: ', n_gene);
+% cr_mat = zeros(n_gene);
+% parfor gi=1:n_gene
+% 	% showprogress(gi, n_gene, 200);
+% 	fprintf('%d\n', gi);
+% 	cr_mat(gi, :) = corr(Gene_Expression(:,gi), Gene_Expression, 'type', 'Spearman', 'rows', 'pairwise');
+% end
+% cr_mat(1:n_gene+1:end) = -inf;
+% [~, cr_top] = sort(cr_mat, 2, 'Descend');
 
 %% Normalization
 study_lst = unique(StudyName, 'stable');
@@ -262,7 +262,8 @@ for si=1:numel(study_lst)
 % 				else
 % 					fprintf('Gene [%d] has top correlating pairs already.\n', gi);
 % 				end
-				Gene_Expression(is_nan, gi) = mean(Gene_Expression(is_nan, cr_top(gi, 1:25)), 2, 'omitnan');
+% 				Gene_Expression(is_nan, gi) = mean(Gene_Expression(is_nan, cr_top(gi, 1:25)), 2, 'omitnan');
+				Gene_Expression(is_nan, gi) = mean(Gene_Expression(is_nan, randperm(n_gene, 25)), 2, 'omitnan');
 				n_nan = n_nan + 1;
 			else
 				Gene_Expression(is_nan, gi) = median(Gene_Expression(is_val, gi));
