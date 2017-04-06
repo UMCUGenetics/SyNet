@@ -1,5 +1,6 @@
 
 %% Initialization
+addpath('../../../../Useful_Sample_Codes/ShowProgress/');
 clc;
 clear;
 data_lst = {'ACES' 'HaibeKains' 'METABRIC' 'TCGA'};
@@ -32,7 +33,9 @@ fprintf('Reading ACES data.\n');
 data_aces = load('../ACES/ACES_Combined.mat');
 data_aces.Patient_Info = SelectFromTable(data_aces.Patient_Info, Header_List(:,2), Header_List(:,1));
 data_aces.Patient_Info.SurvivalTime = data_aces.Patient_Info.RFSTime;
+data_aces.Patient_Info.Prognostic_Status = double(data_aces.Patient_Info.Prognostic_Status);
 data_aces.Gene_Entrez = strrep(data_aces.Gene_Entrez, 'Entrez_', '');
+data_aces.Patient_Info.Source_Study = repmat({'ACES'}, size(data_aces.Patient_Info, 1), 1);
 
 %% Loading HaibeKains data
 fprintf('Reading Haibe data.\n');
@@ -48,7 +51,9 @@ data_haib.Gene_Name(many_nan) = [];
 data_haib.Patient_Info = SelectFromTable(data_haib.Patient_Info, Header_List(:,3), Header_List(:,1));
 data_haib.Patient_Info = CastFields2Num(data_haib.Patient_Info, Header_List([3 5:10 12:17],1));
 data_haib.Patient_Info = getSurvivalTime(data_haib.Patient_Info);
-data_haib.Patient_Info.Prognostic_Status = data_haib.Patient_Info.SurvivalTime <= 1825;
+data_haib.Patient_Info.Prognostic_Status = double(data_haib.Patient_Info.SurvivalTime <= 1825);
+data_haib.Patient_Info.Prognostic_Status(isnan(data_haib.Patient_Info.SurvivalTime)) = nan;
+data_haib.Patient_Info.Source_Study = repmat({'HAIBE'}, size(data_haib.Patient_Info, 1), 1);
 
 %% Loading METABRIC data
 fprintf('Reading Metabric data.\n');
@@ -57,8 +62,10 @@ data_meta.Patient_Info = SelectFromTable(data_meta.Patient_Info, Header_List(:,4
 data_meta.Patient_Info = RepFieldsWithValue(data_meta.Patient_Info, Header_List(5:7,1), {'\+' '\-'}, {'1' '0'});
 data_meta.Patient_Info = CastFields2Num(data_meta.Patient_Info, Header_List(5:7,1));
 data_meta.Patient_Info.SurvivalTime = data_meta.Patient_Info.OSTime;
-data_meta.Patient_Info.Prognostic_Status = data_meta.Patient_Info.SurvivalTime <= 1825;
+data_meta.Patient_Info.Prognostic_Status = double(data_meta.Patient_Info.SurvivalTime <= 1825);
+data_meta.Patient_Info.Prognostic_Status(isnan(data_meta.Patient_Info.SurvivalTime)) = nan;
 data_meta.Patient_Info.StudyName = repmat({'METABRIC'}, size(data_meta.Patient_Info,1), 1);
+data_meta.Patient_Info.Source_Study = repmat({'METABRIC'}, size(data_meta.Patient_Info, 1), 1);
 
 %% Converting Entrez to Hugo GeneName
 % ! wget ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz
@@ -86,11 +93,13 @@ data_tcga.Patient_Info = SelectFromTable(data_tcga.Patient_Info, Header_List(:,5
 data_tcga.Patient_Info = RepFieldsWithValue(data_tcga.Patient_Info, Header_List([5:7 9],1), {'Positive' 'Negative' 'Equivocal'}, {'1' '0' 'NA'});
 data_tcga.Patient_Info = CastFields2Num(data_tcga.Patient_Info, Header_List([5:7 9],1));
 data_tcga.Patient_Info = getSurvivalTime(data_tcga.Patient_Info);
-data_tcga.Patient_Info.Prognostic_Status = data_tcga.Patient_Info.SurvivalTime <= 1825;
+data_tcga.Patient_Info.Prognostic_Status = double(data_tcga.Patient_Info.SurvivalTime <= 1825);
+data_tcga.Patient_Info.Prognostic_Status(isnan(data_tcga.Patient_Info.SurvivalTime)) = nan;
 is_normal = ~cellfun('isempty', regexp(data_tcga.Patient_Info.PatientID, '-11$'));
 data_tcga.Patient_Info(is_normal, :) = [];
 data_tcga.Gene_Expression(is_normal, :) = [];
 data_tcga.Patient_Info.StudyName = repmat({'TCGA'}, size(data_tcga.Patient_Info,1), 1);
+data_tcga.Patient_Info.Source_Study = repmat({'TCGA'}, size(data_tcga.Patient_Info, 1), 1);
 n_gene = numel(data_tcga.Gene_Name);
 data_tcga.Gene_Entrez = cell(n_gene, 1);
 for gi=1:n_gene
@@ -120,13 +129,22 @@ save(sav_name, '-struct', 'data_syne');
 %% Replacing nans with median and normalize
 fprintf('Normalize data per study ...\n');
 data_syne.Gene_Expression = NormalizePerStudy(data_syne.Gene_Expression, data_syne.Patient_Info.StudyName);
-fprintf('Replacing nans by median ...\n');
-[n_pat, n_gene] = size(data_syne.Gene_Expression);
-data_syne.Gene_Expression = NormalizePerStudy(data_syne.Gene_Expression, repmat({'All'}, n_pat, 1));
-if any(isnan(data_syne.Gene_Expression(:))), error(); end
+% data_syne.Gene_Expression = NormalizePerStudy(data_syne.Gene_Expression, repmat({'All'}, n_pat, 1));
+% if any(isnan(data_syne.Gene_Expression(:))), error(); end
+
+%% Saving normalized data
+sav_name = 'SyNet_Normalized.mat';
+fprintf('Saving combined data in [%s]\n', sav_name);
+save(sav_name, '-struct', 'data_syne');
+
+%% Remove patients with no prognostic_status
+invalid_survival = isnan(data_syne.Patient_Info.Prognostic_Status);
+data_syne.Patient_Info(invalid_survival, :) = [];
+data_syne.Gene_Expression(invalid_survival, :) = [];
+[n_pat, n_gene] = size(data_syne.Patient_Info);
 
 %% Export data to csv
-fexpr_name = 'SyNet_Combined_Expression.csv';
+fexpr_name = 'SyNet_Normalized_Expression.csv';
 fprintf('Saving data in [%s]: ', fexpr_name);
 fid = fopen(fexpr_name, 'w');
 pat_id = strcat(data_syne.Patient_Info.PatientID, ';', data_syne.Patient_Info.StudyName);
@@ -138,7 +156,7 @@ for gi=1:n_gene
 end
 fclose(fid);
 
-fid = fopen('SyNet_Combined_Clinical.csv', 'w');
+fid = fopen('SyNet_Normalized_Clinical.csv', 'w');
 fprintf(fid, '%s\n', strjoin({'Patient_ID', 'StudyName', 'Platform', 'Prognostic_Status', 'SurvivalTime', 'Subtype'}, '\t'));
 for pi=1:n_pat
 	showprogress(pi, n_pat);
@@ -152,16 +170,10 @@ for pi=1:n_pat
 end
 fclose(fid);
 
-%% Test correctness
-% tmp_expr = table2array(readtable(sav_name, 'HeaderLines', 0, 'ReadVariableNames', 1, 'ReadRowNames', 1)); % , 'TreatAsEmpty', 'NA'
-% sum(sum(abs(tmp_expr(1:100,1:100) - round(data_syne.Gene_Expression(1:100,1:100),5))))
-
-%% Use Combat (in R) to remove batch effects
-
-
 %% ///////////////////// Functions
 function out_tbl = SelectFromTable(in_tbl, SrcHeader, TarHeader)
 n_row = size(in_tbl, 1);
+out_tbl = table();
 for hi=1:numel(SrcHeader)
 	if strcmp(SrcHeader{hi}, '')
 		out_tbl(:, TarHeader{hi}) = table(nan(n_row, 1));
@@ -218,6 +230,8 @@ end
 function Gene_Expression = NormalizePerStudy(Gene_Expression, StudyName)
 n_gene = size(Gene_Expression, 2);
 study_lst = unique(StudyName, 'stable');
+cr_top = nan(n_gene);
+cr_val = false(n_gene, 1);
 for si=1:numel(study_lst)
 	fprintf('Normalizing [%s]\n', study_lst{si});
 	in_study = strcmp(StudyName, study_lst{si});
@@ -227,8 +241,17 @@ for si=1:numel(study_lst)
 		is_nan = in_study & isnan(Gene_Expression(:, gi));
 		if any(is_nan)
 			is_val = in_study & ~isnan(Gene_Expression(:, gi));
-			if sum(is_nan)/n_pat > 0.95
-				Gene_Expression(is_nan, gi) = mean(Gene_Expression(is_nan, randperm(n_gene, 50)), 2, 'omitnan');
+			if sum(is_nan)/n_pat > 0.9
+				if cr_val(gi)==0
+					fprintf('Computing top correlating pairs for [%d] gene.\n', gi);
+					cr_vec = corr(Gene_Expression(:,gi), Gene_Expression, 'type', 'Spearman', 'rows', 'pairwise');
+					cr_vec(gi) = -inf;
+					[~, cr_top(gi,:)] = sort(cr_vec, 'Descend');
+					cr_val(gi) = 1;
+				else
+					fprintf('Gene [%d] has top correlating pairs already.\n', gi);
+				end
+				Gene_Expression(is_nan, gi) = mean(Gene_Expression(is_nan, cr_top(gi, 1:25)), 2, 'omitnan');
 				n_nan = n_nan + 1;
 			else
 				Gene_Expression(is_nan, gi) = median(Gene_Expression(is_val, gi));
@@ -241,6 +264,6 @@ for si=1:numel(study_lst)
 	if min(std(Gene_Expression(in_study,:))) < 0.0001
 		fprintf('Warning: Some genes have small std.\n');
 	end
-	Gene_Expression(in_study,:) = zscore(Gene_Expression(in_study,:));
+	Gene_Expression(in_study,:) = quantilenorm(Gene_Expression(in_study,:));
 end
 end
