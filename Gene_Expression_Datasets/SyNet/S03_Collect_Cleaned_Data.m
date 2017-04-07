@@ -6,13 +6,13 @@ clear;
 
 %% Load raw data
 fprintf('Loading raw data ...\n');
-data_norm = load('SyNet_Normalized.mat');
+data_norm = load('SyNet_Normalized_Par.mat');
 
 %% Load batch removed data
 fprintf('Loading batch removed cvs ...\n');
-fid = fopen('SyNet_Normalized_Expression_Corrected.csv', 'r');
-Patient_lst = regexp(fgetl(fid), '\t', 'split');
-n_pat = numel(Patient_lst);
+fid = fopen('SyNet_Normalized_Expression_Corrected_Par.csv', 'r');
+Header_lst = regexp(fgetl(fid), '\t', 'split')';
+n_pat = numel(Header_lst);
 frmt_str = ['%s' repmat('%f', 1, n_pat)];
 Crr_Expr = [];
 Gene_Entrez = {};
@@ -42,18 +42,37 @@ Ent2Name = containers.Map(f_cell{1}, f_cell{2});
 for gi=1:n_gene
 	if Ent2Name.isKey(Gene_Entrez{gi})
 		Gene_Name{gi} = Ent2Name(Gene_Entrez{gi});
+	else
+		error();
 	end
 end
 
+%% Select included patients
+fid = fopen('SyNet_Normalized_Expression_Par.csv', 'r');
+Header_lst = regexp(fgetl(fid), '\t', 'split')';
+n_pat = numel(Header_lst);
+fclose(fid);
+Header_lst = regexprep(Header_lst, ';[^;]+$', '');
+
+data_crr.Patient_Info = data_norm.Patient_Info;
+invalid_survival = isnan(data_crr.Patient_Info.Prognostic_Status);
+data_crr.Patient_Info(invalid_survival, :) = [];
+if ~isequal(Header_lst, data_crr.Patient_Info.PatientID)
+	error();
+end
+
+is_in = ismember(data_crr.Patient_Info.Source_Study, {'METABRIC' 'TCGA'});
+is_in(1:1616) = 1;
+data_crr.Patient_Info = data_crr.Patient_Info(is_in,:);
+
 %% Indexify studies
-[Study_Name, ~, Study_Index] = unique(data_norm.Patient_Info.StudyName, 'Stable');
-Study_Name = strcat(Study_Name, [repmat({'-ACES'},12,1); repmat({'-HAIBE'},36,1); {''}; {''}]);
+[Study_Name, ~, Study_Index] = unique(data_crr.Patient_Info.StudyName, 'Stable');
+Study_Name(1:12) = strcat('ACES;', Study_Name(1:12));
 
 %% Saving data
 data_crr.Gene_Expression = Crr_Expr;
 data_crr.Gene_Entrez = Gene_Entrez;
-data_crr.Patient_Info = data_norm.Patient_Info;
-data_crr.Patient_Label = double(data_norm.Patient_Info.Prognostic_Status);
+data_crr.Patient_Label = double(data_crr.Patient_Info.Prognostic_Status);
 data_crr.Gene_Name = Gene_Name;
 data_crr.Study_Name = Study_Name;
 data_crr.Study_Index = Study_Index;

@@ -3,7 +3,7 @@ clear;
 
 %% Initialization
 data_lst = {
-	'../../Gene_Expression_Datasets/SyNet/SyNet_Normalized.mat'
+	'../../Gene_Expression_Datasets/SyNet/SyNet_Normalized_Par.mat'
 	'../../Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat'
 };
 data_name = {'Normalized' 'BatchCorrected'};
@@ -18,7 +18,18 @@ for di=1:n_data
 	ge_path = data_lst{di};
 	fprintf('Loading gene expression in [%s]\n', ge_path);
 	load(ge_path, 'Gene_Expression', 'Patient_Info');
-	[Study_Name, ~, Study_Index] = unique(strcat(Patient_Info.StudyName, '-', Patient_Info.Source_Study), 'Stable');
+	
+	if di==1
+		invalid_survival = isnan(Patient_Info.Prognostic_Status);
+		Patient_Info(invalid_survival, :) = [];
+		Gene_Expression(invalid_survival, :) = [];
+		is_in = ismember(Patient_Info.Source_Study, {'METABRIC' 'TCGA'});
+		is_in(1:1616) = 1;
+		Patient_Info = Patient_Info(is_in,:);
+		Gene_Expression = Gene_Expression(is_in,:);
+	end
+
+	[Study_Name, ~, Study_Index] = unique(strcat(Patient_Info.Source_Study, ';', Patient_Info.StudyName), 'Stable');
 	Patient_Label = Patient_Info.Prognostic_Status;
 	zData = zscore(Gene_Expression);
 	if any(isnan(zData(:))), error(); end
@@ -41,7 +52,7 @@ for di=1:n_data
 	print('-dpdf', '-r300', sav_name);
 	
 	%% Reduce dimention
-	perp_lst = [5 10 20 40 70 110 200 400];
+	perp_lst = [20]; % 5 10 20 40 70 110 200 400
 	for pi=1:numel(perp_lst)
 		perplexity = perp_lst(pi);
 		fprintf('Perplexity set to: %d\n', perplexity);
@@ -63,7 +74,8 @@ for di=1:n_data
 		
 		%% Plot Studies
 		close all
-		clr_map = jet(n_study) * 0.8;
+% 		clr_map = jet(n_study) * 0.8;
+		clr_map = lines(n_study) * 0.8;
 		figure('Position', [50 50 1000 700], 'Visible', 'off');
 		hold on
 		mrk_h = [];
