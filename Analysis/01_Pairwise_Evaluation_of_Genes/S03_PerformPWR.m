@@ -78,6 +78,8 @@ fprintf('Pairwise comparison finished at: %s\n', datetime);
 
 %% Saving
 sav_name = sprintf('%sPWR_%s_%08d-%08d.mat', pwr_path, ge_name, batch_be, batch_en);
+fprintf('Saving result in [%s]', sav_name);
 save(sav_name, 'auc_pair', 'Patient_Label', 'cv_name', 'cv_obj', 'pair_list', 'Gene_Name');
+fprintf('Process finished at: %s\n', datetime);
 end
 
