@@ -69,7 +69,7 @@ n_pwr = numel(pwr_lst);
 fprintf('Found [%d] results.\n', n_pwr);
 for ri=1:n_pwr
 	res_name = [pwr_path pwr_lst(ri).name];
-	fprintf('Loading [%s].', res_name);
+	fprintf('[%d/%d] Loading [%s]. ', ri, n_pwr, res_name);
 	res_data = load(res_name, 'auc_pair');
 	is_in = ismember(res_data.auc_pair(:,1:2), PP_Info(:,1:2), 'rows') | ismember(res_data.auc_pair(:,1:2), NP_Info(:,1:2), 'rows');
 	if any(is_in)

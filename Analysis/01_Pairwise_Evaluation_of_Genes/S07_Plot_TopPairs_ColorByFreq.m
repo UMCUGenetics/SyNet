@@ -11,6 +11,22 @@ load(['./Top_Pairs/Top_' ge_name '.mat'], 'PP_Info', 'Gene_Name');
 n_top = 10000;
 
 %% Set labels
+TG_Name = {};
+for ti=1:n_top
+	if ~ismember(Gene_Name{PP_Info(ti,1)}, TG_Name)
+		TG_Name{end+1,1} = Gene_Name{PP_Info(ti,1)};
+	end
+	if numel(TG_Name)>=100
+		break;
+	end
+	if ~ismember(Gene_Name{PP_Info(ti,2)}, TG_Name)
+		TG_Name{end+1,1} = Gene_Name{PP_Info(ti,2)};
+	end
+	if numel(TG_Name)>=100
+		break;
+	end
+end
+
 Pair_Rank = zeros(n_top, 1);
 [Freq_item, Freq_freq] = getTop(PP_Info(1:n_top,1:2), 100);
 Freq_item = flipud(Freq_item);
