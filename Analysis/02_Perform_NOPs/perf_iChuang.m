@@ -107,7 +107,7 @@ for fi=1:n_meta
 	end
 	old_AUC = new_AUC;
 end
-if isequal(fi, n_meta) && old_AUC<=new_AUC
+if isequal(fi, n_meta) && old_AUC<=new_AUC % If no break has happend
 	opt_NF = fi;
 	opt_B = B;
 	opt_fit = fit;
@@ -217,11 +217,11 @@ end
 
 function res_mi = getMI(TrueLbl, PredLbl, n_bin)
 bin_cen = linspace(min(PredLbl), max(PredLbl), n_bin);
-bin_range = (bin_cen(2) - bin_cen(1))/2;
+bin_width = (bin_cen(2) - bin_cen(1))/2;
 
 DisLbl = zeros(size(PredLbl));
 for bi=1:n_bin
-	DisLbl(PredLbl>=bin_cen(bi)-bin_range & PredLbl<bin_cen(bi)+bin_range, 1) = bi;
+	DisLbl(PredLbl>=bin_cen(bi)-bin_width & PredLbl<bin_cen(bi)+bin_width, 1) = bi;
 end
 res_mi = mi(DisLbl, TrueLbl);
 end
@@ -238,21 +238,21 @@ for ni=2:numel(SubNet_Full)
 	end
 	old_MI = new_MI;
 end
-if isequal(ni,numel(SubNet_Full)) && (new_MI - old_MI)/old_MI >= GAMMA
+if isequal(ni,numel(SubNet_Full)) && (new_MI - old_MI)/old_MI >= GAMMA % if no break has happend
 	subnet_trimmed = SubNet_Full;
 end
 end
 
-function Nei_lst = getNetNeighborsBreadthFirst(Neig_cell, Nei_lst, n_neighbor, Added_Step)
+function Nei_lst = getNetNeighborsBreadthFirst(Neig_cell, Nei_lst, n_neighbor, Depth_ind)
 if numel(Nei_lst)>=n_neighbor
 	Nei_lst = Nei_lst(1:n_neighbor);
-elseif Added_Step<numel(Nei_lst)
-	Added_Step = Added_Step + 1;
-	Nei_lst = unique([Nei_lst Neig_cell{Nei_lst(Added_Step)}], 'stable');
+elseif Depth_ind<numel(Nei_lst)
+	Depth_ind = Depth_ind + 1;
+	Nei_lst = unique([Nei_lst Neig_cell{Nei_lst(Depth_ind)}], 'stable');
 	if numel(Nei_lst)>=n_neighbor
 		Nei_lst = Nei_lst(1:n_neighbor);
 	else
-		Nei_lst = getNetNeighborsBreadthFirst(Neig_cell, Nei_lst, n_neighbor, Added_Step);
+		Nei_lst = getNetNeighborsBreadthFirst(Neig_cell, Nei_lst, n_neighbor, Depth_ind);
 	end
 	Nei_lst = Nei_lst(1:min([numel(Nei_lst) n_neighbor]));
 end

@@ -43,6 +43,7 @@ for gi=1:n_gene
 	auc_lst(gi) = measureAUC(xTr(:, gi), lTr, 20);
 end
 ival_glst = find(auc_lst<0.56);
+fprintf('[%d] Genes are left.\n', numel(ival_glst));
 
 %% Trimming the subnetworks
 fprintf('Size selection for subnetworks...\n');
@@ -60,8 +61,8 @@ fprintf('Evaluating the subnetworks: ');
 snet_auc = zeros(n_snet, 1);
 for si=1:n_snet
 	showprogress(si, n_snet, 20);
-	grp_lst = SubNet_Trimmed{si}(1:min([numel(SubNet_Trimmed{si}) MAX_SUBNET_SIZE]));
-	mTr = mean(xTr(:, grp_lst), 2);
+	SubNet_Trimmed{si} = SubNet_Trimmed{si}(1:min([numel(SubNet_Trimmed{si}) MAX_SUBNET_SIZE]));
+	mTr = mean(xTr(:, SubNet_Trimmed{si}), 2);
 	snet_auc(si) = measureAUC(mTr, lTr, 20);
 end
 [snet_scr, snet_sid] = sort(snet_auc, 'descend');
@@ -113,16 +114,16 @@ result.SubNet_Score = snet_scr;
 end
 
 %% -----------------------------  SUB functions ------------------------------------
-function Nei_lst = getNetNeighborsBreadthFirst(Neig_cell, Nei_lst, n_neighbor, Added_Step)
+function Nei_lst = getNetNeighborsBreadthFirst(Neig_cell, Nei_lst, n_neighbor, Depth_ind)
 if numel(Nei_lst)>=n_neighbor
 	Nei_lst = Nei_lst(1:n_neighbor);
-elseif Added_Step<numel(Nei_lst)
-	Added_Step = Added_Step + 1;
-	Nei_lst = unique([Nei_lst Neig_cell{Nei_lst(Added_Step)}], 'stable');
+elseif Depth_ind<numel(Nei_lst)
+	Depth_ind = Depth_ind + 1;
+	Nei_lst = unique([Nei_lst Neig_cell{Nei_lst(Depth_ind)}], 'stable');
 	if numel(Nei_lst)>=n_neighbor
 		Nei_lst = Nei_lst(1:n_neighbor);
 	else
-		Nei_lst = getNetNeighborsBreadthFirst(Neig_cell, Nei_lst, n_neighbor, Added_Step);
+		Nei_lst = getNetNeighborsBreadthFirst(Neig_cell, Nei_lst, n_neighbor, Depth_ind);
 	end
 	Nei_lst = Nei_lst(1:min([numel(Nei_lst) n_neighbor]));
 end

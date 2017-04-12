@@ -3,16 +3,16 @@ function S00_Main_Code(data_lst, method_lst, net_lst, cv_id)
 clc;
 if ismac
 	fprintf('*** Warning!: Running on debug mode.\n');
-	method_lst = [];
+	method_lst = {'iChuang'};
 	data_lst = {};
-	net_lst = {'Multinet'};
+	net_lst = {'DSN-SyNetS1-T500'};
 	cv_id = '170411001004';
 end
 
 %% Initialization
 if isempty(net_lst)
 	net_lst = {
-		'Multinet' ...
+		'Multinet' 'DSN-ACES-T10000' ...
 		};
 end
 n_net = numel(net_lst);
@@ -36,16 +36,16 @@ if isempty(data_lst)
 	fprintf('Data list is now set on: %s\n', strjoin(data_lst, ', '));
 end
 
-if any(~cellfun(@isempty, strfind(net_lst, data_lst{1}))) || ...
-   any(~cellfun(@isempty, strfind(net_lst, data_lst{2})))
-	error('Trained networks can not be used as test or training set.');
-end
+% if any(~cellfun(@isempty, strfind(net_lst, data_lst{1}))) || ...
+%    any(~cellfun(@isempty, strfind(net_lst, data_lst{2})))
+% 	error('Trained networks can not be used as test or training set.');
+% end
 
 %% CV Generation
-if isempty(cv_id)
-	cv_id = S01_GenerateCVSet(data_lst{1}, data_lst{2});
-	fprintf('[i] CV ID is set to [%s]\n', cv_id);
-end
+% if isempty(cv_id)
+% 	cv_id = S01_GenerateCVSet(data_lst{1}, data_lst{2});
+% 	fprintf('[i] CV ID is set to [%s]\n', cv_id);
+% end
 
 %% Main Loop
 fprintf([repmat('/',1,20) ' Start of main loop ' repmat('/',1,20) '\n']);

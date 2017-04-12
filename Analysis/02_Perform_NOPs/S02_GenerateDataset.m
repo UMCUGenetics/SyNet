@@ -1,13 +1,10 @@
 function ds_id = S02_GenerateDataset(cv_id, net_name)
 %% ####
-% cv_id = '1608231618';
-% net_name = 'STRING';
-% net_name = 'DSN-ACES-99.9';
-if ismac
-	fprintf('*** Warning!: Running on debug mode.\n');
-	cv_id = '170411001004';
-	net_name = 'DSN-SyNetS1-T20';
-end
+% if ismac
+% 	fprintf('*** Warning!: Running on debug mode.\n');
+% 	cv_id = '170411001004';
+% 	net_name = 'DSN-SyNetS1-T500';
+% end
 
 %% Initialization
 %clc;
@@ -160,7 +157,7 @@ switch net_name
 		net_info.net_src = net_part{2};
 		net_info.param_type = net_part{3}(1);
 		net_info.param_val = str2double(net_part{3}(2:end));
-		fprintf('Detected [%s] network from [%s], Type: [%s], Value: [%g]\n', net_info.net_name, net_info.net_src, net_info.param_type, net_info.param_val);
+		fprintf('Chose [%s] network from [%s], Type: [%s], Value: [%g]\n', net_info.net_name, net_info.net_src, net_info.param_type, net_info.param_val);
 		net_path = ['../01_Pairwise_Evaluation_of_Genes/Network_Files/' net_info.net_name '_' net_info.net_src '.mat'];
 		load(net_path, 'Net_Adj', 'Gene_Name');
 		if ~issymmetric(Net_Adj), error('Adj Matrix is not symetric.\n'); end
@@ -235,5 +232,5 @@ Ind_List = zeros(n_tar, 1);
 for ti=1:n_tar
 	Ind_List(ti) = GMap(Target_List{ti});
 end
-if ~isequal(Target_List, Population_List(Ind_List)), error(); end;
+if ~isequal(Target_List, Population_List(Ind_List)), error(); end
 end
