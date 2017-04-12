@@ -2,7 +2,7 @@ function ds_id = S02_GenerateDataset(cv_id, net_name)
 %% ####
 % if ismac
 % 	fprintf('*** Warning!: Running on debug mode.\n');
-% 	cv_id = '170411001004';
+% 	cv_id = '170412Si01Ri01';
 % 	net_name = 'DSN-SyNetS1-T500';
 % end
 
@@ -21,6 +21,9 @@ cv_name = [cv_path cv_list.name];
 fprintf('Loading CV info [%s] ...\n', cv_name);
 load(cv_name);
 % if ~isempty(strfind(net_name, te_info.GEName)), error('Test data can not be used in training network.\n'); end
+if isequal(tr_info.GEPath, tr_info.GEPath) && any(tr_info.CVInd & te_info.CVInd)
+	error('Some samples test set are used in training.');
+end
 
 dataset_name = sprintf([dataset_path cv_list.name(1:end-4) '_NET-' net_name '_DID-%s.mat'], ds_id);
 if exist(dataset_name, 'file'), error('Dataset is already generated. [%s]', dataset_name); end
@@ -65,6 +68,8 @@ switch net_name
 	case 'Random'
 		net_info.Gene_Name = tr_data.Gene_Name;
 	case 'Corr'
+		net_info.Gene_Name = tr_data.Gene_Name;
+	case 'AbsCorr'
 		net_info.Gene_Name = tr_data.Gene_Name;
 	case {'BioGRID' 'CPDB' 'FunCoup-Complex' 'FunCoup-DOM' 'FunCoup-GIN' 'FunCoup-Metabolic' 'FunCoup-MEX' 'FunCoup-MIR' 'FunCoup-PEX' 'FunCoup-PFC' 'FunCoup-PHP' 'FunCoup-PPI' 'FunCoup-SCL' 'FunCoup-Signaling' 'FunCoup-TFB' 'HiC-ES' 'HiC-Full' 'HIN' 'HINT' 'HPRD' 'I2D' 'INstruct' 'iRefIndex' 'KEGG' 'MSigDB' 'Multinet' 'Reactome' 'String-CoEx' 'String-CoOc' 'String-Data' 'String-Exp' 'String-Fus' 'String-Neig' 'String-Txt' 'String' 'UniHI'}
 		switch net_name
@@ -178,6 +183,7 @@ switch net_name
 		Gene_Name(del_ind) = [];
 		net_info.Net_Adj = Net_Adj;
 		net_info.Gene_Name = Gene_Name;
+		fprintf('[%d] genes are left in the network.\n', numel(Gene_Name));
 end
 end
 

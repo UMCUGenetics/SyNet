@@ -71,7 +71,7 @@ Net_Adj = single(-sqrt((ox-1).^2 + (oy-1).^2));
 
 %% Saving the network
 if ~isempty(Target_Study)
-	sav_name = [net_path 'DSN_' ge_name 'S' num2str(Target_Study) '-Mat.mat'];
+	sav_name = [net_path 'DSN_' ge_name 'S' num2str(Target_Study, '%02d') '-Mat.mat'];
 else
 	sav_name = [net_path 'DSN_' ge_name '-Mat.mat'];
 end

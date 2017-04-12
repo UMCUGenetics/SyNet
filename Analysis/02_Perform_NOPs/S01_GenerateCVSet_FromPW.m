@@ -23,7 +23,7 @@ for si=1:n_study
 	for ri=1:n_rep
 		cv_item = cv_info.cv_obj(si, ri);
 		% rng shuffle % creates a different seed each time, but its not nessasary as seed is set in the job submission
-		cv_id = [datestr(now, 'yymmdd') sprintf('%03d%03d', si, ri)];
+		cv_id = [datestr(now, 'yymmdd') sprintf('Si%02dRi%02d', si, ri)];
 		cv_name = sprintf([cv_path 'CID-%s_CVT%02d_ETr-%s_ETe-%s.mat'], cv_id, cv_type, geTr_name, geTe_name);
 		if exist(cv_name, 'file')
 			error('CV set [%s] is already generated.', cv_name);

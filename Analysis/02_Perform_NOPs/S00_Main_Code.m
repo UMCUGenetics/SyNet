@@ -1,18 +1,30 @@
 function S00_Main_Code(data_lst, method_lst, net_lst, cv_id)
-% RUN: fname=S00_Main_Code; N1=ACES; N2=META; N3=HAIBE; fparam="{'$N1','$N2'},[],{'Corr','Random','String','Multinet','KEGG','MSigDB','DSN-$N3-P99.90','DSN-$N3-P99.99','DSN-$N3-P99.999','DSN-$N3-T05000','DSN-$N3-T10000','DSN-$N3-T20000','CPN-$N3-P99.90','CPN-$N3-P99.99','CPN-$N3-P99.999','CPN-$N3-T05000','CPN-$N3-T10000','CPN-$N3-T20000'},''"; sbatch --job-name=$N1-$N2 --output=Logs/Main-$N1-$N2.%J_%a-%N.out --partition=general --qos=long --mem=16GB --time=7-00:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh $fname $fparam
+%{
+for fn in CV_Files/*.mat; do
+	fi=${fn:13:14}
+	echo -e "///\nFile: $fn"
+	echo "ID: $fi"
+	si=${fi:8:2}
+	sname=SyNet
+	fparam="{},[],{'Corr','AbsCorr','Random','String','Multinet','KEGG','MSigDB','DSN-$sname$si-P99.90','DSN-$sname$si-P99.99','DSN-$sname$si-P99.999','DSN-$sname$si-T00500','DSN-$sname$si-T01000','DSN-$sname$si-T05000','DSN-$sname$si-T10000','DSN-$sname$si-T20000'},'$fi'"; 
+	sbatch --job-name=$fi --output=Logs/Main-$fi.%J_%a-%N.out --partition=general --qos=long --mem=16GB --time=7-00:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code $fparam
+done
+%}
+	
 clc;
-if ismac
-	fprintf('*** Warning!: Running on debug mode.\n');
-	method_lst = {'iChuang'};
-	data_lst = {};
-	net_lst = {'DSN-SyNetS1-T500'};
-	cv_id = '170411001004';
-end
+% if ismac
+% 	fprintf('*** Warning!: Running on debug mode.\n');
+% 	method_lst = {'iChuang'};
+% 	data_lst = {};
+% 	net_lst = {'DSN-SyNetS1-T500'};
+% 	cv_id = '170411001004';
+% end
 
 %% Initialization
 if isempty(net_lst)
 	net_lst = {
-		'Multinet' 'DSN-ACES-T10000' ...
+		'Corr','AbsCorr','Random','String','Multinet','KEGG','MSigDB',...
+		'DSN-SyNet-P99.90','DSN-SyNet-T10000' ...
 		};
 end
 n_net = numel(net_lst);
