@@ -162,7 +162,7 @@ switch net_name
 		net_info.net_src = net_part{2};
 		net_info.param_type = net_part{3}(1);
 		net_info.param_val = str2double(net_part{3}(2:end));
-		fprintf('Chose [%s] network from [%s], Type: [%s], Value: [%g]\n', net_info.net_name, net_info.net_src, net_info.param_type, net_info.param_val);
+		fprintf('Selected [%s] network from [%s], Type: [%s], Value: [%g]\n', net_info.net_name, net_info.net_src, net_info.param_type, net_info.param_val);
 		net_path = ['../01_Pairwise_Evaluation_of_Genes/Network_Files/' net_info.net_name '_' net_info.net_src '.mat'];
 		load(net_path, 'Net_Adj', 'Gene_Name');
 		if ~issymmetric(Net_Adj), error('Adj Matrix is not symetric.\n'); end
@@ -194,7 +194,8 @@ function Dataset = getDataset(data_info, net_info, Valid_Gene_List)
 	Dataset.Patient_Label = data_info.Patient_Label(data_info.CVInd);
 	Dataset.Gene_Name = data_info.Gene_Name(GeneInd);
 	if ~isequal(Dataset.Gene_Name, Valid_Gene_List), error('Gene name is inconsistent.'); end
-	n_gene = size(Dataset.Gene_Expression, 2);
+	[n_sample, n_gene] = size(Dataset.Gene_Expression);
+	fprintf('After unification #Samples=%d, #Genes=%d\n', n_sample, n_gene);
 	
 	if isempty(net_info), return; end
 	switch net_info.net_name

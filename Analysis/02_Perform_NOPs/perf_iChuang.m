@@ -92,7 +92,7 @@ zTe = zscore(mTe);
 n_meta = size(zTr, 2);
 
 %% Traning the final model
-fprintf('Traning the final model over [%d] meta-features...\n', n_meta);
+fprintf('Training the final model over [%d] meta-features...\n', n_meta);
 old_AUC = 0;
 for fi=1:n_meta
 	[B, fit] = lassoEx(zTr(:, 1:fi), lTr, opt_info.lasso_opt{:}, 'iCvPar', dataset_info.DatasetTr.iCvPar);
@@ -112,6 +112,7 @@ if isequal(fi, n_meta) && old_AUC<=new_AUC % If no break has happend
 	opt_B = B;
 	opt_fit = fit;
 end
+fprintf('Final training is done. [%d] non-zero features identified.\n', sum(abs(opt_B(:, opt_fit.IndexMinMSE))>0));
 
 %% Evaluating the model
 vec_B = opt_B(:, opt_fit.IndexMinMSE);

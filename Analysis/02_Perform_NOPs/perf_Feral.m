@@ -40,13 +40,13 @@ fprintf('Identifying irrelevant genes [%d]: ', n_gene);
 auc_lst = zeros(n_gene, 1);
 for gi=1:n_gene
 	showprogress(gi, n_gene, 20);
-	auc_lst(gi) = measureAUC(xTr(:, gi), lTr, 20);
+	auc_lst(gi) = measureAUC(xTr(:,gi), lTr, 20);
 end
 ival_glst = find(auc_lst<0.56);
 fprintf('[%d] Genes are left.\n', numel(ival_glst));
 
-%% Trimming the subnetworks
-fprintf('Size selection for subnetworks...\n');
+%% Purify the subnetworks
+fprintf('Purify subnetworks for relevant genes ...\n');
 SubNet_Trimmed = cell(n_gene, 1);
 for gi=1:n_gene
 	in = ismember(SubNet_Full{gi}, ival_glst);
@@ -55,18 +55,21 @@ end
 sn_size = cellfun(@(x) numel(x), SubNet_Trimmed);
 SubNet_Trimmed(sn_size<1) = [];
 n_snet = numel(SubNet_Trimmed);
+fprintf('Subnetworks are purified. [%d] are left.\n', n_snet);
 
 %% Trimming the subnetworks
-fprintf('Evaluating the subnetworks: ');
+fprintf('Sorting the subnetworks based on prediction score: ');
 snet_auc = zeros(n_snet, 1);
 for si=1:n_snet
 	showprogress(si, n_snet, 20);
 	SubNet_Trimmed{si} = SubNet_Trimmed{si}(1:min([numel(SubNet_Trimmed{si}) MAX_SUBNET_SIZE]));
 	mTr = mean(xTr(:, SubNet_Trimmed{si}), 2);
-	snet_auc(si) = measureAUC(mTr, lTr, 20);
+	snet_auc(si,1) = measureAUC(mTr, lTr, 20);
+	%snet_auc(si,2) = measureAUC(mTe, lTe, 20);
 end
-[snet_scr, snet_sid] = sort(snet_auc, 'descend');
+[snet_scr, snet_sid] = sort(snet_auc(:,1), 'descend');
 SubNet_Trimmed = SubNet_Trimmed(snet_sid);
+fprintf('Subnetworks are sorted. [%d] are left.\n', numel(SubNet_Trimmed));
 
 %% Generating Meta-features from Top SubNetworks
 fprintf('Generating Meta-features from %d sub-networks.\n', n_snet);
@@ -74,7 +77,7 @@ mTr = zeros(n_TrSample, MAX_N_SUBNET);
 mTe = zeros(n_TeSample, MAX_N_SUBNET);
 for si=1:min([MAX_N_SUBNET n_snet])
     mTr(:, si) = mean(xTr(:, SubNet_Trimmed{si}), 2);
-	mTe(:, si) = mean(xTe(:, SubNet_Trimmed{si}), 2);
+	%mTe(:, si) = mean(xTe(:, SubNet_Trimmed{si}), 2);
 end
 
 %% Normalization
@@ -83,8 +86,9 @@ zTe = zscore(mTe);
 n_meta = size(zTr, 2);
 
 %% Traning the final model
-fprintf('Traning the final model over [%d] meta-features...\n', n_meta);
+fprintf('Training the final model over [%d] meta-features...\n', n_meta);
 [opt_B, opt_fit] = lassoEx(zTr, lTr, opt_info.lasso_opt{:}, 'iCvPar', dataset_info.DatasetTr.iCvPar);
+fprintf('Final training is done. [%d] non-zero features identified.\n', sum(abs(opt_B(:, opt_fit.IndexMinMSE))>0));
 
 %% Evaluating the model
 vec_B = opt_B(:, opt_fit.IndexMinMSE);
@@ -137,5 +141,5 @@ for ri=1:n_rep
 	ind = randperm(n_pop, n_sample);
 	auc_lst(ri) = getAUC(l(ind), x(ind), 50);
 end
-res = mean(auc_lst);
+res = median(auc_lst);
 end

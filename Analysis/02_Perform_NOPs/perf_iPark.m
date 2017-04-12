@@ -79,6 +79,9 @@ zTe = zscore(mTe);
 %% Testing the final performance
 fprintf('Training the final model ... \n');
 [opt_Bmat, opt_fit] = lassoEx(zTr, lTr, opt_info.lasso_opt{:}, 'iCvPar', dataset_info.DatasetTr.iCvPar);
+fprintf('Final training is done. [%d] non-zero features identified.\n', sum(abs(opt_Bmat(:, opt_fit.IndexMinMSE))>0));
+
+%% Evaluating the model
 opt_B = opt_Bmat(:, opt_fit.IndexMinMSE);
 g = zTr*opt_B;
 tr_auc = getAUC(lTr, g, 50);
