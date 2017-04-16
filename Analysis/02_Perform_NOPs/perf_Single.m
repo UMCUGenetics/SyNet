@@ -6,6 +6,7 @@ lTr = dataset_info.DatasetTr.Patient_Label;
 xTe = dataset_info.DatasetTe.Gene_Expression;
 lTe = dataset_info.DatasetTe.Patient_Label;
 n_gene = size(xTr, 1);
+MAX_N_SUBNET = opt_info.MAX_N_SUBNET;
 
 %% Normalization
 fprintf('Normalizing data ...\n');
@@ -19,6 +20,9 @@ fprintf('Final training is done. [%d] non-zero features identified.\n', sum(abs(
 
 %% Evaluating the model
 vec_B = opt_B(:, opt_fit.IndexMinMSE);
+[~, topB_ind] = sort(abs(vec_B), 'Descend');
+vec_B(topB_ind(MAX_N_SUBNET+1:end)) = 0;
+
 g = zTr*vec_B;
 tr_auc = getAUC(lTr, g, 50);
 
