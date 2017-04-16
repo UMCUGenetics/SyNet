@@ -1,21 +1,34 @@
 function S00_Main_Code(data_lst, method_lst, net_lst, cv_id)
 %{
 for fn in CV_Files/*.mat; do
-	fi=${fn:13:14}
 	echo -e "///\nFile: $fn"
+	fi=${fn:13:14}
 	echo "ID: $fi"
 	si=${fi:8:2}
 	dt_name=SyNet
 	nt_lst="Corr AbsCorr Random String Multinet KEGG MSigDB DSN-${dt_name}S${si}-P99.90 DSN-${dt_name}S${si}-P99.99 DSN-${dt_name}S${si}-P99.999 DSN-${dt_name}S${si}-T00500 DSN-${dt_name}S${si}-T01000 DSN-${dt_name}S${si}-T05000 DSN-${dt_name}S${si}-T10000 DSN-${dt_name}S${si}-T20000"
 	for nt_name in $nt_lst; do
-		#fparam="{},[],{'Corr','AbsCorr','Random','String','Multinet','KEGG','MSigDB','DSN-${sname}S${si}-P99.90','DSN-${sname}S${si}-P99.99','DSN-${sname}S${si}-P99.999','DSN-${sname}S${si}-T00500','DSN-${sname}S${si}-T01000','DSN-${sname}S${si}-T05000','DSN-${sname}S${si}-T10000','DSN-${sname}S${si}-T20000'},'$fi'"; 
-		fparam="{},[],{'$nt_name'},'$fi'";
-		job_name=${fi:6:7}$nt_name
-		sbatch --job-name=$job_name --output=Logs/Main-$job_name.%J_%a-%N.out --partition=general --qos=long --mem=10GB --time=1-00:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code $fparam
+		#fparam="{},{},{'Corr','AbsCorr','Random','String','Multinet','KEGG','MSigDB','DSN-${sname}S${si}-P99.90','DSN-${sname}S${si}-P99.99','DSN-${sname}S${si}-P99.999','DSN-${sname}S${si}-T00500','DSN-${sname}S${si}-T01000','DSN-${sname}S${si}-T05000','DSN-${sname}S${si}-T10000','DSN-${sname}S${si}-T20000'},'$fi'"; 
+		fparam="{},{},{'$nt_name'},'$fi'";
+		job_name=${fi:6:8}$nt_name
+		sbatch --job-name=$job_name --output=Logs/Main-$job_name.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code $fparam
 	done
 	echo "Press a key to continue"
 	read
 done
+
+step=1
+for data_name in ./Dataset_Files/*.mat; do
+	data_id=${data_name: -20:16}
+	fparam="{'Single'},'$data_id'";
+	sbatch --job-name=$job_name --output=Logs/Single-$job_name.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=4:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S03_Evaluating_Models $fparam
+	step=$(( step + 1 ))
+	if [[ $((step % 100)) -eq 0 ]]; then
+		echo "Step $step: Press a key to continue"
+		read
+	fi
+done
+
 %}
 	
 clc;
@@ -37,7 +50,7 @@ end
 n_net = numel(net_lst);
 
 if isempty(method_lst)
-	method_lst = {'iPark', 'iChuang', 'iTaylor', 'Feral'}; 
+	method_lst = {'iPark', 'iChuang', 'iTaylor', 'Feral', 'Single'}; 
 end
 n_meth = numel(method_lst);
 

@@ -69,7 +69,6 @@ for si=1:n_snet
 end
 [snet_scr, snet_sid] = sort(snet_auc(:,1), 'descend');
 SubNet_Trimmed = SubNet_Trimmed(snet_sid);
-fprintf('Subnetworks are sorted. [%d] are left.\n', numel(SubNet_Trimmed));
 
 %% Generating Meta-features from Top SubNetworks
 fprintf('Generating Meta-features from %d sub-networks.\n', n_snet);
@@ -77,7 +76,7 @@ mTr = zeros(n_TrSample, MAX_N_SUBNET);
 mTe = zeros(n_TeSample, MAX_N_SUBNET);
 for si=1:min([MAX_N_SUBNET n_snet])
     mTr(:, si) = mean(xTr(:, SubNet_Trimmed{si}), 2);
-	%mTe(:, si) = mean(xTe(:, SubNet_Trimmed{si}), 2);
+	mTe(:, si) = mean(xTe(:, SubNet_Trimmed{si}), 2);
 end
 
 %% Normalization
@@ -117,29 +116,4 @@ result.SubNet_Score = snet_scr;
 % plot(te_auc, 'r');
 end
 
-%% -----------------------------  SUB functions ------------------------------------
-function Nei_lst = getNetNeighborsBreadthFirst(Neig_cell, Nei_lst, n_neighbor, Depth_ind)
-if numel(Nei_lst)>=n_neighbor
-	Nei_lst = Nei_lst(1:n_neighbor);
-elseif Depth_ind<numel(Nei_lst)
-	Depth_ind = Depth_ind + 1;
-	Nei_lst = unique([Nei_lst Neig_cell{Nei_lst(Depth_ind)}], 'stable');
-	if numel(Nei_lst)>=n_neighbor
-		Nei_lst = Nei_lst(1:n_neighbor);
-	else
-		Nei_lst = getNetNeighborsBreadthFirst(Neig_cell, Nei_lst, n_neighbor, Depth_ind);
-	end
-	Nei_lst = Nei_lst(1:min([numel(Nei_lst) n_neighbor]));
-end
-end
 
-function res = measureAUC(x, l, n_rep)
-n_pop = numel(l);
-n_sample = floor(n_pop*0.7);
-auc_lst = zeros(n_rep, 1);
-for ri=1:n_rep
-	ind = randperm(n_pop, n_sample);
-	auc_lst(ri) = getAUC(l(ind), x(ind), 50);
-end
-res = median(auc_lst);
-end

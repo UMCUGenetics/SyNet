@@ -3,7 +3,7 @@ function [result_name, te_auc] = S03_Evaluating_Models(method_lst, ds_id)
 if ismac
 	fprintf('*** Warning!: Running on debug mode.\n');
 	method_lst = {'Feral'};
-	ds_id = '1704121114254666';
+	ds_id = '1704121836423991';
 end
 
 %% Initialization
@@ -16,7 +16,7 @@ dataset_path = './Dataset_Files/';
 result_path = './Results_Files/';
 opt_info.lasso_opt = {'lassoType', 't', 'CV', 5, 'relTol', 5e-1, 'n_lC', 20, 'lC_ratio', 1e-2, 'paroptions', statset('UseParallel',false), 'verbose', 0};
 opt_info.MAX_N_SUBNET = 500;
-if isempty(method_lst), method_lst = {'iPark', 'iChuang', 'iTaylor', 'Feral'}; end
+if isempty(method_lst), method_lst = {'iPark', 'iChuang', 'iTaylor', 'Feral', 'Single'}; end
 
 %% Get CV info
 dataset_list = dir([dataset_path '*_DID-' ds_id '*.mat']);
@@ -43,6 +43,8 @@ for mi=1:n_method
 			result = perf_iTaylor(dataset_info, opt_info);
 		case 'Feral'
 			result = perf_Feral(dataset_info, opt_info);
+		case 'Single'
+			result = perf_Single(dataset_info, opt_info);
 		otherwise
 			error('Unknown Method.');
 	end
