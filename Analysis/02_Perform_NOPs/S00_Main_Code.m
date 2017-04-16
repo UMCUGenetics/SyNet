@@ -36,7 +36,7 @@ if ismac
 	fprintf('*** Warning!: Running on debug mode.\n');
 	method_lst = {'Single', 'iPark', 'iChuang', 'iTaylor', 'Feral'};
 	data_lst = {};
-	net_lst = {'DSN-SyNetS14-T10000'};
+	net_lst = {'Corr'};
 	cv_id = '170412Si14Ri02';
 end
 
