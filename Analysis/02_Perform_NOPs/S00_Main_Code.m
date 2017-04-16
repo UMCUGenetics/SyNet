@@ -8,10 +8,11 @@ for fn in CV_Files/*.mat; do
 	dt_name=SyNet
 	nt_lst="Corr AbsCorr Random String Multinet KEGG MSigDB DSN-${dt_name}S${si}-P99.90 DSN-${dt_name}S${si}-P99.99 DSN-${dt_name}S${si}-P99.999 DSN-${dt_name}S${si}-T00500 DSN-${dt_name}S${si}-T01000 DSN-${dt_name}S${si}-T05000 DSN-${dt_name}S${si}-T10000 DSN-${dt_name}S${si}-T20000"
 	for nt_name in $nt_lst; do
-		#fparam="{},{},{'Corr','AbsCorr','Random','String','Multinet','KEGG','MSigDB','DSN-${sname}S${si}-P99.90','DSN-${sname}S${si}-P99.99','DSN-${sname}S${si}-P99.999','DSN-${sname}S${si}-T00500','DSN-${sname}S${si}-T01000','DSN-${sname}S${si}-T05000','DSN-${sname}S${si}-T10000','DSN-${sname}S${si}-T20000'},'$fi'"; 
-		fparam="{},{},{'$nt_name'},'$fi'";
-		job_name=${fi:6:8}$nt_name
-		sbatch --job-name=$job_name --output=Logs/Main-$job_name.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code $fparam
+		for mt_name in Single iPark iChuang iTaylor Feral; do
+			fparam="{},{'$mt_name'},{'$nt_name'},'$fi'";
+			job_name=${fi:6:8}-$mt_name-$nt_name
+			sbatch --job-name=$job_name --output=Logs/Main-$job_name.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code $fparam
+		done
 	done
 	echo "Press a key to continue"
 	read

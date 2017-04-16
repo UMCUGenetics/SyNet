@@ -70,6 +70,18 @@ else
 	tmp = squeeze(median(tmp,1));
 	boxplot(tmp);
 	set(gca, 'XTick', 1:n_net, 'XTickLabel', net_lst, 'XTickLabelRotation', 25);
+	
+	load('/Users/amin/Technical/My_Works/Deep_Learning/113_Organize_SPADE_Codes/Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat', 'Study_Name')
+	data = load('./Collected_result_Part.mat');
+	te_part = data.te_auc(:,:,14,20);
+	te_full = te_auc(:,:,14,20);
+	imagesc(te_part-te_full);
+	caxis([-4 4]); 
+	colormap(flipud(jet(11)));
+	colorbar();
+	set(gca, 'XTick', 1:n_net, 'XTickLabel', net_lst, 'XTickLabelRotation', 25, ...
+			 'YTick', 1:5, 'YTickLabel', method_lst, 'YTickLabelRotation', 25);
+	
 end
 
 % te_auc(end+1, :) = mean(te_auc,1, 'omitnan');

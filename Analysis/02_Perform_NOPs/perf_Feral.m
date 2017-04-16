@@ -12,13 +12,7 @@ MAX_SUBNET_SIZE = 7;
 MAX_N_SUBNET = opt_info.MAX_N_SUBNET;
 
 %% Correcting the gene directions
-gene_dir = corr(xTr, lTr);
-for gi=1:n_gene
-	if gene_dir(gi)<0
-		xTr(:, gi) = -xTr(:, gi);
-		xTe(:, gi) = -xTe(:, gi);
-	end
-end
+[xTr, xTe] = CorrectGeneDirection(xTr, xTe, lTr);
 
 %% Generate Neighbor Sets
 fprintf('Generating neighbor sets and subnetworks: ');
