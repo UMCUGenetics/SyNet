@@ -34,10 +34,10 @@ done
 clc;
 if ismac
 	fprintf('*** Warning!: Running on debug mode.\n');
-	method_lst = {'Feral'};
+	method_lst = {'iPark', 'iChuang', 'iTaylor', 'Feral', 'Single'};
 	data_lst = {};
-	net_lst = {'DSN-SyNetS13-T10000'};
-	cv_id = '170412Si13Ri01';
+	net_lst = {'DSN-SyNetS14-T10000'};
+	cv_id = '170412Si14Ri02';
 end
 
 %% Initialization

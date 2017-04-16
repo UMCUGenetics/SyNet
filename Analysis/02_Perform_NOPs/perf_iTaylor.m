@@ -13,11 +13,7 @@ MAX_N_SUBNET = opt_info.MAX_N_SUBNET;
 
 %% Generate Neighbor Sets
 fprintf('Generating [%d] neighbor sets and subnetworks.\n', n_gene);
-nTr(1:n_gene+1:end) = 0;
-Neig_cell = cell(n_gene, 1);
-for ni=1:n_gene
-	Neig_cell{ni} = [ni find(nTr(ni, :))];
-end
+Neig_cell = getNeighborsFromAdj(nTr);
 
 %% Trimming Subnetworks By Size
 net_size = cellfun(@(x) numel(x), Neig_cell);

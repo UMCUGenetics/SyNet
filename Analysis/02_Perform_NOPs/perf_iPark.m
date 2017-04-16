@@ -17,6 +17,7 @@ height_lst(height_lst==n_gene) = []; %% In this case, it is using all genes (i.e
 n_height = numel(height_lst);
 
 fprintf('Performing linkage algorithm.\n');
+nTr(1:n_gene+1:end) = 1; % Set diagonal to one
 Z = linkage(squareform(1-nTr), 'average');
 ClsInd_mat = zeros(n_height, n_gene);
 

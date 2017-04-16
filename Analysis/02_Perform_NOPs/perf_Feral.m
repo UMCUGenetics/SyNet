@@ -22,12 +22,7 @@ end
 
 %% Generate Neighbor Sets
 fprintf('Generating neighbor sets and subnetworks: ');
-nTr(1:n_gene+1:end) = 0;
-Neig_cell = cell(n_gene, 1);
-[iv_mat, ii_mat] = sort(nTr, 2, 'Descend');
-for ni=1:n_gene
-	Neig_cell{ni} = [ni ii_mat(ni, iv_mat(ni,:)~=0)];
-end
+Neig_cell = getNeighborsFromAdj(nTr);
 
 %% Generate Subnetworks
 SubNet_Full = cell(n_gene, 1);
@@ -36,25 +31,9 @@ for gi=1:n_gene
 	SubNet_Full{gi} = getNetNeighborsBreadthFirst(Neig_cell, Neig_cell{gi}, 10, 1);
 end
 
-%% Identifying irrelevant genes
-fprintf('Identifying irrelevant genes [%d]: ', n_gene);
-auc_lst = zeros(n_gene, 1);
-for gi=1:n_gene
-	showprogress(gi, n_gene, 20);
-	auc_lst(gi) = measureAUC(xTr(:,gi), lTr, 20);
-end
-ival_glst = find(auc_lst<0.56);
-fprintf('[%d] Genes are left.\n', numel(ival_glst));
-
-%% Purify the subnetworks
-fprintf('Purify subnetworks for relevant genes ...\n');
-SubNet_Trimmed = cell(n_gene, 1);
-for gi=1:n_gene
-	in = ismember(SubNet_Full{gi}, ival_glst);
-	SubNet_Trimmed{gi} = SubNet_Full{gi}(~in);
-end
-sn_size = cellfun(@(x) numel(x), SubNet_Trimmed);
-SubNet_Trimmed(sn_size<1) = [];
+%% Remove empty subnetworks
+sn_size = cellfun(@(x) numel(x), SubNet_Full);
+SubNet_Trimmed = SubNet_Full(sn_size>0);
 n_snet = numel(SubNet_Trimmed);
 fprintf('Subnetworks are purified. [%d] are left.\n', n_snet);
 

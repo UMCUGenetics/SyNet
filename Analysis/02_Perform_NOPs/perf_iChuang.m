@@ -16,11 +16,7 @@ n_bin = floor(log2(n_TrSample)+1); % According to Author's paper
 
 %% Generate Neighbor Sets
 fprintf('Generating neighbor sets and subnetworks: ');
-nTr(1:n_gene+1:end) = 0;
-Neig_cell = cell(n_gene, 1);
-for ni=1:n_gene
-	Neig_cell{ni} = [ni find(nTr(ni, :))];
-end
+Neig_cell = getNeighborsFromAdj(nTr);
 
 %% Generate Subnetworks
 SubNet_Full = cell(n_gene, 1);

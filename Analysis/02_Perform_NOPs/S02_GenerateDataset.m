@@ -166,6 +166,7 @@ switch net_name
 		net_path = ['../01_Pairwise_Evaluation_of_Genes/Network_Files/' net_info.net_name '_' net_info.net_src '.mat'];
 		load(net_path, 'Net_Adj', 'Gene_Name');
 		Net_Adj = Net_Adj - min(Net_Adj(:)); % Set minimum value to zero
+		Net_Adj = Net_Adj / max(Net_Adj(:)); % Set maximum value to one
 		if ~issymmetric(Net_Adj), error('Adj Matrix is not symetric.\n'); end
 		switch net_info.param_type
 			case 'T' % Selecting top %d interactions
@@ -183,6 +184,7 @@ switch net_name
 		Net_Adj(del_ind, :) = [];
 		Net_Adj(:, del_ind) = [];
 		Gene_Name(del_ind) = [];
+		fprintf('[%d] genes are removed due to having no interactions.\n', sum(del_ind));
 		net_info.Net_Adj = Net_Adj;
 		net_info.Gene_Name = Gene_Name;
 		fprintf('[%d] genes are left in the network.\n', numel(Gene_Name));
