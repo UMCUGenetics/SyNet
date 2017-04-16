@@ -39,11 +39,21 @@ if ~ismac
 else
 	load('./Collected_result.mat');
 	if any(isnan(te_auc(:))), error(); end
+	load('/Users/amin/Technical/My_Works/Deep_Learning/113_Organize_SPADE_Codes/Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat', 'Study_Name', 'Study_Index');
 	
 	tmp = median(te_auc,4);
 	tmp = squeeze(median(tmp, 3));
 	boxplot(tmp);
 	set(gca, 'XTick', 1:n_net, 'XTickLabel', net_lst, 'XTickLabelRotation', 25);
+	
+	auc_feral = squeeze(tmp(4,:,:));
+	auc_single = squeeze(tmp(5,:,:));
+	imagesc(auc_feral-auc_single)
+	caxis([-6 6]); 
+	colormap(flipud(jet(10)));
+	colorbar();
+	set(gca, 'YTick', 1:n_net, 'YTickLabel', net_lst, 'YTickLabelRotation', 25, ...
+			 'XTick', 1:14, 'XTickLabel', Study_Name, 'XTickLabelRotation', 25);
 	
 	tmp = arrayfun(@(i) squeeze(te_auc(i,1,13,:)), 1:5, 'UniformOutput', false);
 	tmp = [tmp{:}];

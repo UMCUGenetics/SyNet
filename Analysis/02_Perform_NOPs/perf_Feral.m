@@ -24,8 +24,9 @@ end
 fprintf('Generating neighbor sets and subnetworks: ');
 nTr(1:n_gene+1:end) = 0;
 Neig_cell = cell(n_gene, 1);
+[iv_mat, ii_mat] = sort(nTr, 2, 'Descend');
 for ni=1:n_gene
-	Neig_cell{ni} = [ni find(nTr(ni, :))];
+	Neig_cell{ni} = [ni ii_mat(ni, iv_mat(ni,:)~=0)];
 end
 
 %% Generate Subnetworks

@@ -32,13 +32,13 @@ done
 %}
 	
 clc;
-% if ismac
-% 	fprintf('*** Warning!: Running on debug mode.\n');
-% 	method_lst = {'iChuang'};
-% 	data_lst = {};
-% 	net_lst = {'DSN-SyNetS1-T500'};
-% 	cv_id = '170411001004';
-% end
+if ismac
+	fprintf('*** Warning!: Running on debug mode.\n');
+	method_lst = {'Feral'};
+	data_lst = {};
+	net_lst = {'DSN-SyNetS13-T10000'};
+	cv_id = '170412Si13Ri01';
+end
 
 %% Initialization
 if isempty(net_lst)

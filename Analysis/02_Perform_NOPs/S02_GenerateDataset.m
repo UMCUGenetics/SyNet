@@ -19,7 +19,7 @@ cv_list = dir([cv_path 'CID-' cv_id '_*.mat']);
 if numel(cv_list)~=1, error('Missing or duplicated CV info found. [%s]', strjoin({cv_list.name}, ', ')); end
 cv_name = [cv_path cv_list.name];
 fprintf('Loading CV info [%s] ...\n', cv_name);
-load(cv_name);
+load(cv_name, 'tr_info', 'te_info');
 % if ~isempty(strfind(net_name, te_info.GEName)), error('Test data can not be used in training network.\n'); end
 if isequal(tr_info.GEPath, tr_info.GEPath) && any(tr_info.CVInd & te_info.CVInd)
 	error('Some samples test set are used in training.');
@@ -165,6 +165,7 @@ switch net_name
 		fprintf('Selected [%s] network from [%s], Type: [%s], Value: [%g]\n', net_info.net_name, net_info.net_src, net_info.param_type, net_info.param_val);
 		net_path = ['../01_Pairwise_Evaluation_of_Genes/Network_Files/' net_info.net_name '_' net_info.net_src '.mat'];
 		load(net_path, 'Net_Adj', 'Gene_Name');
+		Net_Adj = Net_Adj - min(Net_Adj(:)); % Set minimum value to zero
 		if ~issymmetric(Net_Adj), error('Adj Matrix is not symetric.\n'); end
 		switch net_info.param_type
 			case 'T' % Selecting top %d interactions
@@ -175,7 +176,8 @@ switch net_name
 			otherwise
 				error('Unknown network type.');
 		end
-		Net_Adj = Net_Adj >= adj_tresh;
+		%Net_Adj = Net_Adj >= adj_tresh;
+		Net_Adj(Net_Adj < adj_tresh) = 0;
 		Net_Adj(1:size(Net_Adj,1)+1:end) = 0; % Set diagonal to zero
 		del_ind = sum(Net_Adj,1)==0; % Remove genes with no interactions
 		Net_Adj(del_ind, :) = [];
@@ -224,8 +226,8 @@ function Dataset = getDataset(data_info, net_info, Valid_Gene_List)
 		otherwise
 			error('Unknown network.');
 	end
-	Net_Adj = double(max(Net_Adj, Net_Adj')>=1);
-	Net_Adj(1:n_gene+1:end) = 1;
+	Net_Adj = double(max(Net_Adj, Net_Adj'));
+	Net_Adj(1:n_gene+1:end) = 0;
 	if ~issymmetric(Net_Adj), error('Adj Matrix is not symetric.\n'); end
 	Dataset.Net_Adj = Net_Adj;
 end
