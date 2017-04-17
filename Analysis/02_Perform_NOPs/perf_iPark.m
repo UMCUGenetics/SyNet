@@ -97,10 +97,11 @@ result.B = opt_Bmat;
 result.fit = opt_fit;
 result.height = opt_height;
 result.SubNet_Full = ClsInd_cell;
-result.SubNet_Trimmed = cls_ind;
+result.SubNet_List = cls_ind;
 result.SubNet_Score = cls_scr;
 result.tr_auc = tr_auc;
 result.te_auc = te_auc;
 result.tr_mf = mTr;
 result.te_mf = mTe;
+result.Gene_Name = dataset_info.DatasetTr.Gene_Name;
 end

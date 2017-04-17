@@ -58,10 +58,10 @@ DatasetTe = getDataset(te_info, [], Valid_Gene_List);
 DatasetTe.GEName = te_info.GEName;
 
 %% Correct direction of genes
-if ismember(net_name(1:4), 'DSN-')
-	fprintf('[i] Disease specific network is detected. Correcting gene directions...\n');
-	[DatasetTr.Gene_Expression, DatasetTe.Gene_Expression] = CorrectGeneDirection(DatasetTr.Gene_Expression, DatasetTe.Gene_Expression, DatasetTr.Patient_Label);
-end
+% if ismember(net_name(1:4), 'DSN-')
+% 	fprintf('[i] Disease specific network is detected. Correcting gene directions...\n');
+% 	[DatasetTr.Gene_Expression, DatasetTe.Gene_Expression] = CorrectGeneDirection(DatasetTr.Gene_Expression, DatasetTe.Gene_Expression, DatasetTr.Patient_Label);
+% end
 
 %% Save dataset
 fprintf('Saving dataset in [%s].\n', dataset_name);

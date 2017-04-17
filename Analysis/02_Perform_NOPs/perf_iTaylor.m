@@ -74,6 +74,7 @@ result.tr_auc = tr_auc;
 result.te_auc = te_auc;
 result.tr_mf = mTr;
 result.te_mf = mTe;
-result.cls_ind = Neig_cell;
+result.SubNet_List = Neig_cell;
 result.SubNet_Score = cr_scr;
+result.Gene_Name = dataset_info.DatasetTr.Gene_Name;
 end

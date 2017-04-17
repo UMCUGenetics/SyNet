@@ -81,6 +81,7 @@ result.tr_mf = mTr;
 result.te_mf = mTe;
 result.SubNet_List = SubNet_Trimmed;
 result.SubNet_Score = snet_scr;
+result.Gene_Name = dataset_info.DatasetTr.Gene_Name;
 
 % for i=1:size(zTr,2) %###
 % 	tr_auc(i,1) = getAUC(lTr, zTr(:,i), 50);

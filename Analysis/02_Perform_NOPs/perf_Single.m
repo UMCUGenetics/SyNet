@@ -35,6 +35,7 @@ result.B = opt_B;
 result.fit = opt_fit;
 result.tr_auc = tr_auc;
 result.te_auc = te_auc;
+result.Gene_Name = dataset_info.DatasetTr.Gene_Name;
 
 % for i=1:size(zTr,2) %###
 % 	tr_auc(i,1) = getAUC(lTr, zTr(:,i), 50);

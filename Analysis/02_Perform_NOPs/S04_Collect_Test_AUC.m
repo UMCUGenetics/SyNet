@@ -74,8 +74,9 @@ else
 	load('/Users/amin/Technical/My_Works/Deep_Learning/113_Organize_SPADE_Codes/Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat', 'Study_Name')
 	data = load('./Collected_result_Part.mat');
 	te_part = data.te_auc(:,:,14,20);
-	te_full = te_auc(:,:,14,20);
-	imagesc(te_part-te_full);
+	data = load('./Collected_result_PartDA2.mat');
+	te_daa = data.te_auc(:,:,14,20);
+	imagesc(te_daa-te_part);
 	caxis([-4 4]); 
 	colormap(flipud(jet(11)));
 	colorbar();
