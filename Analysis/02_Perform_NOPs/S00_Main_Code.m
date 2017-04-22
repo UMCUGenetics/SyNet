@@ -14,7 +14,7 @@ for fn in CV_Files/*.mat; do
 			sbatch --job-name=$job_name --output=Logs/Main-$job_name.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code $fparam
 		done
 	done
-	read -t 3600 -p "Press a key to continue"
+	read -t 1800 -p "Press a key to continue"
 done
 
 step=1

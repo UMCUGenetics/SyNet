@@ -37,7 +37,8 @@ if ~ismac
 	end
 	save('./Collected_result.mat', 'te_auc');
 else
-	load('./Collected_result.mat');
+	load('./Collected_result_Part03.mat');
+	te_auc(:,:,:,5:end) = [];
 	if any(isnan(te_auc(:))), error(); end
 	load('/Users/amin/Technical/My_Works/Deep_Learning/113_Organize_SPADE_Codes/Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat', 'Study_Name', 'Study_Index');
 	

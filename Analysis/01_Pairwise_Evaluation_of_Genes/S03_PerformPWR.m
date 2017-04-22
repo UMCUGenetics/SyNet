@@ -34,7 +34,7 @@ n_pair = size(pair_list, 1);
 fprintf('Running pairwise check for [%d] pairs.\n', n_pair);
 
 %% Load CV info
-cv_name = [cv_path 'CV_' ge_name '_CVT01.mat'];
+cv_name = [cv_path 'CV_' ge_name '_CVT02.mat'];
 cv_info = load(cv_name);
 if ~isequal(cv_info.Patient_Label, Patient_Label), error(); end
 cv_obj = cv_info.cv_obj;
@@ -43,16 +43,16 @@ fprintf('Loading CV info from [%s], [%d] folds and [%d] repeats are loaded.\n', 
 
 %% Main loop
 fprintf('Pairwise comparison started at: %s\n', datetime);
-fprintf('Checking pairs:\n');
+fprintf('Evaluating pairs:\n');
 auc_pair = zeros(n_pair, 2+n_fold);
 for pi=1:n_pair
-	showprogress(pi, n_pair);
+	showprogress(pi, n_pair, 10, '%0.0f%%\n');
 	if mod(pi, 1000)==0
 		fprintf('Currently at [%08d/%08d] for genes [%05d/%05d]\n', pi, n_pair, pair_list(pi,:));
 	end
 	auc_rep = zeros(n_fold, n_rep);
-	for ri=1:n_rep
-		for fi=1:n_fold
+	for fi=1:n_fold
+		for ri=1:n_rep
 			%fprintf('Rep [%d], fold [%d]\n', ri, fi);
 			iTr = cv_obj(fi, ri).iTr;
 			iTe = cv_obj(fi, ri).iTe;
@@ -72,7 +72,7 @@ for pi=1:n_pair
 			tmp = fastAUC(lTe, pred, 1); auc_rep(fi, ri) = max([1-tmp tmp]);
 		end
 	end
-	auc_pair(pi, :) = [pair_list(pi,:) mean(auc_rep, 2)'];
+	auc_pair(pi, :) = [pair_list(pi,:) median(auc_rep, 2)'];
 end
 fprintf('Pairwise comparison finished at: %s\n', datetime);
 

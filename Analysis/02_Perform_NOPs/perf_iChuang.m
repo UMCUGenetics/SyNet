@@ -131,7 +131,6 @@ result.SubNet_Full = SubNet_Full;
 result.SubNet_List = SubNet_Trimmed;
 result.SubNet_MI = SubNet_MI;
 result.SubNet_Score = SubNet_PVal;
-SubNet_List
 result.Gene_Name = dataset_info.DatasetTr.Gene_Name;
 end
 

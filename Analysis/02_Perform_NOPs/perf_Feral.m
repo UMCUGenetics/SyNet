@@ -8,7 +8,7 @@ xTe = dataset_info.DatasetTe.Gene_Expression;
 lTe = dataset_info.DatasetTe.Patient_Label;
 [n_TrSample, n_gene] = size(xTr);
 n_TeSample = size(xTe, 1);
-MAX_SUBNET_SIZE = 7;
+MAX_SUBNET_SIZE = 2;
 MAX_N_SUBNET = opt_info.MAX_N_SUBNET;
 
 %% Correcting the gene directions
@@ -22,7 +22,7 @@ Neig_cell = getNeighborsFromAdj(nTr);
 SubNet_Full = cell(n_gene, 1);
 for gi=1:n_gene
 	showprogress(gi, n_gene);
-	SubNet_Full{gi} = getNetNeighborsBreadthFirst(Neig_cell, Neig_cell{gi}, 10, 1);
+	SubNet_Full{gi} = getNetNeighborsBreadthFirst(Neig_cell, Neig_cell{gi}, MAX_SUBNET_SIZE, 1);
 end
 
 %% Remove empty subnetworks
@@ -36,7 +36,6 @@ fprintf('Sorting the subnetworks based on prediction score: ');
 snet_auc = zeros(n_snet, 1);
 for si=1:n_snet
 	showprogress(si, n_snet, 20);
-	SubNet_Trimmed{si} = SubNet_Trimmed{si}(1:min([numel(SubNet_Trimmed{si}) MAX_SUBNET_SIZE]));
 	mTr = mean(xTr(:, SubNet_Trimmed{si}), 2);
 	snet_auc(si,1) = measureAUC(mTr, lTr, 20);
 	%snet_auc(si,2) = measureAUC(mTe, lTe, 20);

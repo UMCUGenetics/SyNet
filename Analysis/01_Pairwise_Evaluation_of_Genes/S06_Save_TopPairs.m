@@ -6,7 +6,7 @@ ge_name = 'SyNet';
 net_path = './Network_Files/';
 
 %% Load gene name
-net_name = [net_path 'DSN_' ge_name '-Mat.mat'];
+net_name = [net_path 'DSN_' ge_name '.mat'];
 fprintf('Loading [%s]\n', net_name);
 load(net_name, 'Pair_AUC', 'Gene_Name');
 n_gene = size(Pair_AUC, 1);
