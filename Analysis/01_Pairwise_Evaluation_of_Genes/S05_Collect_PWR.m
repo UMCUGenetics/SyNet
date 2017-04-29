@@ -72,7 +72,7 @@ for si=1:n_study+1
 	Net_Adj = single(-sqrt((ox-1).^2 + (oy-1).^2));
 	
 	%% Saving the network
-	sav_name = [net_path 'DSN_' ge_name 'S' num2str(si, '%d') '.mat'];
+	sav_name = [net_path 'DSN_' ge_name 'S' num2str(si, '%02d') '.mat'];
 	fprintf('Saving network in [%s] ... \n', sav_name);
 	save(sav_name, 'Net_Adj', 'Pair_AUC', 'Gene_Name', 'anc_data');
 end

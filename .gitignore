@@ -5,4 +5,5 @@
 *.zip
 *.RData
 *.csv
+*.pdf
 Gene_Expression_Datasets/TCGA/data/

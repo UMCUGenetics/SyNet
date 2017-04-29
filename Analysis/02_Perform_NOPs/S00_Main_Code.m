@@ -6,7 +6,7 @@ for fn in CV_Files/*.mat; do
 	echo "ID: $fi"
 	si=${fi:8:2}
 	dt_name=SyNet
-	nt_lst="Corr AbsCorr Random String Multinet KEGG MSigDB DSN-${dt_name}S${si}-P99.90 DSN-${dt_name}S${si}-P99.99 DSN-${dt_name}S${si}-P99.999 DSN-${dt_name}S${si}-T00500 DSN-${dt_name}S${si}-T01000 DSN-${dt_name}S${si}-T05000 DSN-${dt_name}S${si}-T10000 DSN-${dt_name}S${si}-T20000"
+	nt_lst="Corr AbsCorr Random String Multinet KEGG MSigDB DSN-${dt_name}S${si}-T00500 DSN-${dt_name}S${si}-T01000 DSN-${dt_name}S${si}-T02000 DSN-${dt_name}S${si}-T05000 DSN-${dt_name}S${si}-T10000 DSN-${dt_name}S${si}-T20000 DSN-${dt_name}S${si}-T50000 DSN-${dt_name}S${si}-T100000"
 	for nt_name in $nt_lst; do
 		for mt_name in Single iPark iChuang iTaylor Feral; do
 			fparam="{},{'$mt_name'},{'$nt_name'},'$fi'";
@@ -34,9 +34,9 @@ done
 clc;
 if ismac
 	fprintf('*** Warning!: Running on debug mode.\n');
-	method_lst = {'Single', 'iPark', 'iChuang', 'iTaylor', 'Feral'};
+	method_lst = {'Feral', 'Single', 'iPark', 'iChuang', 'iTaylor'};
 	data_lst = {};
-	net_lst = {'Corr'};
+	net_lst = {'DSN-SyNetS14-T0500'};
 	cv_id = '170412Si14Ri02';
 end
 
