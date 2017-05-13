@@ -24,7 +24,7 @@ n_Trn = numel(TrnInd);
 sel_ind = randperm(n_Trn, floor(n_Trn*0.7));
 cv_obj.iTr = false(n_sample, 1);
 cv_obj.iTr(TrnInd(sel_ind)) = 1;
-if sum([cv_obj.iTr cv_obj.iTe],2)>1, error(); end
+if any(sum([cv_obj.iTr cv_obj.iTe],2)>1), error(); end
 
 cv_obj.Train_Ind = Train_Ind;
 cv_obj.Test_Ind = Test_Ind;

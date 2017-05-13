@@ -1,7 +1,7 @@
 function path_str = getPath(data_name)
 switch data_name
-% 	case 'ACES'
-% 		path_str = '../../../Dataset/ACES/GE.mat';
+	case 'ACES'
+		path_str = '../../../../../Dataset/ACES/GE.mat';
 % 	case 'GBM'
 % 		path_str = '../../../Dataset/Cancer_Genomics_Browser/CGB_GBM.mat';
 % 	case 'GBMFl'

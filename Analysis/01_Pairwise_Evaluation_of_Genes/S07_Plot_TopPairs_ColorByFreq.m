@@ -32,10 +32,10 @@ ylabel('Synergy');
 title(['Score Space (' ge_name  ')']);
 hold on
 for ci=0:n_freq
-	is_cls = find(Pair_Rank==ci);
-	plot(PP_Info(is_cls,6), PP_Info(is_cls,7), '.b', 'MarkerEdgeColor', clr_map(ci+1,:), 'MarkerSize', 1);
-	is_cls(is_cls>10000) = [];
-	plot(PP_Info(is_cls,6), PP_Info(is_cls,7), '+b', 'MarkerEdgeColor', clr_map(ci+1,:), 'MarkerSize', 2);
+	is_in = find(Pair_Rank==ci);
+	is_top = is_in<=10000;
+	plot(PP_Info(is_in(~is_top),6), PP_Info(is_in(~is_top),7), '.' , 'MarkerEdgeColor', clr_map(   1,:), 'MarkerSize', 1);
+	plot(PP_Info(is_in( is_top),6), PP_Info(is_in( is_top),7), '+b', 'MarkerEdgeColor', clr_map(ci+1,:), 'MarkerSize', 2);
 end
 colormap(clr_map);
 clr_h = colorbar();

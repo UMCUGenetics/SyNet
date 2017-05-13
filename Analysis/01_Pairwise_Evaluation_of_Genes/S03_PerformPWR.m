@@ -5,6 +5,7 @@ function S03_PerformPWR(ge_name, batch_be, batch_en)
 addpath('../../../../Useful_Sample_Codes/getAUC/');
 addpath('../../../../Useful_Sample_Codes/fastAUC/');
 addpath('../../../../Useful_Sample_Codes/ShowProgress/');
+addpath('../_Utilities/');
 pwr_path = ['./PWR_Files/' ge_name '/'];
 cv_path = './CV_Files/';
 [~, ~] = mkdir(pwr_path);

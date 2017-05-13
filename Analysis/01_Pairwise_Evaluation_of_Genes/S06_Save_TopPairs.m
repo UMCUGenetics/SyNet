@@ -49,7 +49,8 @@ PP_Info = Pair_Info(1:100000, :);
 n_PP = size(PP_Info,1);
 PP_PerStudy = zeros(n_PP, n_study+2, 'single');
 
-rid = randperm(n_total-n_PP, n_PP*5) + n_PP;
+% rid = randperm(n_total-n_PP, n_PP*5) + n_PP;
+rid = randperm(n_total, n_PP*3);
 NP_Info = Pair_Info(rid, :);
 n_NP = size(NP_Info,1);
 NP_PerStudy = zeros(n_NP, n_study+2, 'single');
@@ -80,11 +81,10 @@ for ri=1:n_pwr
 			if PP_Map.isKey(Item_ID)
 				pr_ind = PP_Map(Item_ID);
 				PP_PerStudy(pr_ind,:) = res_data.auc_pair(in_lst(i),:);
-			elseif NP_Map.isKey(Item_ID)
+			end
+			if NP_Map.isKey(Item_ID)
 				pr_ind = NP_Map(Item_ID);
 				NP_PerStudy(pr_ind,:) = res_data.auc_pair(in_lst(i),:);
-			else
-				error();
 			end
 		end
 	else

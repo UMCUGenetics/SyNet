@@ -19,7 +19,9 @@ tr_auc_lam = zeros(1, n_lam);
 te_auc_lam = zeros(1, n_lam);
 for i=1:n_lam
 	tr_auc_lam(i) = getAUC(lTr, xTr*opt_B(:,i), 50);
-	te_auc_lam(i) = getAUC(lTe, xTe*opt_B(:,i), 50);
+	if ~isempty(xTe)
+		te_auc_lam(i) = getAUC(lTe, xTe*opt_B(:,i), 50);
+	end
 end
 fprintf('    Index: '); fprintf('%5d  ', 1:n_lam); fprintf('\n');
 fprintf('Train AUC: '); fprintf('%0.3f, ', tr_auc_lam); fprintf('\n');
@@ -57,6 +59,7 @@ end
 opt_fit.MSE = 1 - mean(fold_auc, 1);
 [opt_fit.MinMSE, opt_fit.IndexMinMSE] = min(opt_fit.MSE);
 fprintf('Best Lambda is determined as [%d].\n', opt_fit.IndexMinMSE);
+fprintf('Number of non-zero elements is: [%d]\n', sum(abs(opt_B(:,opt_fit.IndexMinMSE))>0));
 
 %% Saving
 result.B = opt_B;
