@@ -2,7 +2,7 @@ function [cTr, cTe] = IntegGenes(Nei_grp, zTr, lTr, zTe, Study_Index, Int_Type)
 
 %% Prepare data
 % if ~exist('Int_Type', 'var'), Int_Type='Mean'; end
-fprintf('Integrating genes using [%s] method ...\n', Int_Type);
+% fprintf('Integrating genes using [%s] method ...\n', Int_Type);
 n_zTr = size(zTr, 1);
 n_zTe = size(zTe, 1);
 n_grp = numel(Nei_grp);

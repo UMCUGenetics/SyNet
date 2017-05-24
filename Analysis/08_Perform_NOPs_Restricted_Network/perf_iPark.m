@@ -18,7 +18,7 @@ zTe = zscore(xTe);
 %% Park Method
 % hLst=unique(round(n_gene-logspace(log10(1),log10(n_gene), 10)+1));
 height_lst = unique(round(linspace(1,n_gene, 10)));
-height_lst(height_lst==n_gene) = []; %% In this case, it is using all genes (i.e. classic method and not park)
+% height_lst(height_lst==n_gene) = []; %% In this case, it is using all genes (i.e. classic method and not park)
 n_height = numel(height_lst);
 
 fprintf('Performing linkage algorithm.\n');

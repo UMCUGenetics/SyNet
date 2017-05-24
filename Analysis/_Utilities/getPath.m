@@ -2,6 +2,10 @@ function path_str = getPath(data_name)
 switch data_name
 	case 'ACES'
 		path_str = '../../../../../Dataset/ACES/GE.mat';
+	case 'TCGA'
+		path_str = '../../Gene_Expression_Datasets/TCGA/TCGA_Combined.mat';
+	case 'UTCGA'
+		path_str = '../../Gene_Expression_Datasets/TCGA/TCGA_Unnormalized.mat';
 % 	case 'GBM'
 % 		path_str = '../../../Dataset/Cancer_Genomics_Browser/CGB_GBM.mat';
 % 	case 'GBMFl'
@@ -14,6 +18,26 @@ switch data_name
 % 		path_str = '../108_Evaluation_of_NOPS_On_Networks/CMB_ACES-META-HAIBE.mat';
 	case 'SyNet'
 		path_str = '../../Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat';
+
+	%% Biological networks
+	case 'STRING'
+		path_str = '../../Networks/STRING/STRING_combined_score_GN_WithWeights.txt';
+	case 'STR.CoExpr'
+		path_str = '../../Networks/STRING/STRING_coexpression_GN_WithWeights.txt';
+	case 'STR.CoOccr'
+		path_str = '../../Networks/STRING/STRING_cooccurence_GN_WithWeights.txt';
+	case 'STR.DB'
+		path_str = '../../Networks/STRING/STRING_database_GN_WithWeights.txt';
+	case 'STR.Exprm'
+		path_str = '../../Networks/STRING/STRING_experimental_GN_WithWeights.txt';
+	case 'STR.Fus'
+		path_str = '../../Networks/STRING/STRING_fusion_GN_WithWeights.txt';
+	case 'STR.Neigh'
+		path_str = '../../Networks/STRING/STRING_neighborhood_GN_WithWeights.txt';
+	case 'STR.TxtMn'
+		path_str = '../../Networks/STRING/STRING_textmining_GN_WithWeights.txt';
+	case 'KEGG'
+		path_str = '../../Networks/KEGG/KEGG.txt';
 	otherwise
 		error();
 end

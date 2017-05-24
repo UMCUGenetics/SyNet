@@ -1,8 +1,9 @@
-% function S05_Collect_PWR(ge_name)
+function S05_Collect_PWR(ge_name)
 % Run: S05_Collect_PWR('SyNet')
 
 %% Initialization
 addpath('../../../../Useful_Sample_Codes/ShowProgress/');
+if ismac, ge_name='SyNet'; end
 pwr_path = ['./PWR_Files/' ge_name '/'];
 net_path = './Network_Files/';
 

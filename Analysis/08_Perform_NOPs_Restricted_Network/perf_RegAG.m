@@ -8,6 +8,7 @@ iTe = dataset_info.DatasetTe.UsedSample;
 fprintf('Loading train data: [%s]\n', dataset_info.DatasetTr.GEPath);
 data = load(dataset_info.DatasetTr.GEPath, 'Gene_Expression', 'Patient_Label', 'Gene_Name');
 xTr = data.Gene_Expression(iTr,:);
+Gene_Name = data.Gene_Name;
 lTr = (data.Patient_Label(iTr)==1)*2-1;
 if ~isequal(lTr, dataset_info.DatasetTr.Patient_Label), error(); end
 
@@ -39,7 +40,7 @@ fprintf('@@@@@ Final test performance for this dataset is [%0.2f%%] AUC.\n', res
 %% Saving the output
 result.SubNet_List = num2cell(1:n_gene)';
 result.SubNet_Score = (1:n_gene)';
-result.Gene_Name = data.Gene_Name;
+result.Gene_Name = Gene_Name;
 end
 
 

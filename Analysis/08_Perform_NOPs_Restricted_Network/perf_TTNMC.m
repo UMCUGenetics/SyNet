@@ -28,7 +28,7 @@ zTr = zTr(:, scr_ind(1:n_feat));
 zTe = zTe(:, scr_ind(1:n_feat));
 
 %% Traning the final model
-fprintf('Training the final model over [%d] features...\n', n_gene);
+fprintf('Training the final model over [%d] features...\n', n_feat);
 pred = nmc(zTr, lTr, zTe);
 
 %% Evaluating the model

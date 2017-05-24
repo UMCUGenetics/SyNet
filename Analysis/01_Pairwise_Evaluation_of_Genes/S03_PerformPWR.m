@@ -46,6 +46,7 @@ fprintf('Loading CV info from [%s], [%d] folds and [%d] repeats are loaded.\n', 
 fprintf('Pairwise comparison started at: %s\n', datetime);
 fprintf('Evaluating pairs:\n');
 auc_pair = zeros(n_pair, 2+n_fold);
+auc_cell = cell(n_pair, 1);
 for pi=1:n_pair
 	showprogress(pi, n_pair, 10, '%0.0f%%\n');
 	if mod(pi, 1000)==0
@@ -74,13 +75,14 @@ for pi=1:n_pair
 		end
 	end
 	auc_pair(pi, :) = [pair_list(pi,:) median(auc_rep, 2)'];
+	auc_cell{pi} = uint16(auc_rep*10000);
 end
 fprintf('Pairwise comparison finished at: %s\n', datetime);
 
 %% Saving
 sav_name = sprintf('%sPWR_%s_%08d-%08d.mat', pwr_path, ge_name, batch_be, batch_en);
 fprintf('Saving result in [%s]', sav_name);
-save(sav_name, 'auc_pair', 'Patient_Label', 'cv_name', 'cv_obj', 'pair_list', 'Gene_Name');
+save(sav_name, 'auc_pair', 'Patient_Label', 'cv_name', 'cv_obj', 'pair_list', 'Gene_Name', 'auc_cell');
 fprintf('Process finished at: %s\n', datetime);
 end
 

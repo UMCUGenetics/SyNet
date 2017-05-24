@@ -3,9 +3,10 @@ clear;
 
 %% Initialization
 addpath('../../../../Useful_Sample_Codes/BoxplotEx');
+addpath('../../../../Useful_Sample_Codes/ErrorbarEx/');
 addpath('../../../../Useful_Sample_Codes/Advance_Colormap/');
 load('../../Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat', 'Study_Name');
-res_name = 'Collected_NOP_results.mat';
+res_name = 'Collected_NOP_AUCs.mat';
 fprintf('Loading results from [%s] ...\n', res_name);
 clc_data = load(res_name);
 Method_lst = clc_data.method_lst;
@@ -17,16 +18,51 @@ n_std = 12;
 n_rep = 10;
 
 %{
-auc_mat = median(auc_mat, 4);
-auc_mat = median(auc_mat, 3);
+auc_mat = median(auc_mat, 4, 'omitnan');
+auc_mat = mean(auc_mat, 3, 'omitnan');
 imagesc(auc_mat);
 colormap(jet(10));
-set(gca, 'XTickLabel', Net_lst, 'XTickLabelRotation', 40, ...
-	'YTickLabel', Method_lst);
+% colormap(copper(10));
+set(gca, 'XTick', 1:n_net, 'XTickLabel', Net_lst, 'XTickLabelRotation', 40, ...
+	'YTick', 1:n_met, 'YTickLabel', Method_lst);
 colorbar();
-caxis([63 68]);
+caxis([0.63 0.68]);
 disp;
 %}
+
+%{%
+close all
+figure('Position', [100 100 1500 400]);
+hold on
+clr_map = jet(10);%[AdvancedColormap('cb', n_net/2); AdvancedColormap('mr', n_net/2)];
+X_lbl = {};
+step = 1;
+% auc_mat = median(auc_mat, 4, 'omitnan');
+anc_auc = squeeze(auc_mat(2, 5, :, :));
+for ni=[4 7 9:10 8]
+	for mi=[1 3 5 12]
+		auc = squeeze(auc_mat(mi, ni, :, :)); - anc_auc; % 
+		[muhat(1), sigmahat, muci, sigmaci] = normfit(repmat(auc(:),10,1));
+		muhat(2) = muhat(1) - muci(1);
+		muhat(3) = muci(2) - muhat(1);
+		
+		bar(step, muhat(1), 'FaceColor', clr_map(ni,:));
+		errorbarEx(step, muhat(1), muhat(2), muhat(3), 2, 0.2, [0 0 0]);
+		X_lbl{step, 1} = sprintf('%s', Method_lst{mi});
+		step = step + 1;
+	end
+	text(step, 0.69, Net_lst{ni}, 'HorizontalAlignment', 'Right', 'VerticalAlignment', 'Top', ...
+		'FontWeight', 'Bold', 'FontSize', 14);
+	step = step + 3;
+end
+xlim([0 step]);
+set(gca, 'XTick', 1:step-4, 'XTickLabel', X_lbl, 'XTickLabelRotation', 20, 'FontWeight', 'Bold');
+colormap(clr_map);
+ylim([0.61 0.69]);
+disp;
+% legend(Net_lst, 'FontWeight', 'Bold');
+%}
+
 %% Collection
 %{
 auc_index = [];
@@ -225,12 +261,14 @@ end
 
 %{%
 opt_lst = [
-	7 8
+	4 6
+	2 6
 	7 4
-	7 5
-	7 6
+	8 5
 	];
 close all
+figure('Position', [100 100 1500 400]);
+hold on
 X_Label = {};
 step = 1;
 for si=1:n_std
@@ -263,7 +301,7 @@ for si=1:n_std
 		end
 	end
 end
-set(gca, 'XLim', [0 step], 'YLim', [50 81]);
+set(gca, 'XLim', [0 step], 'YLim', [0.50 0.81]);
 set(gca, 'XTick', 1:step-1, 'XTickLabel', X_Label, 'XTickLabelRotation', 20, 'FontWeight', 'Bold', 'FontSize', 8);
 ylabel('AUC', 'FontSize', 12, 'FontWeight', 'Bold');
 

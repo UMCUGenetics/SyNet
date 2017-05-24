@@ -1,5 +1,7 @@
 function S02_GenerateCV(data_name, cv_type, n_rep)
 % S02_GenerateCV('SyNet', 2, 5)
+%% Initialization
+addpath('../_Utilities/');
 
 GeneExpression_Path = getPath(data_name);
 load(GeneExpression_Path, 'Patient_Label', 'Study_Index');
