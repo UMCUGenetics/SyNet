@@ -38,6 +38,7 @@ for fi=1:n_file
 	end
 	
 	auc_pair = [pwr_data.auc_pair median(pwr_data.auc_pair(:,3:end), 2)];
+	std_pair = 0;
 	n_pair = size(auc_pair, 1);
 	fprintf('got [%d] pair AUCs.\n', n_pair);
 	for si=1:n_study+1

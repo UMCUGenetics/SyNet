@@ -17,8 +17,7 @@ n_net = numel(Net_lst);
 n_std = 12;
 n_rep = 10;
 
-%{
-auc_mat = median(auc_mat, 4, 'omitnan');
+%{%
 auc_mat = mean(auc_mat, 3, 'omitnan');
 imagesc(auc_mat);
 colormap(jet(10));
@@ -26,7 +25,7 @@ colormap(jet(10));
 set(gca, 'XTick', 1:n_net, 'XTickLabel', Net_lst, 'XTickLabelRotation', 40, ...
 	'YTick', 1:n_met, 'YTickLabel', Method_lst);
 colorbar();
-caxis([0.63 0.68]);
+% caxis([0.63 0.68]);
 disp;
 %}
 

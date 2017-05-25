@@ -51,7 +51,7 @@ n_meth = numel(method_lst);
 
 %% Main Loop
 fprintf([repmat('/',1,20) ' Start of main loop ' repmat('/',1,20) '\n']);
-cv_id = sprintf('CVT91_Si%02d-Ri%03d', Target_Study, Target_Repeat);
+cv_id = sprintf('CVT01_Si%02d-Ri%03d', Target_Study, Target_Repeat);
 fprintf('[i] CV ID is: %s\n', cv_id);
 fprintf('[i] Method list is: %s\n', strjoin(method_lst, ', '));
 fprintf('[i] Network list is: %s\n', strjoin(net_lst, ', '));
