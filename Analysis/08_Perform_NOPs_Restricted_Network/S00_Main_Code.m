@@ -7,6 +7,8 @@ PARAM="$si,$ri"; sbatch --job-name=NE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.ou
 done;
 read -p "Press a key" -t 1800
 done
+
+UMC: PARAM="si,$ri,{'TAgNMC','TNMC','TLEx','TAgLEx'},{'Random-T00010'},10"; qsub -N "NE-$PARAM" ~/bulk/env/run_Matlab.sh S00_Main_Code "$PARAM";
 %}
 
 %% ####
@@ -14,9 +16,9 @@ if ismac
 	fprintf('*** Warning!: Running on debug mode.\n');
 	Target_Repeat = 1;
 	Target_Study = 1;
+	method_lst = {'TAgNMC'};
 	net_lst = {'Random-T00050'};
-	method_lst = {'TLEx'};
-	MAX_N_SUBNET = 70;
+	MAX_N_SUBNET = 20;
 end
 
 %% Initialization
