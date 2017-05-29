@@ -48,12 +48,14 @@ n_study = 14;
 PP_Info = Pair_Info(1:100000, :);
 n_PP = size(PP_Info,1);
 PP_PerStudy = zeros(n_PP, n_study+2, 'single');
+PP_cell = cell(n_PP, 1);
 
 % rid = randperm(n_total-n_PP, n_PP*5) + n_PP;
 rid = randperm(n_total, n_PP*3);
 NP_Info = Pair_Info(rid, :);
 n_NP = size(NP_Info,1);
 NP_PerStudy = zeros(n_NP, n_study+2, 'single');
+NP_cell = cell(n_NP, 1);
 
 %% Get per study score
 PP_ID = arrayfun(@(i) sprintf('%d-%d', PP_Info(i,1:2)), 1:n_PP, 'UniformOutput', 0)';
@@ -71,7 +73,7 @@ fprintf('Found [%d] results.\n', n_pwr);
 for ri=1:n_pwr
 	res_name = [pwr_path pwr_lst(ri).name];
 	fprintf('[%d/%d] Loading [%s]. ', ri, n_pwr, res_name);
-	res_data = load(res_name, 'auc_pair');
+	res_data = load(res_name, 'auc_pair', 'auc_cell');
 	is_in = ismember(res_data.auc_pair(:,1:2), PP_Info(:,1:2), 'rows') | ismember(res_data.auc_pair(:,1:2), NP_Info(:,1:2), 'rows');
 	if any(is_in)
 		in_lst = find(is_in);
@@ -81,14 +83,16 @@ for ri=1:n_pwr
 			if PP_Map.isKey(Item_ID)
 				pr_ind = PP_Map(Item_ID);
 				PP_PerStudy(pr_ind,:) = res_data.auc_pair(in_lst(i),:);
+				PP_cell{pr_ind} = res_data.auc_cell{in_lst(i)};
 			end
 			if NP_Map.isKey(Item_ID)
 				pr_ind = NP_Map(Item_ID);
 				NP_PerStudy(pr_ind,:) = res_data.auc_pair(in_lst(i),:);
+				NP_cell{pr_ind} = res_data.auc_cell{in_lst(i)};
 			end
 		end
 	else
-		fprintf('\n');
+		fprintf('Found none.\n');
 	end
 end
-save(['./Top_Pairs/Top_' ge_name '.mat'], 'Ind_AUC', 'NP_Info', 'PP_Info', 'Gene_Name', 'PP_PerStudy', 'NP_PerStudy');
+save(['./Top_Pairs/Top_' ge_name '.mat'], 'Ind_AUC', 'NP_Info', 'PP_Info', 'PP_cell', 'NP_cell', 'Gene_Name', 'PP_PerStudy', 'NP_PerStudy'); % , '-v7.3'

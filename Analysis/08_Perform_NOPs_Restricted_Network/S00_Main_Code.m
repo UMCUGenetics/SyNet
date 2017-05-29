@@ -2,22 +2,22 @@ function S00_Main_Code(Target_Study, Target_Repeat, method_lst, net_lst, MAX_N_S
 %% Run 
 %{
 for ri in `seq 1 10`; do
-for si in `seq 1 12`; do
+for si in `seq 1 14`; do
 PARAM="$si,$ri"; sbatch --job-name=NE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=8GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code "$PARAM";
 done;
 read -p "Press a key" -t 1800
 done
 
-UMC: PARAM="si,$ri,{'TAgNMC','TNMC','TLEx','TAgLEx'},{'Random-T00010'},10"; qsub -N "NE-$PARAM" ~/bulk/env/run_Matlab.sh S00_Main_Code "$PARAM";
+UMC: PARAM="$si,$ri,{'TAgNMC','TNMC','TLEx','TAgLEx'},{'Random-T00010'},10"; qsub -N "NE-$PARAM" ~/bulk/env/run_Matlab.sh S00_Main_Code "$PARAM";
 %}
 
 %% ####
 if ismac
 	fprintf('*** Warning!: Running on debug mode.\n');
 	Target_Repeat = 1;
-	Target_Study = 1;
-	method_lst = {'TAgNMC'};
-	net_lst = {'Random-T00050'};
+	Target_Study = 3;
+	method_lst = {'CFGLasso'};
+	net_lst = {'StdARm-T00020'};
 	MAX_N_SUBNET = 20;
 end
 
@@ -29,7 +29,7 @@ addpath(genpath('../../../../Useful_Sample_Codes/SLEP'));
 addpath(genpath('../../../../Useful_Sample_Codes/getAUC'));
 dataset_path = './Dataset_Files/';
 result_path = './Results_Files/';
-opt_info.lasso_opt = {'lassoType', 't', 'CV', [], 'relTol', 5e-2, 'n_lC', 20, 'lC_ratio', 1e-2, 'paroptions', statset('UseParallel',false), 'verbose', 0};
+opt_info.lasso_opt = {'lassoType', 't', 'CV', [], 'relTol', 5e-2, 'n_lC', 20, 'lC_ratio', 1e-2, 'verbose', 0};
 if ~exist('MAX_N_SUBNET', 'var')
 	opt_info.MAX_N_SUBNET = 500;
 else

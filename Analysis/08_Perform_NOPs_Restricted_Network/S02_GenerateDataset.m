@@ -177,7 +177,51 @@ switch net_info.net_name
 			end
 		end
 	otherwise
-		error('Unknown network.');
+		net_info.net_path = sprintf([dsn_path 'DSN_SyNetS%02d.mat'], te_info.Study_Ind);
+		load(net_info.net_path, 'Pair_AUC', 'Gene_Name');
+		n_gene = size(Pair_AUC,1);
+		ind_auc = Pair_AUC(1:n_gene+1:end)';
+		Pair_Dist = zeros(n_gene);
+		for ni=1:3:numel(net_info.net_name)
+			nn_part = net_info.net_name(ni:ni+2);
+			fprintf('Computing [%s] ... \n', nn_part);
+			switch nn_part
+				case 'Min'
+					ax_min = bsxfun(@min, ind_auc, ind_auc');
+					Pair_Dist = Pair_Dist + (oscore(ax_min)-1).^2;
+					clear ax_min
+				case 'Avg'
+					ax_avg = bsxfun(@(x,y) (x+y)/2, ind_auc, ind_auc');
+					Pair_Dist = Pair_Dist + (oscore(ax_avg)-1).^2;
+					clear ax_avg
+				case 'Crr'
+					ge_data = load(tr_info.GEPath, 'Gene_Expression');
+					ax_crr = abs(corr(ge_data.Gene_Expression(tr_info.CVInd,:), 'Type', 'Spearman'));
+					ax_crr(1:size(ax_crr,1)+1:end) = 0;
+					Pair_Dist = Pair_Dist + (oscore(ax_crr)-1).^2;
+					clear ge_data ax_crr
+				case 'Syn'
+					pair_max = bsxfun(@max, ind_auc, ind_auc');
+					Pair_Dist = Pair_Dist + (oscore(Pair_AUC./pair_max)-1).^2;
+					clear pair_max
+				case 'Std'
+					load(net_info.net_path, 'Pair_Std');
+					Pair_Dist = Pair_Dist + oscore(Pair_Std).^2;
+					clear Pair_Std
+				case 'SRm'
+					load(net_info.net_path, 'Pair_Std');
+					Pair_Dist(Pair_Std(:)>0.03) = max(Pair_Dist(:));
+					clear Pair_Std
+				case 'ARm'
+					pair_max = bsxfun(@max, ind_auc, ind_auc');
+					pair_syn = Pair_AUC./pair_max;
+					Pair_Dist(pair_syn(:)<1.07) = max(Pair_Dist(:));
+				otherwise
+					error('Unknown error.');
+			end
+		end
+		Net_Adj = single(-sqrt(Pair_Dist));
+		clear NetScr
 end
 Net_Adj = double(max(Net_Adj, Net_Adj'));
 if ~issymmetric(Net_Adj), error('Adj Matrix is not symetric.\n'); end
@@ -236,4 +280,9 @@ for ti=1:n_tar
 	Ind_List(ti) = GMap(Target_List{ti});
 end
 if ~isequal(Target_List, Population_List(Ind_List)), error(); end
+end
+
+function lst = oscore(lst)
+lst = lst - min(lst(:));
+lst = lst ./ max(lst(:));
 end

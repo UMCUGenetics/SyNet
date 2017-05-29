@@ -2,7 +2,7 @@ function result = LassoWithCV(func, xTr, lTr, xTe, lTe, Study_Index, lasso_opt)
 
 %% Initialization
 if ~exist('lasso_opt', 'var')
-	lasso_opt = {'lassoType', 't', 'CV', [], 'relTol', 5e-2, 'n_lC', 20, 'lC_ratio', 1e-2, 'paroptions', statset('UseParallel',false), 'verbose', 1};
+	lasso_opt = {'lassoType', 't', 'CV', [], 'relTol', 5e-2, 'n_lC', 20, 'lC_ratio', 1e-2, 'verbose', 1};
 end
 if ~exist('func', 'var') || isempty(func)
 	func = @lassoEx;

@@ -28,7 +28,9 @@ for fi=1:n_file
 		fprintf('\n[%d] studies are found ...\n', n_study);
 		for si=1:n_study+1
 			Total_AUC{si,1} = zeros(n_gene);
+			Total_Std{si,1} = zeros(n_gene);
 		end
+		%bl_data = load('./Baseline_AUCs/BA_CV01_TAgNMC_Random-T00020.mat');
 	end
 	if ~isequal(anc_data.Patient_Label, pwr_data.Patient_Label) || ...
 			~isequal(anc_data.Gene_Name, pwr_data.Gene_Name) || ...
@@ -37,14 +39,24 @@ for fi=1:n_file
 		error('Data is not consistent.\n');
 	end
 	
-	auc_pair = [pwr_data.auc_pair median(pwr_data.auc_pair(:,3:end), 2)];
-	std_pair = 0;
-	n_pair = size(auc_pair, 1);
+	%% Get Std
+	auc_cell = pwr_data.auc_cell;
+	n_pair = size(auc_cell, 1);
 	fprintf('got [%d] pair AUCs.\n', n_pair);
+	std_pair = zeros(n_pair, n_study+1);
+	for pi=1:n_pair
+		std_pair(pi,1:n_study) = std(double(auc_cell{pi})/10000, 0, 2);
+	end
+	
+	%% Get Median
+	std_pair(:, end) =               std(pwr_data.auc_pair(:,3:end),0,2);
+	auc_pair = [pwr_data.auc_pair median(pwr_data.auc_pair(:,3:end), 2)];
 	for si=1:n_study+1
 		for pi=1:n_pair
 			Total_AUC{si}(auc_pair(pi,1), auc_pair(pi,2)) = auc_pair(pi,si+2);
 			Total_AUC{si}(auc_pair(pi,2), auc_pair(pi,1)) = auc_pair(pi,si+2);
+			Total_Std{si}(auc_pair(pi,1), auc_pair(pi,2)) = std_pair(pi,si);
+			Total_Std{si}(auc_pair(pi,2), auc_pair(pi,1)) = std_pair(pi,si);
 		end
 	end
 end
@@ -52,6 +64,7 @@ end
 %% Saving the networks
 for si=1:n_study+1
 	Pair_AUC = Total_AUC{si};
+	Pair_Std = Total_Std{si};
 	if ~ismac && any(Pair_AUC(:)<0.5)
 		fprintf('[i] Warning: Some pairs are missing AUC in [%d].\n', si);
 		save(sprintf('./tmp_%d.mat', si), 'Pair_AUC');
@@ -76,5 +89,5 @@ for si=1:n_study+1
 	%% Saving the network
 	sav_name = [net_path 'DSN_' ge_name 'S' num2str(si, '%02d') '.mat'];
 	fprintf('Saving network in [%s] ... \n', sav_name);
-	save(sav_name, 'Net_Adj', 'Pair_AUC', 'Gene_Name', 'anc_data');
+	save(sav_name, 'Net_Adj', 'Pair_AUC', 'Pair_Std', 'Gene_Name', 'anc_data');
 end

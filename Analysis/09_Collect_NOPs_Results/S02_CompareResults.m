@@ -1,12 +1,13 @@
 clc;
 clear;
+close all
 
 %% Initialization
 addpath('../../../../Useful_Sample_Codes/BoxplotEx');
 addpath('../../../../Useful_Sample_Codes/ErrorbarEx/');
 addpath('../../../../Useful_Sample_Codes/Advance_Colormap/');
 load('../../Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat', 'Study_Name');
-res_name = 'Collected_NOP_AUCs.mat';
+res_name = 'Collected_NOP_CV01_AUCs.mat';
 fprintf('Loading results from [%s] ...\n', res_name);
 clc_data = load(res_name);
 Method_lst = clc_data.method_lst;
@@ -17,37 +18,40 @@ n_net = numel(Net_lst);
 n_std = 12;
 n_rep = 10;
 
-%{
-auc_mat = median(auc_mat, 4, 'omitnan');
-auc_mat = mean(auc_mat, 3, 'omitnan');
-imagesc(auc_mat);
+%{%
+% auc_mat = median(auc_mat, 4, 'omitnan');
+auc_mat = median(auc_mat, 4);
+% auc_mat = mean(auc_mat, 3, 'omitnan'); % 
+auc_mat = mean(auc_mat, 3);
+img_h = imagesc(auc_mat);
+set(img_h, 'AlphaData', ~isnan(auc_mat));
 colormap(jet(10));
 % colormap(copper(10));
 set(gca, 'XTick', 1:n_net, 'XTickLabel', Net_lst, 'XTickLabelRotation', 40, ...
 	'YTick', 1:n_met, 'YTickLabel', Method_lst);
 colorbar();
 caxis([0.63 0.68]);
-disp;
+disp();
 %}
 
-%{%
+%{
 close all
 figure('Position', [100 100 1500 400]);
 hold on
-clr_map = jet(10);%[AdvancedColormap('cb', n_net/2); AdvancedColormap('mr', n_net/2)];
+clr_map = jet(16);%[AdvancedColormap('cb', n_net/2); AdvancedColormap('mr', n_net/2)];
 X_lbl = {};
 step = 1;
 % auc_mat = median(auc_mat, 4, 'omitnan');
+load('../01_Pairwise_Evaluation_of_Genes/Baseline_AUCs/BA_CV01_TAgNMC_Random-T00020.mat', 'BaseLine_AUC');
 anc_auc = squeeze(auc_mat(2, 5, :, :));
-for ni=[4 7 9:10 8]
-	for mi=[1 3 5 12]
-		auc = squeeze(auc_mat(mi, ni, :, :)); - anc_auc; % 
-		[muhat(1), sigmahat, muci, sigmaci] = normfit(repmat(auc(:),10,1));
-		muhat(2) = muhat(1) - muci(1);
-		muhat(3) = muci(2) - muhat(1);
+for ni=[7 8 9 10 12 14 15 16]
+	for mi=[1 3 4 5 12]
+		auc_set = squeeze(auc_mat(mi, ni, :, :)); - squeeze(auc_mat(1, ni, :, :)); - BaseLine_AUC(1:12); % 
+		avg_set = mean(repmat(auc_set(:),100,1));
+		std_set = std(repmat(auc_set(:),100,1));
 		
-		bar(step, muhat(1), 'FaceColor', clr_map(ni,:));
-		errorbarEx(step, muhat(1), muhat(2), muhat(3), 2, 0.2, [0 0 0]);
+		bar(step, avg_set, 'FaceColor', clr_map(ni,:));
+		errorbarEx(step, avg_set, std_set, std_set, 2, 0.2, [0 0 0]);
 		X_lbl{step, 1} = sprintf('%s', Method_lst{mi});
 		step = step + 1;
 	end
@@ -58,7 +62,7 @@ end
 xlim([0 step]);
 set(gca, 'XTick', 1:step-4, 'XTickLabel', X_lbl, 'XTickLabelRotation', 20, 'FontWeight', 'Bold');
 colormap(clr_map);
-ylim([0.61 0.69]);
+% ylim([0.61 0.69]);
 disp;
 % legend(Net_lst, 'FontWeight', 'Bold');
 %}
@@ -186,7 +190,8 @@ for mi=1:n_met
 end
 %}
 
-%{
+%{ 
+%Met-Net vs Met-Net
 step = 1;
 X_lbl = {};
 auc_cell = {};
@@ -261,10 +266,10 @@ end
 
 %{%
 opt_lst = [
-	4 6
-	2 6
-	7 4
-	8 5
+	12 7
+	12 11
+	12 9
+	12 10
 	];
 close all
 figure('Position', [100 100 1500 400]);

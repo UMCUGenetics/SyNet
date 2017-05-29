@@ -7,7 +7,7 @@ addpath('../../../../Useful_Sample_Codes/getTop');
 addpath('../../../../Useful_Sample_Codes/FisherExactTest/');
 
 %% Load NOPs results
-load('../S09_Collect_NOPs_Results/Collected_NOP_Markers.mat', 'Gene_Name', 'Result_Marker', 'method_lst', 'net_lst', 'Result_AUC');
+load('../09_Collect_NOPs_Results/Collected_NOP_CV01_Markers.mat', 'Gene_Name', 'Result_Marker', 'method_lst', 'net_lst', 'Result_AUC');
 % 1:Method_Index 2:Network_Index 3:Study_Index 4:Repeat_Index 5: Te_AUC
 n_met = numel(method_lst);
 n_net = numel(net_lst);
