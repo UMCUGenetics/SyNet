@@ -23,7 +23,7 @@ for mi=1:n_met
 		for si=1:n_study
 			is_in = Result_Marker(:,1)==mi & Result_Marker(:,2)==ni & Result_Marker(:,3)==si;
 			Mrk_set = Result_Marker(is_in,6:end);
-			Top_Gene = nonzeros(Mrk_set);
+			Top_Gene = nonzeros(Mrk_set(:,1:100));
 			[Top_List{mi,ni,si}, Top_Freq] = getTop(Top_Gene, 100);
 			if numel(Top_List{mi,ni,si})<100
 				Top_List{mi,ni,si} = [Top_List{mi,ni,si}; randi(n_gene, 100-numel(Top_List{mi,ni,si}), 1)];
@@ -40,7 +40,7 @@ for mi=1:n_met
 		for si=1:n_study
 			for sj=si+1:n_study
 				[~, ~, pval] = getFET(Top_List{mi,ni,si}, Top_List{mi,ni,sj}, All_Gene);
-				Study_fet{mi,ni} = [Study_fet{mi,ni} -log10(pval)];
+				Study_fet{mi,ni} = nonzeros([Study_fet{mi,ni} -log10(pval)])';
 			end
 		end
 	end
@@ -51,21 +51,30 @@ step = 1;
 X_lbl = {};
 hold on
 clr_map = jet(5)*0.9;%[AdvancedColormap('cb', n_net/2); AdvancedColormap('mr', n_net/2)];
-for ni=[1 2 4 5 3]
+for ni=[1 2 3 5]
 	for mi=2:n_met
 		box_h = boxplot(Study_fet{mi,ni}, 'Position', step, 'Color', clr_map(ni,:), 'Widths', 0.5);
 		set(box_h, 'LineWidth', 2);
 		X_lbl{step,1} = sprintf('%s', method_lst{mi});
 		step = step + 1;
 	end
-	text(step-1, 220, net_lst{ni}, 'HorizontalAlignment', 'Right', 'VerticalAlignment', 'Top', ...
+	text(step-2, 250, net_lst{ni}, 'HorizontalAlignment', 'Center', 'VerticalAlignment', 'Top', ...
 		'FontWeight', 'Bold', 'FontSize', 14);
 	step = step + 1;
 end
 set(gca, 'Xlim', [0 step], 'Ylim', [0 230], ...
 	'XTick', 1:step-2, 'XTicklabel', X_lbl, 'XTicklabelRotation', 30, 'FontWeight', 'Bold');
-close all
+set(gca,'box','off');
+h=findobj(gca,'tag','Outliers');
+delete(h);
 
+%% Saving
+output_name = sprintf('./Plots/S04_NOPs_StabilityFET.pdf');
+set(gcf, 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [36 10], 'PaperPosition', [0 0 36 10]);
+print('-dpdf', '-r300', output_name);
+
+%%
+close all
 Stab_fet = zeros(n_met, n_net);
 for mi=1:n_met
 	for ni=1:n_net

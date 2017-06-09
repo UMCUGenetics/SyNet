@@ -95,35 +95,6 @@ switch net_info.net_name
 	case 'AbsCorr'
 		Net_Adj = abs(corr(tr_info.Gene_Expression, 'Type', 'Spearman'));
 		Gene_Name = tr_info.Gene_Name;
-	case 'SyNet'
-		net_info.net_path = sprintf([dsn_path 'DSN_%sS%02d.mat'], net_info.net_name, te_info.Study_Ind);
-		load(net_info.net_path, 'Net_Adj', 'Gene_Name');
-	case {'CrMinSyn' 'CrSyn'}
-		net_info.net_path = sprintf([dsn_path 'DSN_SyNetS%02d.mat'], te_info.Study_Ind);
-		load(net_info.net_path, 'Pair_AUC', 'Gene_Name');
-		n_gene = size(Pair_AUC,1);
-		ind_auc = Pair_AUC(1:n_gene+1:end)';
-		switch net_info.net_name
-			case 'CrMinSyn'
-				x_axis = bsxfun(@min, ind_auc, ind_auc');
-			case 'CrSyn'
-				x_axis = bsxfun(@(x,y) (x+y)/2, ind_auc, ind_auc');
-		end
-		ox = x_axis-min(x_axis(:));
-		ox = ox./max(ox(:));
-		
-		pair_max = bsxfun(@max, ind_auc, ind_auc');
-		y_axis = Pair_AUC./pair_max;
-		oy = y_axis-min(y_axis(:));
-		oy = oy./max(oy(:));
-		
-		z_data = load(tr_info.GEPath, 'Gene_Expression');
-		z_axis = abs(corr(z_data.Gene_Expression(tr_info.CVInd,:), 'Type', 'Spearman'));
-		z_axis(1:size(z_axis,1)+1:end) = 0;
-		oz = z_axis-min(z_axis(:));
-		oz = oz./max(oz(:));
-		
-		Net_Adj = single(-sqrt((ox-1).^2 + (oy-1).^2 + (oz-1).^2));
 	case {'KEGG'}
 		net_info.net_path = getPath(net_info.net_name);
 		GSet_lst = regexp(fileread(net_info.net_path), '\n', 'split')';
@@ -216,6 +187,12 @@ switch net_info.net_name
 					pair_max = bsxfun(@max, ind_auc, ind_auc');
 					pair_syn = Pair_AUC./pair_max;
 					Pair_Dist(pair_syn(:)<1.07) = max(Pair_Dist(:));
+				case 'CRm'
+					ge_data = load(tr_info.GEPath, 'Gene_Expression');
+					ax_crr = abs(corr(ge_data.Gene_Expression(tr_info.CVInd,:), 'Type', 'Spearman'));
+					ax_crr(1:size(ax_crr,1)+1:end) = 0;
+					Pair_Dist(ax_crr(:)>0.3) = max(Pair_Dist(:));
+					clear ge_data ax_crr
 				otherwise
 					error('Unknown error.');
 			end

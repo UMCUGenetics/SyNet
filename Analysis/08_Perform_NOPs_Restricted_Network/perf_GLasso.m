@@ -14,6 +14,11 @@ if isfield(opt_info, 'MAX_SUBNET_SIZE')
 else
 	MAX_SUBNET_SIZE = 5;
 end
+if isfield(opt_info, 'lam_list')
+	lam_list = opt_info.lam_list;
+else
+	lam_list = [];
+end
 fprintf('[i] Using MAX SN Size = %d\n', MAX_SUBNET_SIZE);
 
 %% Correcting the gene directions
@@ -67,7 +72,7 @@ cTe(:, step:end) = [];
 
 %% Train Group lasso
 fprintf('Training group lasso over [%d] groups and [%d] features ...\n', n_snet, size(cTr,2));
-lasso_opt = {'lassoType', 'sgt', 'CV', 5, 'iCvPar', Fold_Index, 'relTol', 5e-2, 'n_lC', 15, 'lC_ratio', 1e-2, ...
+lasso_opt = {'lassoType', 'sgt', 'CV', 5, 'iCvPar', Fold_Index, 'relTol', 5e-2, 'lam_list', lam_list, 'n_lC', 15, 'lC_ratio', 1e-2, ...
 	'n_lG', 15, 'lG_ratio', 1e-2, 'group_ind', group_ind, 'lambdaType', 'no-grid', 'paroptions', statset('UseParallel',false), 'verbose', 0};
 [opt_B, opt_fit] = lassoEx(cTr, lTr, lasso_opt{:});
 

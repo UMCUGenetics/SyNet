@@ -23,13 +23,22 @@ end
 %% Selecting top genes
 [SubNet_Score, scr_ind] = sort(-log10(pv_mat), 'Descend');
 SubNet_List = num2cell(scr_ind)';
-n_feat = min([MAX_N_SUBNET n_gene]);
-zTr = zTr(:, scr_ind(1:n_feat));
-zTe = zTe(:, scr_ind(1:n_feat));
 
 %% Traning the final model
-fprintf('Training the final model over [%d] features...\n', n_feat);
-pred = nmc(zTr, lTr, zTe);
+if isfield(opt_info, 'FindK')
+	fprintf('Training the adaptive model over [%d] features...\n', n_gene);
+	[~, ~, Fold_Index] = unique(dataset_info.DatasetTr.iCvPar, 'Stable');
+	[pred, opt_K] = nmc(zTr(:,scr_ind), lTr, zTe(:,scr_ind), struct('iCvPar', Fold_Index));
+	fprintf('Best K is: %d\n', opt_K);
+	result.opt_K = opt_K;
+else
+	n_feat = min([MAX_N_SUBNET n_gene]);
+	fprintf('Training the final model over [%d] features...\n', n_feat);
+	zTr = zTr(:, scr_ind(1:n_feat));
+	zTe = zTe(:, scr_ind(1:n_feat));
+	pred = nmc(zTr, lTr, zTe);
+	result.opt_K = n_feat;
+end
 
 %% Evaluating the model
 tr_auc = 1;

@@ -3,7 +3,7 @@ function S00_Main_Code(Target_Study, Target_Repeat, method_lst, net_lst, MAX_N_S
 %{
 for ri in `seq 1 10`; do
 for si in `seq 1 14`; do
-PARAM="$si,$ri"; sbatch --job-name=NE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=8GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code "$PARAM";
+PARAM="$si,$ri"; sbatch --job-name=NE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code "$PARAM";
 done;
 read -p "Press a key" -t 1800
 done
@@ -16,9 +16,9 @@ if ismac
 	fprintf('*** Warning!: Running on debug mode.\n');
 	Target_Repeat = 1;
 	Target_Study = 3;
-	method_lst = {'CFGLasso'};
-	net_lst = {'StdARm-T00020'};
-	MAX_N_SUBNET = 20;
+	method_lst = {'TNMCAd'};
+	net_lst = {'STRING-T10000'};
+	MAX_N_SUBNET = 50;
 end
 
 %% Initialization
@@ -38,9 +38,10 @@ end
 
 if ~exist('net_lst', 'var') || isempty(net_lst)
 	net_lst = {
-		'CrSyn-T10000', 'CrMinSyn-T10000' ... % 'SyNet-T10000', 'MinSyn-T10000', 'AvgSyn-T10000', 
-		'AbsCorr-T10000','Random-T10000', ... % 'Corr-T10000',
-		'STRING-T10000', 'KEGG-T10000'
+		'SyNet-T10000', 'MinSyn-T10000', 'AvgSyn-T10000', 'CrrSyn-T10000', 'CrrMinSyn-T10000', 'AvgSynStd-T10000' ...
+		'AvgSynCrrStd-T10000','AvgSynCrr-T10000','SynCrrStd-T10000','SynStd-T10000','AvgStd-T10000','SynSRm-T10000', ...
+		'Corr-T10000','AbsCorr-T10000', ...
+		'STRING-T10000', 'KEGG-T10000','Random-T10000', ...
 		};
 end
 if ~exist('method_lst', 'var') || isempty(method_lst)
@@ -68,6 +69,7 @@ for ni=1:n_net
 	dataset_name = [dataset_path dataset_list(1).name];
 	fprintf('Loading dataset [%s] ...\n', dataset_name);
 	dataset_info = load(dataset_name);
+	fprintf('Dataset has Train: [%d,%d], Test: [%d,%d] samples and genes.\n', size(dataset_info.DatasetTr.Gene_Expression), size(dataset_info.DatasetTe.Gene_Expression))
 	
 	%% Loop over methods
 	for mi=1:n_meth
@@ -98,6 +100,15 @@ for ni=1:n_net
 				highSN_info.MAX_N_SUBNET = 10000;
 				result = perf_Feral(dataset_info, highSN_info, 'RI');
 			case 'GLasso'
+				opt_gls = opt_info;
+				opt_gls.lam_list = [zeros(20,1) logspace(log10(1e-2), 0, 20)'];
+				result = perf_GLasso(dataset_info, opt_gls);
+			case 'GLassoAS'
+				opt_gls = opt_info;
+				opt_gls.lam_list = [zeros(20,1) logspace(log10(1e-2), 0, 20)'];
+				opt_gls.MAX_N_SUBNET = 100000;
+				result = perf_GLasso(dataset_info, opt_gls);
+			case 'SGLasso'
 				result = perf_GLasso(dataset_info, opt_info);
 			case 'CFGLasso'
 				result = perf_CFGLasso(dataset_info, opt_info);
@@ -115,6 +126,8 @@ for ni=1:n_net
 				result = perf_TAgLEx(dataset_info, opt_rndg);
 			case 'TNMC'
 				result = perf_TTNMC(dataset_info, opt_info);
+			case 'TNMCAd'
+				result = perf_TTNMC(dataset_info, setfield(opt_info, 'FindK', 1));
 			case 'TAgNMC'
 				result = perf_TAgNMC(dataset_info, opt_info);
 			case 'TRgNMC'

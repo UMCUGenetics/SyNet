@@ -3,10 +3,11 @@ clear;
 
 %% Initialization
 result_path = '../08_Perform_NOPs_Restricted_Network/Results_Files/';
-method_lst = {'TNMC' 'TAgLEx' 'TLEx' 'LExAG' 'Lasso' 'iPark' 'RI-iPark' 'Feral'  'RI-Feral' 'AS-Feral' 'GLasso' 'CFGLasso'}; %
+method_lst = {'TNMC' 'TNMCAd' 'TAgLEx' 'TLEx' 'LExAG' 'Lasso' 'iPark' 'RI-iPark' 'Feral'  'RI-Feral' 'AS-Feral' 'GLasso' 'GLassoAS' 'SGLasso' 'CFGLasso'}; %
 n_met = numel(method_lst);
 net_lst = {
-	'SyNet-T10000', 'MinSyn-T10000', 'AvgSyn-T10000', 'CrSyn-T10000', 'CrMinSyn-T10000' ...
+	'SyNet-T10000', 'MinSyn-T10000', 'AvgSyn-T10000', 'CrrSyn-T10000', 'CrMinSyn-T10000', 'AvgSynStd-T10000', ...
+	'MinSynStd-T10000', 'CrrMinSyn-T10000', 'MinSynCRm-T10000','AvgSynCRm-T10000', ...
 	'AvgSynCrrStd-T10000','AvgSynCrr-T10000','SynCrrStd-T10000','SynStd-T10000','AvgStd-T10000','SynSRm-T10000', ...
 	'Corr-T10000','AbsCorr-T10000', ...
 	'STRING-T10000', 'KEGG-T10000','Random-T10000', ...
@@ -17,7 +18,8 @@ n_rep = 10;
 MAX_N_SN = 500;
 cv_ind = 1;
 sav_path = './Collected_AUCs/';
-[~,~] = mkdir(sav_path);
+[~, ~] = mkdir(sav_path);
+all_results = dir(result_path);
 
 %% Main loop
 Result_AUC = nan(n_met, n_net, n_study, n_rep);
@@ -36,8 +38,9 @@ for mi=1:n_met
 			Part_AUC = nan(n_study, n_rep);
 			for si=1:n_study
 				for ri=1:n_rep
-					res_name = sprintf('%sDID_CVT%02d_Si%02d-Ri%03d_%s_*_MSN-%03d_MTN-%s.mat', result_path, cv_ind, si, ri, Net_Name, MAX_N_SN, Method_Name);
-					file_info = dir(res_name);
+					res_name = sprintf('DID_CVT%02d_Si%02d-Ri%03d_%s_.*_MSN-%03d_MTN-%s.mat', cv_ind, si, ri, Net_Name, MAX_N_SN, Method_Name);
+					fl_ind = find(~cellfun('isempty', regexp({all_results.name}, res_name)));
+					file_info = all_results(fl_ind);
 					if numel(file_info)==0
 						fprintf('************ Ignoring [%60s]\n', res_name);
 						continue;
