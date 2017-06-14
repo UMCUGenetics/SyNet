@@ -38,6 +38,12 @@ switch data_name
 		path_str = '../../Networks/STRING/STRING_textmining_GN_WithWeights.txt';
 	case 'KEGG'
 		path_str = '../../Networks/KEGG/KEGG.txt';
+	case 'MSigDB'
+		path_str = '../../Networks/MSigDB/MSigDB.tsv';
+	case 'HPRD'
+		path_str = '../../Networks/HPRD/HPRD.tsv';
+	case 'I2D'
+		path_str = '../../Networks/I2D/I2D.tsv';
 	otherwise
 		error();
 end

@@ -236,7 +236,7 @@ if ~issymmetric(Net_Adj), error('Adj Matrix is not symetric.\n'); end
 Net_Adj = Net_Adj - min(Net_Adj(:)); % Set minimum value to zero
 Net_Adj = Net_Adj / max(Net_Adj(:)); % Set maximum value to one
 Net_Adj(1:size(Net_Adj,1)+1:end) = 0; % Set diagonal to zero
-Net_Eps = Net_Adj + rand(size(Net_Adj,1))*1e-10;
+Net_Eps = Net_Adj + rand(size(Net_Adj,1))*1e-10; % Add small variation to make sure links with same weight do not exists
 [scr_val, scr_ind] = sort(Net_Eps(:), 'descend');
 if strcmp(net_info.param_type, 'P')
 	fprintf('Selecting top %d interactions.\n', MAX_N_PAIR);

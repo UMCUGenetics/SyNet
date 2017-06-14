@@ -6,4 +6,5 @@
 *.RData
 *.csv
 *.pdf
-Gene_Expression_Datasets/TCGA/data/
+Gene_Expression_Datasets/
+Networks/
