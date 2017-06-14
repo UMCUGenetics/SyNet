@@ -84,6 +84,7 @@ name_part = regexp(net_name, '-', 'split');
 net_info.net_name = name_part{1};
 net_info.full_param = name_part{2};
 net_info.param_type = name_part{2}(1);
+if ~ismember(net_info.param_type, {'P','G'}), error(); end
 net_info.param_val = str2double(name_part{2}(2:end));
 if strcmp(net_info.param_type, 'P')
 	MAX_N_PAIR = net_info.param_val;
@@ -170,7 +171,7 @@ switch net_info.net_name
 					ax_avg = bsxfun(@(x,y) (x+y)/2, ind_auc, ind_auc');
 					Pair_Dist = Pair_Dist + (oscore(ax_avg)-1).^2;
 					clear ax_avg
-				case 'Crr'
+				case 'ACr'
 					ge_data = load(tr_info.GEPath, 'Gene_Expression');
 					ax_crr = abs(corr(ge_data.Gene_Expression(tr_info.CVInd,:), 'Type', 'Spearman'));
 					ax_crr(1:size(ax_crr,1)+1:end) = 0;

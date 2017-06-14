@@ -28,7 +28,7 @@ SubNet_List = num2cell(scr_ind)';
 if isfield(opt_info, 'FindK')
 	fprintf('Training the adaptive model over [%d] features...\n', n_gene);
 	[~, ~, Fold_Index] = unique(dataset_info.DatasetTr.iCvPar, 'Stable');
-	[pred, opt_K] = nmc(zTr(:,scr_ind), lTr, zTe(:,scr_ind), struct('iCvPar', Fold_Index));
+	[pred, opt_K] = nmc(zTr(:,scr_ind), lTr, zTe(:,scr_ind), struct('iCvPar', Fold_Index, 'MAX_N_Feat', MAX_N_SUBNET));
 	fprintf('Best K is: %d\n', opt_K);
 	result.opt_K = opt_K;
 else

@@ -11,16 +11,16 @@ for ci=1:n_class
 end
 
 %% Prediction
-n_MAX_Feat = min([n_feat 500]);
+MAX_N_Feat = min([n_feat opt_info.MAX_N_Feat]);
 n_optFeat = n_feat;
 if isfield(opt_info, 'iCvPar')
 	[~, ~, iCvPar] = unique(opt_info.iCvPar, 'Stable');
 	n_fold = max(iCvPar);
-	in_auc = zeros(n_fold, n_MAX_Feat);
+	in_auc = zeros(n_fold, MAX_N_Feat);
 	for fi=1:n_fold
 		iTr = iCvPar~=fi;
 		iTe = iCvPar==fi;
-		for si=1:n_MAX_Feat
+		for si=1:MAX_N_Feat
 			pred = nmc(x_tr(iTr,1:si), l_tr(iTr), x_tr(iTe,1:si));
 			in_auc(fi,si) = getAUC(l_tr(iTe), pred, 50);
 		end
