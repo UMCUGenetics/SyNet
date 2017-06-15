@@ -16,7 +16,7 @@ if ismac
 	fprintf('*** Warning!: Running on debug mode.\n');
 	Target_Repeat = 1;
 	Target_Study = 3;
-	method_lst = {'TNMCAd'};
+	method_lst = {'TNMC'};
 	net_lst = {'HPRD-P10000'};
 	MAX_N_SUBNET = 50;
 end
@@ -40,7 +40,7 @@ if ~exist('net_lst', 'var') || isempty(net_lst)
 	net_lst = {
 		'AvgSynACr-P10000','AvgSyn-P10000', ...
 		'AbsCorr-P10000', ...
-		'STRING-P10000','KEGG-P10000','Random-P10000','MSigDB-P10000','I2D-P10000','HPRD-P10000', ...
+		'STRING-P10000','KEGG-P10000','Random-P10000','I2D-P10000','HPRD-P10000','MSigDB-P10000', ...
 		};
 end
 if ~exist('method_lst', 'var') || isempty(method_lst)
@@ -76,11 +76,14 @@ for ni=1:n_net
 		result_name = sprintf([result_path '%s_MSN-%03d_MTN-%s.mat'], dataset_list(1).name(1:end-4), opt_info.MAX_N_SUBNET, method_lst{mi});
 		if exist(result_name, 'file')
 			fprintf('[i] Results are already computed --> [%s] \n', result_name);
+			result = load(result_name);
+			te_auc(ni, mi) = result.te_auc;
+			fprintf('AUC was [%0.2f]\n', te_auc(ni, mi));
 			continue;
 		end
 		
 		%% Evaluate model
-		fprintf('[%d/%d] Evaluating [%s] model ...\n', mi, n_meth, method_lst{mi});
+		fprintf('[%d/%d] Evaluating [%s] model on [%s] ...\n', mi, n_meth, method_lst{mi}, datestr(now));
 		switch method_lst{mi}
 			case 'iPark'
 				result = perf_iPark(dataset_info, opt_info, 'Mean');

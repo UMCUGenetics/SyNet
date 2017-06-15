@@ -12,7 +12,7 @@ Net_Adj = dataset_info.DatasetTr.Net_Adj;
 if isfield(opt_info, 'MAX_SUBNET_SIZE')
 	MAX_SUBNET_SIZE = opt_info.MAX_SUBNET_SIZE;
 else
-	MAX_SUBNET_SIZE = 10;
+	MAX_SUBNET_SIZE = 5;
 end
 fprintf('[i] Using MAX SN Size = %d\n', MAX_SUBNET_SIZE);
 

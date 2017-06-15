@@ -113,8 +113,10 @@ switch net_info.net_name
 		Gene_Name = unique([GSet_lst{:}])';
 		n_gene = numel(Gene_Name);
 		GMap = containers.Map(Gene_Name, 1:n_gene);
-		Net_Adj = zeros(n_gene);
+		Net_Adj = zeros(n_gene, 'Single');
+		fprintf('Adding genes to network: ');
 		for si=1:n_gset
+			showprogress(si, n_gset, 20);
 			grp_size = numel(GSet_lst{si});
 			g_ind = zeros(grp_size, 1);
 			for gi=1:grp_size
@@ -122,6 +124,7 @@ switch net_info.net_name
 			end
 			Net_Adj(g_ind, g_ind) = rand(grp_size);
 		end
+		clear GSet_lst
 	case {'STRING','HPRD'}
 		net_info.net_path = getPath(net_info.net_name);
 		fid = fopen(net_info.net_path, 'r');
@@ -141,7 +144,7 @@ switch net_info.net_name
 		Gene_Name = unique(vertcat(net_cell{1:2}));
 		n_gene = numel(Gene_Name);
 		GMap = containers.Map(Gene_Name, 1:n_gene);
-		Net_Adj = zeros(n_gene);
+		Net_Adj = zeros(n_gene, 'Single');
 		n_int = numel(net_cell{1});
 		fprintf('Forming the Adj matrix with [%d] genes: ', n_gene);
 		for ii=1:n_int
@@ -153,6 +156,7 @@ switch net_info.net_name
 				Net_Adj(gj, gi) = n_int - ii + 1;
 			end
 		end
+		clear net_cell
 	otherwise
 		net_info.net_path = sprintf([dsn_path 'DSN_SyNetS%02d.mat'], te_info.Study_Ind);
 		load(net_info.net_path, 'Pair_AUC', 'Gene_Name');

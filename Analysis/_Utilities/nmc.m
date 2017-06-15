@@ -1,8 +1,10 @@
 function [pred, n_optFeat] = nmc(x_tr, l_tr, x_te, opt_info)
 if ~exist('opt_info', 'var'), opt_info=struct(); end
+
 Class_Labels = unique(l_tr);
 n_class = numel(Class_Labels);
 n_feat = size(x_tr, 2);
+if ~isfield(opt_info, 'MAX_N_Feat'), opt_info.MAX_N_Feat=n_feat; end
 
 %% Calculate means
 mean_tr = zeros(n_class, n_feat);
