@@ -12,13 +12,13 @@ UMC: PARAM="$si,$ri,{'TAgNMC','TNMC','TLEx','TAgLEx'},{'Random-T00010'},10"; qsu
 %}
 
 %% ####
-if ismac
+if ismac || ispc
 	fprintf('*** Warning!: Running on debug mode.\n');
-	Target_Repeat = 1;
 	Target_Study = 3;
+    Target_Repeat = 1;
 	method_lst = {'TNMC'};
-	net_lst = {'HPRD-P10000'};
-	MAX_N_SUBNET = 50;
+	net_lst = {'None-G11748'};
+	MAX_N_SUBNET = 500;
 end
 
 %% Initialization
@@ -41,6 +41,9 @@ if ~exist('net_lst', 'var') || isempty(net_lst)
 		'AvgSynACr-P10000','AvgSyn-P10000', ...
 		'AbsCorr-P10000', ...
 		'STRING-P10000','KEGG-P10000','Random-P10000','I2D-P10000','HPRD-P10000','MSigDB-P10000', ...
+		'AvgSynACr-G00500','AvgSyn-G00500', ...
+		'AbsCorr-G00500', ...
+		'STRING-G00500','KEGG-G00500','Random-G00500','I2D-G00500','HPRD-G00500','MSigDB-G00500', ...
 		};
 end
 if ~exist('method_lst', 'var') || isempty(method_lst)
@@ -78,7 +81,7 @@ for ni=1:n_net
 			fprintf('[i] Results are already computed --> [%s] \n', result_name);
 			result = load(result_name);
 			te_auc(ni, mi) = result.te_auc;
-			fprintf('AUC was [%0.2f]\n', te_auc(ni, mi));
+			fprintf('AUC was [%0.2f]\n', te_auc(ni, mi)*100);
 			continue;
 		end
 		

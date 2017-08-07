@@ -92,7 +92,13 @@ else
 	MAX_N_PAIR = inf;
 end
 switch net_info.net_name
-	case 'Random'
+	case 'None'
+        fprintf('No network is chosen. Ignoring network preparation...\n');
+		net_info.Gene_Name = tr_info.Gene_Name;
+		net_info.Net_Adj = zeros(numel(net_info.Gene_Name), 'single');
+        net_info.net_path = '';
+        return;
+    case 'Random'
 		Gene_Name = tr_info.Gene_Name;
 		Net_Adj = rand(numel(Gene_Name));
 	case 'Corr'
@@ -111,21 +117,27 @@ switch net_info.net_name
 			GSet_lst{si} = regexp(GSet_lst{si}, '\t', 'split');
 		end
 		Gene_Name = unique([GSet_lst{:}])';
+		fprintf('[i] Network contains [%d] genes before filtering.\n', numel(Gene_Name));
+		Gene_Name = intersect(intersect(Gene_Name, tr_info.Gene_Name), te_info.Gene_Name); %% Filter extra genes
+		fprintf('[i] Network contains [%d] genes after filtering.\n', numel(Gene_Name));
 		n_gene = numel(Gene_Name);
 		GMap = containers.Map(Gene_Name, 1:n_gene);
-		Net_Adj = zeros(n_gene, 'Single');
+		Net_Adj = zeros(n_gene, 'single');
 		fprintf('Adding genes to network: ');
 		for si=1:n_gset
 			showprogress(si, n_gset, 20);
 			grp_size = numel(GSet_lst{si});
 			g_ind = zeros(grp_size, 1);
 			for gi=1:grp_size
-				g_ind(gi) = GMap(GSet_lst{si}{gi});
+				if GMap.isKey(GSet_lst{si}{gi}) 
+					g_ind(gi) = GMap(GSet_lst{si}{gi});
+				end
 			end
-			Net_Adj(g_ind, g_ind) = rand(grp_size);
+			g_ind = nonzeros(g_ind);
+			Net_Adj(g_ind, g_ind) = rand(numel(g_ind));
 		end
 		clear GSet_lst
-	case {'STRING','HPRD'}
+	case {'STRING','HPRD','I2D'}
 		net_info.net_path = getPath(net_info.net_name);
 		fid = fopen(net_info.net_path, 'r');
 		Header_lst = regexp(fgetl(fid), '\t', 'split');
@@ -142,9 +154,12 @@ switch net_info.net_name
 		end
 		fclose(fid);
 		Gene_Name = unique(vertcat(net_cell{1:2}));
+		fprintf('[i] Network contains [%d] genes before filtering.\n', numel(Gene_Name));
+		Gene_Name = intersect(intersect(Gene_Name, tr_info.Gene_Name), te_info.Gene_Name); %% Filter extra genes
+		fprintf('[i] Network contains [%d] genes after filtering.\n', numel(Gene_Name));
 		n_gene = numel(Gene_Name);
 		GMap = containers.Map(Gene_Name, 1:n_gene);
-		Net_Adj = zeros(n_gene, 'Single');
+		Net_Adj = zeros(n_gene, 'single');
 		n_int = numel(net_cell{1});
 		fprintf('Forming the Adj matrix with [%d] genes: ', n_gene);
 		for ii=1:n_int
@@ -234,45 +249,62 @@ switch net_info.net_name
 		Net_Adj = single(-sqrt(Pair_Dist));
 		clear NetScr
 end
-Net_Adj = double(max(Net_Adj, Net_Adj'));
+clear tr_info te_info
+
+fprintf('Making sure the network is symetric ...\n');
+Net_Adj = max(Net_Adj, Net_Adj');
 if ~issymmetric(Net_Adj), error('Adj Matrix is not symetric.\n'); end
 
 %% Top selection
+fprintf('Normalizing edge weights between [0 1] ...\n');
 Net_Adj = Net_Adj - min(Net_Adj(:)); % Set minimum value to zero
 Net_Adj = Net_Adj / max(Net_Adj(:)); % Set maximum value to one
 Net_Adj(1:size(Net_Adj,1)+1:end) = 0; % Set diagonal to zero
 Net_Eps = Net_Adj + rand(size(Net_Adj,1))*1e-10; % Add small variation to make sure links with same weight do not exists
-[scr_val, scr_ind] = sort(Net_Eps(:), 'descend');
+[scr_val, scr_ind] = sort(Net_Eps(:), 'Descend');
 if strcmp(net_info.param_type, 'P')
+	clear scr_ind
 	fprintf('Selecting top %d interactions.\n', MAX_N_PAIR);
 	adj_tresh = scr_val(MAX_N_PAIR);
 	Net_Adj(Net_Eps < adj_tresh) = 0;
-	clear scr_val scr_ind
 	net_info.Net_Threshold = adj_tresh;
+	clear Net_Eps scr_val
 else
+	clear Net_Eps scr_val
 	n_gene = numel(Gene_Name);
 	MAX_N_GENE = min([n_gene net_info.param_val]);
-	fprintf('Selecting top %d genes.\n', MAX_N_GENE);
-	[top_ind(:,1), top_ind(:,2)] = ind2sub([n_gene n_gene], scr_ind);
-	top_gene = unique(top_ind', 'Stable');
-	rest_ind = find(any(top_ind==top_gene(MAX_N_GENE+1),2),1);
-	Net_Adj(scr_ind(rest_ind:end)) = 0;
-	Net_Adj = double(max(Net_Adj, Net_Adj'));
-	clear top_ind scr_val scr_ind
+    fprintf('Selecting top %d genes.\n', MAX_N_GENE);
+    top_ind = zeros(numel(scr_ind), 2, 'uint16');
+    [top_ind(:,1), top_ind(:,2)] = ind2sub([n_gene n_gene], scr_ind);
+    if any(top_ind(:)>=65535), error('Not implemented for such a large number of genes!'); end
+    %top_gene = unique(top_ind', 'Stable');
+    %rest_ind = find(any(top_ind==top_gene(MAX_N_GENE+1),2),1);
+    gin_map = containers.Map('KeyType', 'Double', 'ValueType', 'Double');
+    for rest_ind=1:numel(scr_ind)
+        if ~gin_map.isKey(top_ind(rest_ind,1)), gin_map(top_ind(rest_ind,1)) = 0; end
+        if ~gin_map.isKey(top_ind(rest_ind,2)), gin_map(top_ind(rest_ind,2)) = 0; end
+        if gin_map.Count >= MAX_N_GENE
+            break;
+        end
+    end
+    Net_Adj(scr_ind(rest_ind+1:end)) = 0;
+    Net_Adj = max(Net_Adj, Net_Adj');
+    clear top_ind scr_ind
 end
 fprintf('[%d] links are left in the network.\n', numel(nonzeros(Net_Adj(:))));
 
 %% Node filtering
-del_ind = sum(Net_Adj,1)==0; % Remove genes with no interactions
+fprintf('Removing genes with no interactions ...\n');
+del_ind = sum(Net_Adj,1)==0;
 Net_Adj(del_ind, :) = [];
 Net_Adj(:, del_ind) = [];
 Gene_Name(del_ind) = [];
 fprintf('[%d] genes are removed due to having no interactions.\n', sum(del_ind));
 
 %% Storing
-net_info.Net_Adj = Net_Adj;
+net_info.Net_Adj = double(Net_Adj);
 net_info.Gene_Name = Gene_Name;
-fprintf('[%d] genes are left in the network.\n', numel(Gene_Name));
+fprintf('[%d] genes and [%d] links are left in the network.\n', numel(Gene_Name), numel(nonzeros(Net_Adj(:))));
 end
 
 function Dataset = UnifyData(data_info, net_info, Valid_Gene_List)
