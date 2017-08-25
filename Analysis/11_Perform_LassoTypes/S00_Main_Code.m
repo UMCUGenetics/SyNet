@@ -16,7 +16,7 @@ if ismac || ispc
 	fprintf('*** Warning!: Running on debug mode.\n');
 	Target_Study = 3;
     Target_Repeat = 1;
-	method_lst = {'TNMC'};
+	method_lst = {'TReg'};
 	net_lst = {'None-G11748'};
 	MAX_N_SUBNET = 500;
 end
@@ -141,8 +141,12 @@ for ni=1:n_net
 				result = perf_TAgNMC(dataset_info, opt_rndg);
 			case 'Regress'
 				result = perf_Regress(dataset_info, opt_info);
+            case 'TReg'
+				result = perf_Regress(dataset_info, struct('K', MAX_N_SUBNET));
 			case 'RegAG'
 				result = perf_RegAG(dataset_info, opt_info);
+            case {'KNN0','KNN1','KNN3','KNN5','KNN7'}
+                result = perf_KNN(dataset_info, setfield(opt_info, 'K', str2double(method_lst{mi}(4:end))));
 			otherwise
 				error('Unknown Method.');
 		end

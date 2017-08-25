@@ -12,6 +12,25 @@ fprintf('Normalizing data ...\n');
 zTr = zscore(xTr);
 zTe = zscore(xTe);
 
+if isfield(opt_info, 'K')
+    %% Select top genes
+    fprintf('Evaluting [%d] individual genes.\n', n_gene);
+    pv_mat = zeros(n_gene, 1);
+    for gi=1:n_gene
+        [~, pv_mat(gi)] = ttest(zTr(:,gi), lTr);
+    end
+    
+    %% Selecting top genes
+    [SubNet_Score, scr_ind] = sort(-log10(pv_mat), 'Descend');
+    SubNet_List = num2cell(scr_ind);
+    n_feat = min([opt_info.K n_gene]);
+    zTr = zTr(:, scr_ind(1:n_feat));
+    zTe = zTe(:, scr_ind(1:n_feat));
+else
+    SubNet_List = num2cell(1:n_gene)';
+    SubNet_Score = (1:n_gene)';
+end
+
 %% Traning the final model
 fprintf('Training regression over [%d] features...\n', n_gene);
 warning off
@@ -25,8 +44,8 @@ result.te_auc = getAUC(lTe, zTe*result.B, 50);
 fprintf('@@@@@ Final test performance for this dataset is [%0.2f%%] AUC.\n', result.te_auc*100);
 
 %% Saving the output
-result.SubNet_List = num2cell(1:n_gene)';
-result.SubNet_Score = (1:n_gene)';
+result.SubNet_List = SubNet_List;
+result.SubNet_Score = SubNet_Score;
 result.Gene_Name = dataset_info.DatasetTr.Gene_Name;
 end
 

@@ -22,7 +22,7 @@ end
 
 %% Selecting top genes
 [SubNet_Score, scr_ind] = sort(-log10(pv_mat), 'Descend');
-SubNet_List = num2cell(scr_ind)';
+SubNet_List = num2cell(scr_ind);
 n_feat = min([MAX_N_SUBNET n_gene]);
 zTr = zTr(:, scr_ind(1:n_feat));
 zTe = zTe(:, scr_ind(1:n_feat));
