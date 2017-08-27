@@ -20,7 +20,7 @@ tr_name = 'SyNet';
 te_name = 'SyNet';
 cv_ind = 50;
 if ispc
-    method_name = 'DPCA';
+    method_name = 'Reg';
     net_name = 'Random-NN20';
     Target_Study = 3;
     Target_Repeat = 2;
@@ -85,6 +85,27 @@ for ei=1:n_epoch
     grp_size = numel(nei_lst);
     
     switch method_name
+        case 'Avg'
+            pred = mean(eTe, 2);
+        case 'Std'
+            pred = std(eTe, 0, 2);
+        case 'DA2'
+            gene_dir = corr(eTr, lTr, 'Type', 'Spearman');
+            pTe = eTe;
+            for pi=1:grp_size
+                if gene_dir(pi)<0
+                    pTe(:, pi) = -eTe(:, pi);
+                end
+            end
+            val_ind = abs(gene_dir)>0.02;
+            if any(val_ind)
+                pred = mean(pTe(:, val_ind), 2);
+            else
+                pred = mean(pTe, 2);
+            end
+        case 'Reg'
+            B = regress(lTr, eTr);
+            pred = eTe * B;
         case 'PCA1'
             coeff = pca(eTr, 'NumComponents', 1);
             pred = eTe*coeff(:,1);
