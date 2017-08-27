@@ -32,7 +32,7 @@ for gi=1:n_gene
 end
 
 %% Save network neighbors
-sav_name = sprintf([sav_path 'NetNei_%s_NN%d.mat'], net_name, MAX_SUBNET_SIZE);
+sav_name = sprintf([sav_path 'NetNei_%s_NN%02d.mat'], net_name, MAX_SUBNET_SIZE);
 fprintf('Saving network file to [%s]\n', sav_name);
 save(sav_name, 'SubNet_Full', 'Gene_Name');
 
