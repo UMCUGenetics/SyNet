@@ -2,7 +2,7 @@ clc;
 clear;
 
 %% Initialization
-met_lst = {'Avg', 'Std', 'DA2', 'Reg', 'PCA1', 'DPCA'};
+met_lst = {'Avg', 'Std', 'DA2', 'Reg', 'PCA1', 'DPCA', 'DA2NoRem', 'Rnd'};
 net_lst = {'Random-NN05' 'Random-NN10' 'Random-NN20'};
 res_path = './Result_Files/';
 cv_ind = 50;

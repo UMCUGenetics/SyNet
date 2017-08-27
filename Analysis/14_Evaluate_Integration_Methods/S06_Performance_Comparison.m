@@ -12,6 +12,7 @@ load('../../Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat', 'Study_Nam
 %% Select methods and networks
 cmb_path = './Combined_AUC/';
 cmb_lst = {
+    'CMB_Rnd_Random-NN20_CVT50.mat'
     'CMB_Avg_Random-NN20_CVT50.mat'
     'CMB_PCA1_Random-NN20_CVT50.mat'
     'CMB_Std_Random-NN20_CVT50.mat'
@@ -19,6 +20,7 @@ cmb_lst = {
     %     'CMB_PCA1_Random-NN05_CVT50.mat'
     %     'CMB_PCA1_Random-NN10_CVT50.mat'
     'CMB_DA2_Random-NN20_CVT50.mat'
+%     'CMB_DA2NoRem_Random-NN20_CVT50.mat'
     'CMB_Reg_Random-NN20_CVT50.mat'
     };
 n_cmb = numel(cmb_lst);
@@ -59,7 +61,7 @@ set(gca, 'XTick', 1:n_cmb, 'XTickLabel', X_lbl, 'XTickLabelRotation', 0, ...
     'YTick', y_tick, 'YTickLabel', Y_lbl, 'FontWeight', 'Bold', 'FontSize', 10, ...
     'Ygrid', 'on', 'GridColor', [0.7 0.7 0.7], 'GridAlpha', 0.4);
 ylabel('AUC', 'FontWeight', 'Bold');
-plot(xlim, [1 1], 'r', 'LineWidth', 1.5);
+plot(xlim, [1 1], 'r', 'LineWidth', 1.5, 'Color', [246, 82, 255]/255);
 
 %% Saving
 output_name = sprintf('./Plots/S01_PerformanceComparison.pdf');

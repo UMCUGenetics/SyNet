@@ -20,7 +20,7 @@ tr_name = 'SyNet';
 te_name = 'SyNet';
 cv_ind = 50;
 if ispc
-    method_name = 'Reg';
+    method_name = 'Rnd';
     net_name = 'Random-NN20';
     Target_Study = 3;
     Target_Repeat = 2;
@@ -103,6 +103,15 @@ for ei=1:n_epoch
             else
                 pred = mean(pTe, 2);
             end
+        case 'DA2NoRem'
+            gene_dir = corr(eTr, lTr, 'Type', 'Spearman');
+            pTe = eTe;
+            for pi=1:grp_size
+                if gene_dir(pi)<0
+                    pTe(:, pi) = -eTe(:, pi);
+                end
+            end
+            pred = mean(pTe, 2);   
         case 'Reg'
             B = regress(lTr, eTr);
             pred = eTe * B;
@@ -118,6 +127,9 @@ for ei=1:n_epoch
             end
             [~, tp_ind] = max(pc_auc);
             pred = eTe*coeff(:, tp_ind);
+        case 'Rnd'
+            rnd_ind = randi(grp_size, 1);
+            pred = eTe(:, rnd_ind);
         otherwise
             error('Unknown method.');
     end
