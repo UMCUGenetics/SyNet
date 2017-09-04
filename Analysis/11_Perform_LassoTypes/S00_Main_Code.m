@@ -16,7 +16,7 @@ if ismac || ispc
 	fprintf('*** Warning!: Running on debug mode.\n');
 	Target_Study = 3;
     Target_Repeat = 1;
-	method_lst = {'Feral'};
+	method_lst = {'DA2Lex'};
 	net_lst = {'None-G11748'};
 	MAX_N_SUBNET = 500;
 end
@@ -29,7 +29,7 @@ addpath(genpath('../../../../Useful_Sample_Codes/SLEP'));
 addpath(genpath('../../../../Useful_Sample_Codes/getAUC'));
 dataset_path = './Dataset_Files/';
 result_path = './Results_Files/';
-opt_info.lasso_opt = {'lassoType', 't', 'CV', [], 'relTol', 5e-2, 'n_lC', 20, 'lC_ratio', 1e-2, 'verbose', 0};
+opt_info.lasso_opt = {'lassoType', 't', 'CV', [], 'relTol', 5e-2, 'n_lC', 20, 'lC_ratio', 1e-2, 'verbose', 1};
 if ~exist('MAX_N_SUBNET', 'var')
 	opt_info.MAX_N_SUBNET = 500;
 else
@@ -104,6 +104,10 @@ for ni=1:n_net
 				highSN_info = opt_info;
 				highSN_info.MAX_N_SUBNET = 10000;
 				result = perf_Feral(dataset_info, highSN_info, 'RI');
+            case 'DA2Lex'
+                InfSN_info = opt_info;
+				InfSN_info.MAX_N_SUBNET = inf;
+				result = perf_DA2Lex(dataset_info, InfSN_info, 'Mean');
 			case 'GLasso'
 				opt_gls = opt_info;
 				opt_gls.lam_list = [zeros(20,1) logspace(log10(1e-2), 0, 20)'];
