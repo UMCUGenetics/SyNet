@@ -1,10 +1,4 @@
 function ds_id = S02_GenerateDataset(cv_id, net_name)
-%% ####
-if ismac && ~exist('cv_id', 'var')
-	fprintf('*** Warning!: Running on debug mode.\n');
-	cv_id = 'Si01-Ri001';
-	net_name = 'SyNet-T0500';
-end
 
 %% Initialization
 cv_path = './CV_Files/';
@@ -41,12 +35,14 @@ data = load(tr_info.GEPath, 'Gene_Expression', 'Patient_Label', 'Gene_Name');
 if ~isequal(data.Gene_Name, tr_info.Gene_Name), error(); end
 tr_info.Gene_Expression = data.Gene_Expression;
 tr_info.Patient_Label = (data.Patient_Label==1)*2-1;
+fprintf('Loaded [%d] samples with [%d] features.\n', size(tr_info.Gene_Expression));
 
 fprintf('Loading test expression data from [%s] ...\n', te_info.GEPath);
 data = load(te_info.GEPath, 'Gene_Expression', 'Patient_Label', 'Gene_Name');
 if ~isequal(data.Gene_Name, te_info.Gene_Name), error(); end
 te_info.Gene_Expression = data.Gene_Expression;
 te_info.Patient_Label = (data.Patient_Label==1)*2-1;
+fprintf('Loaded [%d] samples with [%d] features.\n', size(te_info.Gene_Expression));
 clear data
 Valid_Gene_List = intersect(tr_info.Gene_Name, te_info.Gene_Name);
 

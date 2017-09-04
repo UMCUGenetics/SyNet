@@ -73,7 +73,7 @@ cTe(:, step:end) = [];
 %% Train Group lasso
 fprintf('Training group lasso over [%d] groups and [%d] features ...\n', n_snet, size(cTr,2));
 lasso_opt = {'lassoType', 'sgt', 'CV', 5, 'iCvPar', Fold_Index, 'relTol', 5e-2, 'lam_list', lam_list, 'n_lC', 15, 'lC_ratio', 1e-2, ...
-	'n_lG', 15, 'lG_ratio', 1e-2, 'group_ind', group_ind, 'lambdaType', 'no-grid', 'paroptions', statset('UseParallel',false), 'verbose', 0};
+	'n_lG', 15, 'lG_ratio', 1e-2, 'group_ind', group_ind, 'lambdaType', 'no-grid', 'paroptions', statset('UseParallel',false), 'verbose', 1};
 [opt_B, opt_fit] = lassoEx(cTr, lTr, lasso_opt{:});
 
 %% Collect Subnet scores
