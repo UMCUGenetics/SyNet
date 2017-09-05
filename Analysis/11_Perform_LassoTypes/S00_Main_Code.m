@@ -17,7 +17,7 @@ if ismac || ispc
 	Target_Study = 3;
     Target_Repeat = 1;
 	method_lst = {'DA2Lex'};
-	net_lst = {'None-G11748'};
+	net_lst = {'AbsCorr-G00500'};
 	MAX_N_SUBNET = 500;
 end
 
@@ -29,7 +29,7 @@ addpath(genpath('../../../../Useful_Sample_Codes/SLEP'));
 addpath(genpath('../../../../Useful_Sample_Codes/getAUC'));
 dataset_path = './Dataset_Files/';
 result_path = './Results_Files/';
-opt_info.lasso_opt = {'lassoType', 't', 'CV', [], 'relTol', 5e-2, 'n_lC', 20, 'lC_ratio', 1e-2, 'verbose', 1};
+opt_info.lasso_opt = {'lassoType', 't', 'CV', [], 'relTol', 5e-2, 'n_lC', 20, 'lC_ratio', 1e-2, 'verbose', 0};
 if ~exist('MAX_N_SUBNET', 'var')
 	opt_info.MAX_N_SUBNET = 500;
 else
@@ -38,6 +38,8 @@ end
 
 if ~exist('net_lst', 'var') || isempty(net_lst)
 	net_lst = {
+        'ACr-G00500', ...
+        'AbsCorr-G11748', ...
 		'AvgSynACr-P10000','AvgSyn-P10000', ...
 		'AbsCorr-P10000', ...
 		'STRING-P10000','KEGG-P10000','Random-P10000','I2D-P10000','HPRD-P10000','MSigDB-P10000', ...

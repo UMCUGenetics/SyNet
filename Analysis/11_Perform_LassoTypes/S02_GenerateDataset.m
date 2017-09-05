@@ -256,7 +256,7 @@ fprintf('Normalizing edge weights between [0 1] ...\n');
 Net_Adj = Net_Adj - min(Net_Adj(:)); % Set minimum value to zero
 Net_Adj = Net_Adj / max(Net_Adj(:)); % Set maximum value to one
 Net_Adj(1:size(Net_Adj,1)+1:end) = 0; % Set diagonal to zero
-Net_Eps = Net_Adj + rand(size(Net_Adj,1))*1e-10; % Add small variation to make sure links with same weight do not exists
+Net_Eps = triu(Net_Adj + rand(size(Net_Adj,1))*1e-10); % Add small variation to make sure links with same weight do not exists
 [scr_val, scr_ind] = sort(Net_Eps(:), 'Descend');
 if strcmp(net_info.param_type, 'P')
 	clear scr_ind
@@ -276,14 +276,14 @@ else
     %top_gene = unique(top_ind', 'Stable');
     %rest_ind = find(any(top_ind==top_gene(MAX_N_GENE+1),2),1);
     gin_map = containers.Map('KeyType', 'Double', 'ValueType', 'Double');
-    for rest_ind=1:numel(scr_ind)
-        if ~gin_map.isKey(top_ind(rest_ind,1)), gin_map(top_ind(rest_ind,1)) = 0; end
-        if ~gin_map.isKey(top_ind(rest_ind,2)), gin_map(top_ind(rest_ind,2)) = 0; end
+    for ti=1:numel(scr_ind)
+        if ~gin_map.isKey(top_ind(ti,1)), gin_map(top_ind(ti,1)) = 0; end
+        if ~gin_map.isKey(top_ind(ti,2)), gin_map(top_ind(ti,2)) = 0; end
         if gin_map.Count >= MAX_N_GENE
             break;
         end
     end
-    Net_Adj(scr_ind(rest_ind+1:end)) = 0;
+    Net_Adj(scr_ind(ti+1:end)) = 0;
     Net_Adj = max(Net_Adj, Net_Adj');
     clear top_ind scr_ind
 end
