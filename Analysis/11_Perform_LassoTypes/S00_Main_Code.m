@@ -17,7 +17,7 @@ if ismac || ispc
 	Target_Study = 3;
     Target_Repeat = 1;
 	method_lst = {'DA2Lex'};
-	net_lst = {'AbsCorr-G00500'};
+	net_lst = {'ACr-P10000'};
 	MAX_N_SUBNET = 500;
 end
 

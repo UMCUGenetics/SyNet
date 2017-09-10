@@ -284,10 +284,10 @@ else
         end
     end
     Net_Adj(scr_ind(ti+1:end)) = 0;
-    Net_Adj = max(Net_Adj, Net_Adj');
     clear top_ind scr_ind
 end
-fprintf('[%d] links are left in the network.\n', numel(nonzeros(Net_Adj(:))));
+Net_Adj = max(Net_Adj, Net_Adj');
+fprintf('[%d] links are left in the network.\n', numel(nonzeros(triu(Net_Adj))));
 
 %% Node filtering
 fprintf('Removing genes with no interactions ...\n');

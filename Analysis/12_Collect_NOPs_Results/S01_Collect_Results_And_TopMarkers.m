@@ -11,8 +11,8 @@ sav_path = './Collected_Results/';
 %     'HPRD-G00500', 'HPRD-P10000', 'I2D-G00500', 'I2D-P10000', 'KEGG-G00500', 'KEGG-P10000', 'MSigDB-G00500', 'MSigDB-P10000', ...
 %     'Random-G00500', 'Random-P10000', 'STRING-G00500', 'STRING-P10000' ...
 %     };
-method_lst = {'TReg' 'TLEx' 'TNMC'};
-net_lst = {'None-G11748'};
+method_lst = {'DA2Lex' 'CFGLasso'}; % 'TReg' 'TLEx' 'TNMC'};
+net_lst = {'ACr-P10000' 'ACr-G00500' 'HPRD-G11748' 'STRING-G11748' 'L2D-G11748'};
 feat_lst = [20 50 100 500];
 n_net = numel(net_lst);
 n_met = numel(method_lst);
@@ -78,7 +78,7 @@ for mi=1:n_met
                                 else
                                     out_cmb.Opt_K(end+1,1) = res_data.opt_K;
                                 end
-                            case {'TLEx' 'TReg'}
+                            case {'TLEx' 'TReg' 'DA2Lex'}
                                 SubNet_Score = abs(res_data.B(:,res_data.fit.IndexMinMSE));
                             case 'Lasso'
                                 SubNet_Score = abs(res_data.B(:,res_data.fit.IndexMinMSE));
@@ -125,7 +125,11 @@ for mi=1:n_met
                         out_cmb.AUC_mat(si, ri) = res_data.te_auc;
                     end
                 end
-                save(sav_name, '-struct', 'out_cmb');
+                if any(isnan(out_cmb.AUC_mat(:)))
+                    fprintf('********* Data can not be saved .. NAN are found ... \n');
+                else
+                    save(sav_name, '-struct', 'out_cmb');
+                end
             end
         end
     end
