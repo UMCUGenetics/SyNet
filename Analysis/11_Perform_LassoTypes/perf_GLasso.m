@@ -9,7 +9,7 @@ Net_Adj = dataset_info.DatasetTr.Net_Adj;
 [~, ~, Fold_Index] = unique(dataset_info.DatasetTr.iCvPar, 'Stable');
 [n_Trsample, n_gene] = size(xTr);
 [n_Tesample,      ~] = size(xTe);
-if isfield(opt_info, 'MAX_SUBNET_SIZE')
+if isfield(opt_info, 'MAX_SUBNET_SIZE') && ~isnan(opt_info.MAX_SUBNET_SIZE)
 	MAX_SUBNET_SIZE = opt_info.MAX_SUBNET_SIZE;
 else
 	MAX_SUBNET_SIZE = 5;
@@ -39,6 +39,7 @@ for gi=1:n_gene
 	showprogress(gi, n_gene);
 	SubNet_Full{gi} = getNetNeighborsBreadthFirst(Neig_cell, Neig_cell{gi}, MAX_SUBNET_SIZE, 1);
 end
+fprintf('Subnetworks are collected. [%d] are created.\n', numel(SubNet_Full));
 
 %% Remove empty subnetworks
 SubNet_size = cellfun(@(x) numel(x), SubNet_Full);

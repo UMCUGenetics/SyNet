@@ -7,7 +7,7 @@ lTr = dataset_info.DatasetTr.Patient_Label;
 lTe = dataset_info.DatasetTe.Patient_Label;
 Net_Adj = dataset_info.DatasetTr.Net_Adj;
 [~, ~, Fold_Index] = unique(dataset_info.DatasetTr.iCvPar, 'Stable');
-[n_TrSample, n_gene] = size(xTr);
+[~, n_gene] = size(xTr);
 MAX_N_SUBNET = opt_info.MAX_N_SUBNET;
 
 %% Normalization

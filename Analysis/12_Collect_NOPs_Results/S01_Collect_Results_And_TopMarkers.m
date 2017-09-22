@@ -1,18 +1,22 @@
-clc;
+% clc;
 clear;
 
 %% Initialization
 result_path = '../11_Perform_LassoTypes/Results_Files/';
 sav_path = './Collected_Results/';
-% method_lst = {'TReg' 'TNMCAd' 'KNN0' 'KNN1' 'KNN3' 'KNN5' 'KNN7' 'TNMC' 'LExAG' 'TNMCAd' 'TLEx' 'Lasso' 'GLasso' 'CFGLasso'};
-% net_lst = {
-%     'None-G11748', ...
-%     'AbsCorr-G00500', 'AbsCorr-P10000', 'AvgSyn-G00500', 'AvgSyn-P10000', 'AvgSynACr-G00500', 'AvgSynACr-P10000', ...
-%     'HPRD-G00500', 'HPRD-P10000', 'I2D-G00500', 'I2D-P10000', 'KEGG-G00500', 'KEGG-P10000', 'MSigDB-G00500', 'MSigDB-P10000', ...
-%     'Random-G00500', 'Random-P10000', 'STRING-G00500', 'STRING-P10000' ...
+% method_lst = {'TReg' 'TNMCAd' 'KNN0' 'KNN1' 'KNN3' 'KNN5' 'KNN7' 'TNMC'  'LExAG' 'TNMCAd' 'TLEx' ...
+%     'DA2Lex' 'Lasso' 'GLasso' 'CFGLasso' 'GLasso2' 'GLasso7' 'GLasso10' 'GLasso20'
 %     };
-method_lst = {'DA2Lex' 'CFGLasso'}; % 'TReg' 'TLEx' 'TNMC'};
-net_lst = {'ACr-P10000' 'ACr-G00500' 'HPRD-G11748' 'STRING-G11748' 'L2D-G11748'};
+% net_lst = {
+%     'None-G11748', 'Random-G00500', 'Random-P10000', ...
+%     'AbsCorr-G00500', 'AbsCorr-P10000', 'ACr-P10000', ...
+%     'AvgSyn-G00500', 'AvgSyn-P10000', 'AvgSynACr-G00500', 'AvgSynACr-P10000', ...
+%     'HPRD-G00500', 'HPRD-P10000', 'I2D-G00500', 'I2D-P10000', 'KEGG-G00500', 'KEGG-P10000', 'MSigDB-G00500', 'MSigDB-P10000', ...
+%     'STRING-G00500', 'STRING-P10000' ...
+%     'HPRD-G11748' 'I2D-G11748' 'KEGG-G11748' 'STRING-G11748' 'MSigDB-G11748' ...
+%     };
+method_lst = {'GLasso7' 'GLasso10' 'GLasso20'}; % 
+net_lst = {'AvgSynACr-P10000' 'AvgSynACr-G11748' 'AvgSynACr-G05000' 'ACr-G05000' 'I2D-G11748' 'STRING-G11748' 'KEGG-G11748'};
 feat_lst = [20 50 100 500];
 n_net = numel(net_lst);
 n_met = numel(method_lst);
@@ -47,6 +51,7 @@ for mi=1:n_met
                 fprintf('/// Collecting [%s]\n', sav_name);
                 out_cmb = [];
                 out_cmb.Marker_lst = [];
+                out_cmb.Marker_SiRi = [];
                 out_cmb.Marker_Score = [];
                 out_cmb.AUC_mat = nan(n_study, n_rep);
                 out_cmb.Gene_Map = Gene_Map;
@@ -83,7 +88,7 @@ for mi=1:n_met
                             case 'Lasso'
                                 SubNet_Score = abs(res_data.B(:,res_data.fit.IndexMinMSE));
                                 res_data.SubNet_List = num2cell(1:numel(res_data.Gene_Name))';
-                            case {'GLasso' 'CFGLasso'}
+                            case {'GLasso' 'GLasso2' 'GLasso7' 'GLasso10' 'GLasso20' 'CFGLasso' 'FERALAvgStdInt' 'FERALAvgStd' 'FERALInt'}
                                 Group_Index = res_data.fit.Options.ind; %res_data.SubNet_GInd;
                                 n_snet = size(Group_Index,2);
                                 SubNet_Score = zeros(n_snet, 1);
@@ -122,6 +127,7 @@ for mi=1:n_met
                         TopGene_Ind(TopGene_Val<1) = 0;
                         out_cmb.Marker_lst(end+1, :) = TopGene_Ind(1:n_TopMarker)';
                         out_cmb.Marker_Score(end+1,:) = TopGene_Val(1:n_TopMarker)';
+                        out_cmb.Marker_SiRi(end+1,:) = [si ri];
                         out_cmb.AUC_mat(si, ri) = res_data.te_auc;
                     end
                 end

@@ -14,34 +14,50 @@ load('../../Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat', 'Study_Nam
 res_path = './Collected_Results/';
 res_lst = {
     'MRK_CVT01_Lasso_Random-P10000_MSN-500.mat'
-    'MRK_CVT01_CFGLasso_Random-P10000_MSN-500.mat'
+    'MRK_CVT01_GLasso_Random-P10000_MSN-500.mat'
     
     'MRK_CVT01_Lasso_I2D-P10000_MSN-500.mat'
-    'MRK_CVT01_CFGLasso_I2D-P10000_MSN-500.mat'
+    'MRK_CVT01_GLasso_I2D-P10000_MSN-500.mat'
+    
+    'MRK_CVT01_Lasso_I2D-G11748_MSN-500.mat'
+    'MRK_CVT01_GLasso_I2D-G11748_MSN-500.mat'
     
     'MRK_CVT01_Lasso_MSigDB-P10000_MSN-500.mat'
-    'MRK_CVT01_CFGLasso_MSigDB-P10000_MSN-500.mat'
+    'MRK_CVT01_GLasso_MSigDB-P10000_MSN-500.mat'
     
     'MRK_CVT01_Lasso_HPRD-P10000_MSN-500.mat'
-    'MRK_CVT01_CFGLasso_HPRD-P10000_MSN-500.mat'
+    'MRK_CVT01_GLasso_HPRD-P10000_MSN-500.mat'
+    
+    'MRK_CVT01_Lasso_HPRD-G11748_MSN-500.mat'
+    'MRK_CVT01_GLasso_HPRD-G11748_MSN-500.mat'
     
     'MRK_CVT01_Lasso_KEGG-P10000_MSN-500.mat'
-    'MRK_CVT01_CFGLasso_KEGG-P10000_MSN-500.mat'
+    'MRK_CVT01_GLasso_KEGG-P10000_MSN-500.mat'
     
-    'MRK_CVT01_DA2Lex_STRING-G11748_MSN-500.mat'
-    'MRK_CVT01_CFGLasso_STRING-G11748_MSN-500.mat'
-    
-    'MRK_CVT01_DA2Lex_HPRD-G11748_MSN-500.mat'
-    'MRK_CVT01_CFGLasso_HPRD-G11748_MSN-500.mat'
-    
-    'MRK_CVT01_CFGLasso_AbsCorr-P10000_MSN-500.mat'
-    'MRK_CVT01_CFGLasso_ACr-P10000_MSN-500.mat'
+    'MRK_CVT01_Lasso_KEGG-G11748_MSN-500.mat'
+    'MRK_CVT01_GLasso_KEGG-G11748_MSN-500.mat'
     
     'MRK_CVT01_Lasso_STRING-P10000_MSN-500.mat'
-    'MRK_CVT01_CFGLasso_STRING-P10000_MSN-500.mat'
+    'MRK_CVT01_GLasso_STRING-P10000_MSN-500.mat'
+    
+    'MRK_CVT01_Lasso_STRING-G11748_MSN-500.mat'
+    'MRK_CVT01_GLasso_STRING-G11748_MSN-500.mat'
+    
+    'MRK_CVT01_Lasso_ACr-P10000_MSN-500.mat'
+    'MRK_CVT01_GLasso_ACr-P10000_MSN-500.mat'
     
     'MRK_CVT01_Lasso_AvgSynACr-P10000_MSN-500.mat'
-    'MRK_CVT01_CFGLasso_AvgSynACr-P10000_MSN-500.mat'
+    'MRK_CVT01_GLasso_AvgSynACr-P10000_MSN-500.mat'
+    
+%     'MRK_CVT01_GLasso_AvgSynACr-P10000_MSN-500.mat'
+%     'MRK_CVT01_GLasso10_AvgSynACr-P10000_MSN-500.mat'
+    
+%     'MRK_CVT01_GLasso2_AvgSynACr-P10000_MSN-500.mat'
+    'MRK_CVT01_GLasso_AvgSynACr-P10000_MSN-500.mat'
+    'MRK_CVT01_GLasso7_AvgSynACr-P10000_MSN-500.mat'
+%     'MRK_CVT01_GLasso7_AvgSynACr-G05000_MSN-500.mat'
+%     'MRK_CVT01_GLasso10_AvgSynACr-P10000_MSN-500.mat'
+%     'MRK_CVT01_GLasso20_AvgSynACr-P10000_MSN-500.mat'
     
     'MRK_CVT01_LExAG_None-G11748_MSN-500.mat'
     };
@@ -88,7 +104,7 @@ set(gca, 'XTick', 1:n_res, 'XTickLabel', X_lbl, 'XTickLabelRotation', 10, ...
 ylabel('AUC', 'FontWeight', 'Bold');
 
 %% Saving
-output_name = sprintf('./Plots/S07_PerformanceComparison_NetBased_KeepPairsConstant.pdf');
-set(gcf, 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [13 3], 'PaperPosition', [0 0 13 3]);
-print('-dpdf', '-r300', output_name);
+% output_name = sprintf('./Plots/S07_PerformanceComparison_NetBased_KeepPairsConstant.pdf');
+% set(gcf, 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [13 3], 'PaperPosition', [0 0 13 3]);
+% print('-dpdf', '-r300', output_name);
 

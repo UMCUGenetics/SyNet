@@ -16,7 +16,7 @@ if ismac || ispc
 	fprintf('*** Warning!: Running on debug mode.\n');
 	Target_Study = 3;
     Target_Repeat = 1;
-	method_lst = {'DA2Lex'};
+	method_lst = {'GLasso10'};
 	net_lst = {'ACr-P10000'};
 	MAX_N_SUBNET = 500;
 end
@@ -94,35 +94,21 @@ for ni=1:n_net
 				result = perf_iPark(dataset_info, opt_info, 'Mean');
 			case 'RI-iPark'
 				result = perf_iPark(dataset_info, opt_info, 'RI');
-			case 'iChuang'
-				result = perf_iChuang(dataset_info, opt_info);
-			case 'iTaylor'
-				result = perf_iTaylor(dataset_info, opt_info);
-			case 'Feral'
-				result = perf_Feral(dataset_info, opt_info, 'Mean');
-			case 'RI-Feral'
-				result = perf_Feral(dataset_info, opt_info, 'RI');
-			case 'AS-Feral'
-				highSN_info = opt_info;
-				highSN_info.MAX_N_SUBNET = 10000;
-				result = perf_Feral(dataset_info, highSN_info, 'RI');
             case 'DA2Lex'
                 InfSN_info = opt_info;
 				InfSN_info.MAX_N_SUBNET = inf;
 				result = perf_DA2Lex(dataset_info, InfSN_info, 'Mean');
-			case 'GLasso'
+			case {'GLasso2' 'GLasso' 'GLasso7' 'GLasso10' 'GLasso20'}
 				opt_gls = opt_info;
 				opt_gls.lam_list = [zeros(20,1) logspace(log10(1e-2), 0, 20)'];
+                opt_gls.MAX_SUBNET_SIZE = str2double(method_lst{mi}(7:end));
 				result = perf_GLasso(dataset_info, opt_gls);
-			case 'GLassoAS'
-				opt_gls = opt_info;
-				opt_gls.lam_list = [zeros(20,1) logspace(log10(1e-2), 0, 20)'];
-				opt_gls.MAX_N_SUBNET = 100000;
-				result = perf_GLasso(dataset_info, opt_gls);
-			case 'SGLasso'
-				result = perf_GLasso(dataset_info, opt_info);
 			case 'CFGLasso'
 				result = perf_CFGLasso(dataset_info, opt_info);
+            case {'FERALAvg' 'FERALAvgStdInt' 'FERALAvgStd' 'FERALInt'}
+                feral_info = opt_info;
+                feral_info.CompFeat = arrayfun(@(i) method_lst{mi}(i:i+2), 6:3:numel(method_lst{mi}), 'UniformOutput', 0);
+                result = perf_FERAL(dataset_info, feral_info);
 			case 'Lasso'
 				result = perf_Lasso(dataset_info, opt_info);
 			case 'LExAG'
