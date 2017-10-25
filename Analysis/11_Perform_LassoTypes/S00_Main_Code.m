@@ -137,8 +137,13 @@ for ni=1:n_net
 				result = perf_Regress(dataset_info, struct('K', MAX_N_SUBNET));
 			case 'RegAG'
 				result = perf_RegAG(dataset_info, opt_info);
-            case {'KNN0','KNN1','KNN3','KNN5','KNN7'}
-                result = perf_KNN(dataset_info, setfield(opt_info, 'K', str2double(method_lst{mi}(4:end))));
+            case {'KNN0','KNN1','KNN3','KNN5','KNN7','TKNN0'}
+                opt_knn = opt_info;
+                opt_knn.K = str2double(method_lst{mi}(end));
+                if strcmpi(method_lst{mi}(1), 'T')
+                    opt_knn.UseTTest = 1;
+                end
+                result = perf_KNN(dataset_info, opt_knn);
             case {'SVM-Lin','SVM-RBF','TSVM-Lin','TSVM-RBF'}
                 opt_svm = opt_info;
                 if strcmpi(method_lst{mi}(end-2:end), 'rbf')

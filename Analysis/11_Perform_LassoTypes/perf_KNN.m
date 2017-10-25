@@ -11,8 +11,9 @@ MAX_N_SUBNET = opt_info.MAX_N_SUBNET;
 
 %% Sort features using t-test
 if isfield(opt_info, 'UseTTest')
+    fprintf('Selecting top [%d] features from [%d] genes using t-test.\n', MAX_N_SUBNET, n_gene);
+    
     %% Select top genes
-    fprintf('Sorting [%d] genes using t-test.\n', n_gene);
     pv_mat = zeros(n_gene, 1);
     for gi=1:n_gene
         [~, pv_mat(gi)] = ttest(zTr(:,gi), lTr);
@@ -28,6 +29,7 @@ if isfield(opt_info, 'UseTTest')
     zTe = zTe(:, scr_ind(1:MAX_N_SUBNET));
     Gene_Name = Gene_Name(scr_ind(1:MAX_N_SUBNET));
     n_gene = size(zTr, 2);
+    fprintf('Dataset now has Train: [%d x %d], Test: [%d x %d] samples and genes.\n', size(zTr), size(zTe));
 else
     SubNet_Score = ones(n_gene, 1);
     SubNet_List = num2cell(1:n_gene)';

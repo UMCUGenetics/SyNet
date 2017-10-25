@@ -10,8 +10,8 @@ Gene_Name = dataset_info.DatasetTr.Gene_Name;
 MAX_N_SUBNET = opt_info.MAX_N_SUBNET;
 [~, ~, Fold_Index] = unique(dataset_info.DatasetTr.iCvPar, 'Stable');
 if isfield(opt_info, 'GridSearch') && opt_info.GridSearch==1
-    opt_info.C = logspace(-3, 3, 5);
-    opt_info.gamma = logspace(-3, 3, 5);
+    opt_info.C = logspace(0, 10, 7);
+    opt_info.gamma = logspace(0, 10, 7);
 end
 
 %% Sort features using t-test
