@@ -16,8 +16,8 @@ if ismac || ispc
 	fprintf('*** Warning!: Running on debug mode.\n');
 	Target_Study = 3;
     Target_Repeat = 1;
-	method_lst = {'GLasso10'};
-	net_lst = {'ACr-P10000'};
+	method_lst = {'TSVM-RBF'};
+	net_lst = {'None-G11748'};
 	MAX_N_SUBNET = 500;
 end
 
@@ -73,7 +73,7 @@ for ni=1:n_net
 	dataset_name = [dataset_path dataset_list(1).name];
 	fprintf('Loading dataset [%s] ...\n', dataset_name);
 	dataset_info = load(dataset_name);
-	fprintf('Dataset has Train: [%d,%d], Test: [%d,%d] samples and genes.\n', size(dataset_info.DatasetTr.Gene_Expression), size(dataset_info.DatasetTe.Gene_Expression))
+	fprintf('Dataset has Train: [%d x %d], Test: [%d x %d] samples and genes.\n', size(dataset_info.DatasetTr.Gene_Expression), size(dataset_info.DatasetTe.Gene_Expression))
 	
 	%% Loop over methods
 	for mi=1:n_meth
@@ -139,6 +139,18 @@ for ni=1:n_net
 				result = perf_RegAG(dataset_info, opt_info);
             case {'KNN0','KNN1','KNN3','KNN5','KNN7'}
                 result = perf_KNN(dataset_info, setfield(opt_info, 'K', str2double(method_lst{mi}(4:end))));
+            case {'SVM-Lin','SVM-RBF','TSVM-Lin','TSVM-RBF'}
+                opt_svm = opt_info;
+                if strcmpi(method_lst{mi}(end-2:end), 'rbf')
+                    opt_svm.kernel = 'rbf';
+                else
+                    opt_svm.kernel = 'linear';
+                end
+                if strcmpi(method_lst{mi}(1), 'T')
+                    opt_svm.UseTTest = 1;
+                end
+                opt_svm.GridSearch = 1;
+                result = perf_SVM(dataset_info, opt_svm);
 			otherwise
 				error('Unknown Method.');
 		end

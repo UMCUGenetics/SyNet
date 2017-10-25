@@ -31,6 +31,9 @@ res_lst = {
     'MRK_CVT01_Lasso_STRING-G00500_MSN-500.mat'
     'MRK_CVT01_CFGLasso_STRING-G00500_MSN-500.mat'
     
+    'MRK_CVT01_Lasso_ACr-G00500_MSN-500.mat'
+    'MRK_CVT01_CFGLasso_ACr-G00500_MSN-500.mat'
+    
     'MRK_CVT01_Lasso_AvgSynACr-G00500_MSN-500.mat'
     'MRK_CVT01_CFGLasso_AvgSynACr-G00500_MSN-500.mat'
     

@@ -27,6 +27,7 @@ if isfield(opt_info, 'UseTTest')
     zTr = zTr(:, scr_ind(1:MAX_N_SUBNET));
     zTe = zTe(:, scr_ind(1:MAX_N_SUBNET));
     Gene_Name = Gene_Name(scr_ind(1:MAX_N_SUBNET));
+    n_gene = size(zTr, 2);
 else
     SubNet_Score = ones(n_gene, 1);
     SubNet_List = num2cell(1:n_gene)';

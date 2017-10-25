@@ -15,8 +15,8 @@ sav_path = './Collected_Results/';
 %     'STRING-G00500', 'STRING-P10000' ...
 %     'HPRD-G11748' 'I2D-G11748' 'KEGG-G11748' 'STRING-G11748' 'MSigDB-G11748' ...
 %     };
-method_lst = {'GLasso7' 'GLasso10' 'GLasso20'}; % 
-net_lst = {'AvgSynACr-P10000' 'AvgSynACr-G11748' 'AvgSynACr-G05000' 'ACr-G05000' 'I2D-G11748' 'STRING-G11748' 'KEGG-G11748'};
+method_lst = {'Lasso' 'CFGLasso'}; % 
+net_lst = {'ACr-G00500'};
 feat_lst = [20 50 100 500];
 n_net = numel(net_lst);
 n_met = numel(method_lst);
