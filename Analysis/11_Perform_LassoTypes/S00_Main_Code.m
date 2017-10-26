@@ -5,7 +5,7 @@ for ri in `seq 1 10`; do
 for si in `seq 1 14`; do
 PARAM="$si,$ri"; sbatch --job-name=NE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code "$PARAM";
 done;
-read -p "Press a key" -t 1800
+read -p "`date`, ri=$ri, si=$si. Press a key" -t 1800
 done
 
 UMC: PARAM="$si,$ri,{'TAgNMC','TNMC','TLEx','TAgLEx'},{'Random-T00010'},10"; qsub -N "NE-$PARAM" ~/bulk/env/run_Matlab.sh S00_Main_Code "$PARAM";

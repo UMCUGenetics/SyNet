@@ -69,7 +69,9 @@ for mi=1:n_met
                             [~, sind] = sort([file_info(:).datenum], 'Descend');
                             file_info = file_info(sind);
                             for i=2:numel(file_info)
-                                delete([result_path file_info(i).name]);
+                                del_fname = [result_path file_info(i).name];
+                                fprintf('Deleting [%s]\n', del_fname);
+                                delete(del_fname);
                             end
                         end
                         fprintf('Reading from: [%s]\n', file_info(1).name);

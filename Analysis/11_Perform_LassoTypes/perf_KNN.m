@@ -13,18 +13,14 @@ MAX_N_SUBNET = opt_info.MAX_N_SUBNET;
 if isfield(opt_info, 'UseTTest')
     fprintf('Selecting top [%d] features from [%d] genes using t-test.\n', MAX_N_SUBNET, n_gene);
     
-    %% Select top genes
+    %% Calculating pvalue for genes
     pv_mat = zeros(n_gene, 1);
     for gi=1:n_gene
         [~, pv_mat(gi)] = ttest(zTr(:,gi), lTr);
     end
     
-    %% Selecting top genes
-    [SubNet_Score, scr_ind] = sort(-log10(pv_mat), 'Descend');
-    
     %% Select top features
-    SubNet_Score(MAX_N_SUBNET+1:end) = [];
-    SubNet_List = num2cell(scr_ind(1:MAX_N_SUBNET))';
+    [SubNet_Score, scr_ind] = sort(-log10(pv_mat), 'Descend');
     zTr = zTr(:, scr_ind(1:MAX_N_SUBNET));
     zTe = zTe(:, scr_ind(1:MAX_N_SUBNET));
     Gene_Name = Gene_Name(scr_ind(1:MAX_N_SUBNET));
@@ -32,8 +28,8 @@ if isfield(opt_info, 'UseTTest')
     fprintf('Dataset now has Train: [%d x %d], Test: [%d x %d] samples and genes.\n', size(zTr), size(zTe));
 else
     SubNet_Score = ones(n_gene, 1);
-    SubNet_List = num2cell(1:n_gene)';
 end
+SubNet_List = num2cell(1:n_gene)';
 
 %% Finding the optimal K
 if opt_info.K==0
