@@ -5,7 +5,8 @@ clear;
 result_path = '../11_Perform_LassoTypes/Results_Files/';
 sav_path = './Collected_Results/';
 % method_lst = {'TReg' 'TNMCAd' 'KNN0' 'KNN1' 'KNN3' 'KNN5' 'KNN7' 'TNMC'  'LExAG' 'TNMCAd' 'TLEx' ...
-%     'DA2Lex' 'Lasso' 'GLasso' 'CFGLasso' 'GLasso2' 'GLasso7' 'GLasso10' 'GLasso20'
+%     'DA2Lex' 'Lasso' 'GLasso' 'CFGLasso' 'GLasso2' 'GLasso7' 'GLasso10'
+%     'GLasso20' 'TSVM-RBF' 'TKNN0'
 %     };
 % net_lst = {
 %     'None-G11748', 'Random-G00500', 'Random-P10000', ...
@@ -15,8 +16,8 @@ sav_path = './Collected_Results/';
 %     'STRING-G00500', 'STRING-P10000' ...
 %     'HPRD-G11748' 'I2D-G11748' 'KEGG-G11748' 'STRING-G11748' 'MSigDB-G11748' ...
 %     };
-method_lst = {'Lasso' 'CFGLasso'}; % 
-net_lst = {'ACr-G00500'};
+method_lst = {'TSVM-RBF' 'TKNN0'}; % 
+net_lst = {'None-G11748'};
 feat_lst = [20 50 100 500];
 n_net = numel(net_lst);
 n_met = numel(method_lst);
@@ -100,7 +101,7 @@ for mi=1:n_met
                                 SubNet_Score = abs(res_data.B(:,res_data.fit.IndexMinMSE));
                                 res_data.SubNet_List = num2cell(1:n_gene)';
                                 res_data.Gene_Name = GE_Data.Gene_Name;
-                            case {'KNN0','KNN1','KNN3','KNN5','KNN7'}
+                            case {'KNN0','KNN1','KNN3','KNN5','KNN7','TKNN0'}
                                 n_mrk = numel(res_data.Gene_Name);
                                 SubNet_Score = res_data.SubNet_Score(1:n_mrk);
                                 res_data.SubNet_List = res_data.SubNet_List(1:n_mrk);
@@ -109,6 +110,10 @@ for mi=1:n_met
                                 else
                                     out_cmb.Opt_K(end+1,1) = res_data.opt_K;
                                 end
+                            case {'TSVM-RBF'}
+                                n_mrk = numel(res_data.Gene_Name);
+                                SubNet_Score = res_data.SubNet_Score(1:n_mrk);
+                                res_data.SubNet_List = res_data.SubNet_List(1:n_mrk);
                             otherwise
                                 error('Undefined method');
                         end
