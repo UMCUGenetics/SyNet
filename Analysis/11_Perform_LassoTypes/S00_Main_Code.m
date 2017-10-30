@@ -16,7 +16,7 @@ if ismac || ispc
 	fprintf('*** Warning!: Running on debug mode.\n');
 	Target_Study = 3;
     Target_Repeat = 1;
-	method_lst = {'TSVM-RBF'};
+	method_lst = {'TRnFrst'};
 	net_lst = {'None-G11748'};
 	MAX_N_SUBNET = 500;
 end
@@ -156,6 +156,13 @@ for ni=1:n_net
                 end
                 opt_svm.GridSearch = 1;
                 result = perf_SVM(dataset_info, opt_svm);
+            case {'RnFrst' 'TRnFrst'}
+                opt_rf = opt_info;
+                if strcmpi(method_lst{mi}(1), 'T')
+                    opt_rf.UseTTest = 1;
+                end
+                opt_rf.GridSearch = 1;
+                result = perf_RandomForest(dataset_info, opt_rf);
 			otherwise
 				error('Unknown Method.');
 		end
