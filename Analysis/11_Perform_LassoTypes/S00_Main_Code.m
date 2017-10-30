@@ -1,5 +1,5 @@
 function S00_Main_Code(Target_Study, Target_Repeat, method_lst, net_lst, MAX_N_SUBNET)
-%% Run 
+%% Run
 %{
 for ri in `seq 1 10`; do
 for si in `seq 1 14`; do
@@ -13,12 +13,12 @@ UMC: PARAM="$si,$ri,{'TAgNMC','TNMC','TLEx','TAgLEx'},{'Random-T00010'},10"; qsu
 
 %% ####
 if ismac || ispc
-	fprintf('*** Warning!: Running on debug mode.\n');
-	Target_Study = 3;
+    fprintf('*** Warning!: Running on debug mode.\n');
+    Target_Study = 3;
     Target_Repeat = 1;
-	method_lst = {'TRnFrst'};
-	net_lst = {'None-G11748'};
-	MAX_N_SUBNET = 500;
+    method_lst = {'TRnFrst'};
+    net_lst = {'None-G11748'};
+    MAX_N_SUBNET = 500;
 end
 
 %% Initialization
@@ -31,25 +31,25 @@ dataset_path = './Dataset_Files/';
 result_path = './Results_Files/';
 opt_info.lasso_opt = {'lassoType', 't', 'CV', [], 'relTol', 5e-2, 'n_lC', 20, 'lC_ratio', 1e-2, 'verbose', 0};
 if ~exist('MAX_N_SUBNET', 'var')
-	opt_info.MAX_N_SUBNET = 500;
+    opt_info.MAX_N_SUBNET = 500;
 else
-	opt_info.MAX_N_SUBNET = MAX_N_SUBNET;
+    opt_info.MAX_N_SUBNET = MAX_N_SUBNET;
 end
 
 if ~exist('net_lst', 'var') || isempty(net_lst)
-	net_lst = {
+    net_lst = {
         'ACr-G00500', ...
         'AbsCorr-G11748', ...
-		'AvgSynACr-P10000','AvgSyn-P10000', ...
-		'AbsCorr-P10000', ...
-		'STRING-P10000','KEGG-P10000','Random-P10000','I2D-P10000','HPRD-P10000','MSigDB-P10000', ...
-		'AvgSynACr-G00500','AvgSyn-G00500', ...
-		'AbsCorr-G00500', ...
-		'STRING-G00500','KEGG-G00500','Random-G00500','I2D-G00500','HPRD-G00500','MSigDB-G00500', ...
-		};
+        'AvgSynACr-P10000','AvgSyn-P10000', ...
+        'AbsCorr-P10000', ...
+        'STRING-P10000','KEGG-P10000','Random-P10000','I2D-P10000','HPRD-P10000','MSigDB-P10000', ...
+        'AvgSynACr-G00500','AvgSyn-G00500', ...
+        'AbsCorr-G00500', ...
+        'STRING-G00500','KEGG-G00500','Random-G00500','I2D-G00500','HPRD-G00500','MSigDB-G00500', ...
+        };
 end
 if ~exist('method_lst', 'var') || isempty(method_lst)
-	method_lst = {'TNMC' 'TNMCAd' 'TLEx' 'Lasso' 'GLasso' 'CFGLasso'}; % 'Regress' 'AS-Feral'
+    method_lst = {'TNMC' 'TNMCAd' 'TLEx' 'Lasso' 'GLasso' 'CFGLasso'}; % 'Regress' 'AS-Feral'
 end
 n_net = numel(net_lst);
 n_meth = numel(method_lst);
@@ -64,79 +64,79 @@ fprintf([repmat('/',1,60) '\n']);
 
 te_auc = nan(n_net, n_meth);
 for ni=1:n_net
-	fprintf(['****** Network Gen [%s] ' repmat('*',1,40) '\n'], net_lst{ni});
-	ds_id = S02_GenerateDataset(cv_id, net_lst{ni});
-	
-	%% Load Dataset info
-	dataset_list = dir([dataset_path 'DID_' ds_id '*.mat']);
-	if numel(dataset_list)~=1, error('Missing or duplicate dataset found.. \n[%s]\n', strjoin({dataset_list.name}, ', ')); end
-	dataset_name = [dataset_path dataset_list(1).name];
-	fprintf('Loading dataset [%s] ...\n', dataset_name);
-	dataset_info = load(dataset_name);
-	fprintf('Dataset has Train: [%d x %d], Test: [%d x %d] samples and genes.\n', size(dataset_info.DatasetTr.Gene_Expression), size(dataset_info.DatasetTe.Gene_Expression))
-	
-	%% Loop over methods
-	for mi=1:n_meth
-		fprintf(['--- Evaluate [%s, %s]' repmat('-',1,40) '\n'], net_lst{ni}, method_lst{mi});
-		result_name = sprintf([result_path '%s_MSN-%03d_MTN-%s.mat'], dataset_list(1).name(1:end-4), opt_info.MAX_N_SUBNET, method_lst{mi});
-		if exist(result_name, 'file')
-			fprintf('[i] Results are already computed --> [%s] \n', result_name);
-			result = load(result_name);
-			te_auc(ni, mi) = result.te_auc;
-			fprintf('AUC was [%0.2f]\n', te_auc(ni, mi)*100);
-			continue;
-		end
-		
-		%% Evaluate model
-		fprintf('[%d/%d] Evaluating [%s] model on [%s] ...\n', mi, n_meth, method_lst{mi}, datestr(now));
-		switch method_lst{mi}
-			case 'iPark'
-				result = perf_iPark(dataset_info, opt_info, 'Mean');
-			case 'RI-iPark'
-				result = perf_iPark(dataset_info, opt_info, 'RI');
+    fprintf(['****** Network Gen [%s] ' repmat('*',1,40) '\n'], net_lst{ni});
+    ds_id = S02_GenerateDataset(cv_id, net_lst{ni});
+    
+    %% Load Dataset info
+    dataset_list = dir([dataset_path 'DID_' ds_id '*.mat']);
+    if numel(dataset_list)~=1, error('Missing or duplicate dataset found.. \n[%s]\n', strjoin({dataset_list.name}, ', ')); end
+    dataset_name = [dataset_path dataset_list(1).name];
+    fprintf('Loading dataset [%s] ...\n', dataset_name);
+    dataset_info = load(dataset_name);
+    fprintf('Dataset has Train: [%d x %d], Test: [%d x %d] samples and genes.\n', size(dataset_info.DatasetTr.Gene_Expression), size(dataset_info.DatasetTe.Gene_Expression))
+    
+    %% Loop over methods
+    for mi=1:n_meth
+        fprintf(['--- Evaluate [%s, %s]' repmat('-',1,40) '\n'], net_lst{ni}, method_lst{mi});
+        result_name = sprintf([result_path '%s_MSN-%03d_MTN-%s.mat'], dataset_list(1).name(1:end-4), opt_info.MAX_N_SUBNET, method_lst{mi});
+        if exist(result_name, 'file')
+            fprintf('[i] Results are already computed --> [%s] \n', result_name);
+            result = load(result_name);
+            te_auc(ni, mi) = result.te_auc;
+            fprintf('AUC was [%0.2f]\n', te_auc(ni, mi)*100);
+            continue;
+        end
+        
+        %% Evaluate model
+        fprintf('[%d/%d] Evaluating [%s] model on [%s] ...\n', mi, n_meth, method_lst{mi}, datestr(now));
+        switch method_lst{mi}
+            case 'iPark'
+                result = perf_iPark(dataset_info, opt_info, 'Mean');
+            case 'RI-iPark'
+                result = perf_iPark(dataset_info, opt_info, 'RI');
             case 'DA2Lex'
                 InfSN_info = opt_info;
-				InfSN_info.MAX_N_SUBNET = inf;
-				result = perf_DA2Lex(dataset_info, InfSN_info, 'Mean');
-			case {'GLasso2' 'GLasso' 'GLasso7' 'GLasso10' 'GLasso20'}
-				opt_gls = opt_info;
-				opt_gls.lam_list = [zeros(20,1) logspace(log10(1e-2), 0, 20)'];
+                InfSN_info.MAX_N_SUBNET = inf;
+                result = perf_DA2Lex(dataset_info, InfSN_info, 'Mean');
+            case {'GLasso2' 'GLasso' 'GLasso7' 'GLasso10' 'GLasso20'}
+                opt_gls = opt_info;
+                opt_gls.lam_list = [zeros(20,1) logspace(log10(1e-2), 0, 20)'];
                 opt_gls.MAX_SUBNET_SIZE = str2double(method_lst{mi}(7:end));
-				result = perf_GLasso(dataset_info, opt_gls);
-			case 'CFGLasso'
-				result = perf_CFGLasso(dataset_info, opt_info);
+                result = perf_GLasso(dataset_info, opt_gls);
+            case 'CFGLasso'
+                result = perf_CFGLasso(dataset_info, opt_info);
             case {'FERALAvg' 'FERALAvgStdInt' 'FERALAvgStd' 'FERALInt'}
                 feral_info = opt_info;
                 feral_info.CompFeat = arrayfun(@(i) method_lst{mi}(i:i+2), 6:3:numel(method_lst{mi}), 'UniformOutput', 0);
                 result = perf_FERAL(dataset_info, feral_info);
-			case 'Lasso'
-				result = perf_Lasso(dataset_info, opt_info);
-			case 'LExAG'
-				result = perf_LExAG(dataset_info, opt_info);
-			case 'TLEx'
-				result = perf_TLEx(dataset_info, opt_info);
-			case 'TAgLEx'
-				result = perf_TAgLEx(dataset_info, opt_info);
-			case 'TRgLEx'
-				opt_rndg = opt_info;
-				opt_rndg.UseRndGene = 1;
-				result = perf_TAgLEx(dataset_info, opt_rndg);
-			case 'TNMC'
-				result = perf_TTNMC(dataset_info, opt_info);
-			case 'TNMCAd'
-				result = perf_TTNMC(dataset_info, setfield(opt_info, 'FindK', 1));
-			case 'TAgNMC'
-				result = perf_TAgNMC(dataset_info, opt_info);
-			case 'TRgNMC'
-				opt_rndg = opt_info;
-				opt_rndg.UseRndGene = 1;
-				result = perf_TAgNMC(dataset_info, opt_rndg);
-			case 'Regress'
-				result = perf_Regress(dataset_info, opt_info);
+            case 'Lasso'
+                result = perf_Lasso(dataset_info, opt_info);
+            case 'LExAG'
+                result = perf_LExAG(dataset_info, opt_info);
+            case 'TLEx'
+                result = perf_TLEx(dataset_info, opt_info);
+            case 'TAgLEx'
+                result = perf_TAgLEx(dataset_info, opt_info);
+            case 'TRgLEx'
+                opt_rndg = opt_info;
+                opt_rndg.UseRndGene = 1;
+                result = perf_TAgLEx(dataset_info, opt_rndg);
+            case 'TNMC'
+                result = perf_TTNMC(dataset_info, opt_info);
+            case 'TNMCAd'
+                result = perf_TTNMC(dataset_info, setfield(opt_info, 'FindK', 1));
+            case 'TAgNMC'
+                result = perf_TAgNMC(dataset_info, opt_info);
+            case 'TRgNMC'
+                opt_rndg = opt_info;
+                opt_rndg.UseRndGene = 1;
+                result = perf_TAgNMC(dataset_info, opt_rndg);
+            case 'Regress'
+                result = perf_Regress(dataset_info, opt_info);
             case 'TReg'
-				result = perf_Regress(dataset_info, struct('K', MAX_N_SUBNET));
-			case 'RegAG'
-				result = perf_RegAG(dataset_info, opt_info);
+                result = perf_Regress(dataset_info, struct('K', MAX_N_SUBNET));
+            case 'RegAG'
+                result = perf_RegAG(dataset_info, opt_info);
             case {'KNN0','KNN1','KNN3','KNN5','KNN7','TKNN0'}
                 opt_knn = opt_info;
                 opt_knn.K = str2double(method_lst{mi}(end));
@@ -163,20 +163,20 @@ for ni=1:n_net
                 end
                 opt_rf.GridSearch = 1;
                 result = perf_RandomForest(dataset_info, opt_rf);
-			otherwise
-				error('Unknown Method.');
-		end
-		te_auc(ni, mi) = result.te_auc;
-		result.Method_Name = method_lst{mi};
-		result.Dataset_Name = dataset_name;
-		%if ismac, return; end
-		
-		%% Saving results
-		fprintf('Saving results in [%s].\n', result_name);
-		save(result_name, '-struct', 'result');
-		clear result
-		fprintf('\n');
-	end
+            otherwise
+                error('Unknown Method.');
+        end
+        te_auc(ni, mi) = result.te_auc;
+        result.Method_Name = method_lst{mi};
+        result.Dataset_Name = dataset_name;
+        %if ismac, return; end
+        
+        %% Saving results
+        fprintf('Saving results in [%s].\n', result_name);
+        save(result_name, '-struct', 'result');
+        clear result
+        fprintf('\n');
+    end
 end
 
 %% Print results
