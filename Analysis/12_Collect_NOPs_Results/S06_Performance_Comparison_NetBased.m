@@ -15,27 +15,35 @@ res_path = './Collected_Results/';
 res_lst = {
     'MRK_CVT01_Lasso_Random-G00500_MSN-500.mat'
     'MRK_CVT01_CFGLasso_Random-G00500_MSN-500.mat'
+%     'MRK_CVT01_GLasso_Random-G00500_MSN-500.mat'
     
     'MRK_CVT01_Lasso_I2D-G00500_MSN-500.mat'
     'MRK_CVT01_CFGLasso_I2D-G00500_MSN-500.mat'
+%     'MRK_CVT01_GLasso_I2D-G00500_MSN-500.mat'
     
     'MRK_CVT01_Lasso_MSigDB-G00500_MSN-500.mat'
     'MRK_CVT01_CFGLasso_MSigDB-G00500_MSN-500.mat'
+%     'MRK_CVT01_GLasso_MSigDB-G00500_MSN-500.mat'
     
     'MRK_CVT01_Lasso_HPRD-G00500_MSN-500.mat'
     'MRK_CVT01_CFGLasso_HPRD-G00500_MSN-500.mat'
+%     'MRK_CVT01_GLasso_HPRD-G00500_MSN-500.mat'
     
     'MRK_CVT01_Lasso_KEGG-G00500_MSN-500.mat'
     'MRK_CVT01_CFGLasso_KEGG-G00500_MSN-500.mat'
+%     'MRK_CVT01_GLasso_KEGG-G00500_MSN-500.mat'
     
     'MRK_CVT01_Lasso_STRING-G00500_MSN-500.mat'
     'MRK_CVT01_CFGLasso_STRING-G00500_MSN-500.mat'
+%     'MRK_CVT01_GLasso_STRING-G00500_MSN-500.mat'
     
     'MRK_CVT01_Lasso_ACr-G00500_MSN-500.mat'
     'MRK_CVT01_CFGLasso_ACr-G00500_MSN-500.mat'
+%     'MRK_CVT01_GLasso_ACr-G00500_MSN-500.mat'
     
     'MRK_CVT01_Lasso_AvgSynACr-G00500_MSN-500.mat'
     'MRK_CVT01_CFGLasso_AvgSynACr-G00500_MSN-500.mat'
+%     'MRK_CVT01_GLasso_AvgSynACr-G00500_MSN-500.mat'
     
     'MRK_CVT01_LExAG_None-G11748_MSN-500.mat'
     };
@@ -64,7 +72,7 @@ for si=1:n_res
     %set(dist_h{2}(1), 'Marker', '.', 'LineWidth', 2, 'MarkerSize', 10);
     %bar_h = bar(si, mean(auc_rep), 'FaceColor', clr_map(ceil(si/2),:));
     bar_h = patch([si-0.25 si+0.25 si+0.25 si-0.25], [0 0 mean(auc_rep) mean(auc_rep)], 'b', 'FaceColor', clr_map(ceil(si/2),:)); 
-    if mod(si,2)==0
+    if isequal(res_info{3}, 'CFGLasso') %mod(si,2)==0
         patch_h = findobj(bar_h, 'Type', 'patch');
         hatchfill(patch_h, 'single', -45, 5, clr_map(ceil(si/2),:));
     end
@@ -72,7 +80,9 @@ for si=1:n_res
     net_info = regexp(res_info{4}, '-', 'Split');
     X_lbl{si,1} = sprintf('%s', net_info{1});
 end
-text(n_res/2+0.5, 0.68, 'Sparse Group Lasso', 'FontSize', 16, 'FontWeight', 'Bold', 'HorizontalAlignment', 'Center', 'VerticalAlignment', 'Top');
+X_lbl(end-2:end) = {'SyNet' 'SyNet' 'All genes'};
+% text(n_res/2+0.5, 0.68, 'Sparse Group Lasso', 'FontSize', 16, 'FontWeight', 'Bold', 'HorizontalAlignment', 'Center', 'VerticalAlignment', 'Top');
+
 y_tick = get(gca, 'YTick');
 Y_lbl = arrayfun(@(y) sprintf('%0.0f%%', y*100), y_tick, 'UniformOutput', 0);
 set(gca, 'XTick', 1:n_res, 'XTickLabel', X_lbl, 'XTickLabelRotation', 10, ...
@@ -82,6 +92,6 @@ ylabel('AUC', 'FontWeight', 'Bold');
 
 %% Saving
 output_name = sprintf('./Plots/S06_PerformanceComparison_NetBased.pdf');
-set(gcf, 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [13 3], 'PaperPosition', [0 0 13 3]);
+set(gcf, 'PaperUnits', 'Inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [13 3], 'PaperPosition', [0 0 13 3]);
 print('-dpdf', '-r300', output_name);
 

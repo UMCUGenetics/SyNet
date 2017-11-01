@@ -13,13 +13,14 @@ load('../../Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat', 'Study_Nam
 res_path = './Collected_Results/';
 res_lst = {
     'MRK_CVT01_Lasso_Random-G00500_MSN-500.mat'
-    'MRK_CVT01_Lasso_I2D-G00500_MSN-500.mat'
     'MRK_CVT01_Lasso_MSigDB-G00500_MSN-500.mat'
+    'MRK_CVT01_Lasso_I2D-G00500_MSN-500.mat'
     'MRK_CVT01_Lasso_HPRD-G00500_MSN-500.mat'
     'MRK_CVT01_Lasso_KEGG-G00500_MSN-500.mat'
     'MRK_CVT01_Lasso_STRING-G00500_MSN-500.mat'
-    'MRK_CVT01_Lasso_AvgSynACr-G00500_MSN-500.mat'
+    'MRK_CVT01_TLEx_None-G11748_MSN-500.mat'
     'MRK_CVT01_LExAG_None-G11748_MSN-500.mat'
+    'MRK_CVT01_Lasso_AvgSynACr-G00500_MSN-500.mat'
     };
 n_res = numel(res_lst);
 
@@ -47,7 +48,8 @@ for si=1:n_res
     net_info = regexp(res_info{4}, '-', 'Split');
     X_lbl{si,1} = sprintf('%s', net_info{1});
 end
-text(n_res/2+0.5, 0.66, 'Lasso with all genes', 'FontSize', 16, 'FontWeight', 'Bold', 'HorizontalAlignment', 'Center', 'VerticalAlignment', 'Top');
+X_lbl(end-2:end) = {'ttest-#500' 'All genes' 'SyNet'};
+% text(n_res/2+0.5, 0.66, 'Lasso with all genes', 'FontSize', 16, 'FontWeight', 'Bold', 'HorizontalAlignment', 'Center', 'VerticalAlignment', 'Top');
 xlim([0 n_res+1]);
 ylim([0.6 0.66]);
 y_tick = get(gca, 'YTick');
@@ -59,6 +61,6 @@ ylabel('AUC', 'FontWeight', 'Bold');
 
 %% Saving
 output_name = sprintf('./Plots/S05_PerformanceComparison_GenesInNet.pdf');
-set(gcf, 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [13 3], 'PaperPosition', [0 0 13 3]);
+set(gcf, 'PaperUnit', 'inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [13 3], 'PaperPosition', [0 0 13 3]);
 print('-dpdf', '-r300', output_name);
 

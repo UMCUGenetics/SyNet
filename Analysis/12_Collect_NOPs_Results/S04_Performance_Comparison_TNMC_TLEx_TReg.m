@@ -5,7 +5,7 @@ close all
 %% Initialization
 % addpath('../../../../Useful_Sample_Codes/BoxplotEx');
 addpath('../../../../Useful_Sample_Codes/ErrorbarEx/');
-addpath('../../../../Useful_Sample_Codes/Distribution Plot/');
+addpath('../../../../Useful_Sample_Codes/Distribution_Plot/');
 addpath('../../../../Useful_Sample_Codes/Advance_Colormap/');
 load('../../Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat', 'Study_Name');
 

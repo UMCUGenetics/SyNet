@@ -10,8 +10,11 @@ Gene_Name = dataset_info.DatasetTr.Gene_Name;
 MAX_N_SUBNET = opt_info.MAX_N_SUBNET;
 [~, ~, Fold_Index] = unique(dataset_info.DatasetTr.iCvPar, 'Stable');
 if isfield(opt_info, 'GridSearch') && opt_info.GridSearch==1
-    opt_info.C = logspace(0, 10, 7);
-    opt_info.gamma = logspace(0, 10, 7);
+    opt_info.C = logspace(2, 12, 7);
+    opt_info.gamma = logspace(2, 12, 7);
+end
+if strcmpi(opt_info.kernel_name, 'linear')
+    opt_info.gamma = nan;
 end
 
 %% Sort features using t-test
@@ -51,7 +54,7 @@ else
                 iTr = Fold_Index~=fi;
                 iTe = Fold_Index==fi;
                 try
-                    SVMModel = SVM(zTr(iTr,:), lTr(iTr), opt_info.kernel, opt_info.C(ci), opt_info.gamma(gi));
+                    SVMModel = SVM(zTr(iTr,:), lTr(iTr), opt_info.kernel_name, opt_info.C(ci), opt_info.gamma(gi));
                     [~, pred_prob] = predict(SVMModel, zTr(iTe,:));
                     [~, pred_lbl] = max(pred_prob, [], 2);
                     cv_auc(fi) = getAUC(lTr(iTe), pred_lbl, 50);
@@ -65,7 +68,7 @@ else
         end
     end
     
-    fprintf(repmat(' ',1,10));
+    fprintf('C \\ gamma');
     fprintf('%5.0e   ',  opt_info.gamma);
     fprintf('\n');
     for ci=1:n_C
@@ -84,8 +87,8 @@ else
 end
 
 %% Training SVM
-fprintf('Traning final [%s] SVM over C=%5.0e and gamma=%5.0e ...\n', opt_info.kernel, opt_C, opt_gamma);
-SVMModel = SVM(zTr, lTr, opt_info.kernel, opt_C, opt_gamma);
+fprintf('Traning final [%s] SVM over C=%5.0e and gamma=%5.0e ...\n', opt_info.kernel_name, opt_C, opt_gamma);
+SVMModel = SVM(zTr, lTr, opt_info.kernel_name, opt_C, opt_gamma);
 
 %% Evaluating the model
 fprintf('Evaluating the model ...\n');
@@ -93,29 +96,31 @@ tr_auc = 1;
 te_auc = getModelAUC(SVMModel, zTe, lTe);
 
 %% Ranking features
-fprintf('Ranking features using [%s] SVM over C=%5.0e and gamma=%5.0e ...\nFolds: ', opt_info.kernel, opt_C, opt_gamma);
+fprintf('Ranking features using [%s] SVM over C=%5.0e and gamma=%5.0e ...\n', opt_info.kernel_name, opt_C, opt_gamma);
 feat_score = zeros(n_Fold, n_gene);
 for fi=1:n_Fold
-    fprintf('%d, ', fi);
+    fprintf('Folds %2d: ', fi);
     iTr = Fold_Index~=fi;
     iTe = Fold_Index==fi;
     F_zTr = zTr(iTr,:);
     F_lTr = lTr(iTr);
     F_lTe = lTr(iTe);
     n_Te = numel(F_lTe);
-    SVMModel = SVM(F_zTr, F_lTr, opt_info.kernel, opt_C, opt_gamma);
+    SVMModel = SVM(F_zTr, F_lTr, opt_info.kernel_name, opt_C, opt_gamma);
     org_auc = getModelAUC(SVMModel, zTr(iTe,:), F_lTe);
+    F_zTe = zTr(iTe,:);
     for gi=1:n_gene
+        showprogress(gi, n_gene);
+        F_zTe(:,gi) = randn(n_Te,1);
         try
-            F_zTe = zTr(iTe,:);
-            F_zTe(:,gi) = randn(n_Te,1);
             prt_auc = getModelAUC(SVMModel, F_zTe, F_lTe);
             feat_score(fi,gi) = org_auc - prt_auc;
         catch
         end
+        F_zTe(:,gi) = zTr(iTe,gi);
     end
 end
-feat_zscr = zscore(feat_score')';
+feat_zscr = zscore(feat_score, 0, 2);
 fs_average = mean(feat_zscr, 1);
 fprintf('\nFeature scoring finished ...\n');
 
@@ -126,6 +131,7 @@ result.opt_gamma = opt_gamma;
 result.tr_auc = tr_auc;
 result.te_auc = te_auc;
 result.SubNet_List = SubNet_List;
+result.SubNet_FeatImp = feat_score;
 result.SubNet_Score = fs_average;
 result.Gene_Name = Gene_Name;
 fprintf('@@@@@ Final test performance for this dataset is [%0.2f%%] AUC.\n', result.te_auc*100);

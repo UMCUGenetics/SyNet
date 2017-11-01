@@ -3,9 +3,9 @@ function S00_Main_Code(Target_Study, Target_Repeat, method_lst, net_lst, MAX_N_S
 %{
 for ri in `seq 1 10`; do
 for si in `seq 1 14`; do
-PARAM="$si,$ri"; sbatch --job-name=NE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code "$PARAM";
+PARAM="$si,$ri,{'TRnFrst'},{'None-G11748'}"; sbatch --job-name=NE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code "$PARAM";
 done;
-read -p "`date`, ri=$ri, si=$si. Press a key" -t 1800
+read -p "`date`: $PARAM. Press a key" -t 1800
 done
 
 UMC: PARAM="$si,$ri,{'TAgNMC','TNMC','TLEx','TAgLEx'},{'Random-T00010'},10"; qsub -N "NE-$PARAM" ~/bulk/env/run_Matlab.sh S00_Main_Code "$PARAM";
@@ -16,7 +16,7 @@ if ismac || ispc
     fprintf('*** Warning!: Running on debug mode.\n');
     Target_Study = 3;
     Target_Repeat = 1;
-    method_lst = {'TRnFrst'};
+    method_lst = {'TSVM-Lin'};
     net_lst = {'None-G11748'};
     MAX_N_SUBNET = 500;
 end
@@ -147,9 +147,9 @@ for ni=1:n_net
             case {'SVM-Lin','SVM-RBF','TSVM-Lin','TSVM-RBF'}
                 opt_svm = opt_info;
                 if strcmpi(method_lst{mi}(end-2:end), 'rbf')
-                    opt_svm.kernel = 'rbf';
+                    opt_svm.kernel_name = 'rbf';
                 else
-                    opt_svm.kernel = 'linear';
+                    opt_svm.kernel_name = 'linear';
                 end
                 if strcmpi(method_lst{mi}(1), 'T')
                     opt_svm.UseTTest = 1;
