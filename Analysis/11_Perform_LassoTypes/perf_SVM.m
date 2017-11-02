@@ -9,9 +9,14 @@ n_gene = size(zTr, 2);
 Gene_Name = dataset_info.DatasetTr.Gene_Name;
 MAX_N_SUBNET = opt_info.MAX_N_SUBNET;
 [~, ~, Fold_Index] = unique(dataset_info.DatasetTr.iCvPar, 'Stable');
+n_Fold = max(Fold_Index);
 if isfield(opt_info, 'GridSearch') && opt_info.GridSearch==1
-    opt_info.C = logspace(2, 12, 7);
-    opt_info.gamma = logspace(2, 12, 7);
+    if strcmpi(opt_info.kernel_name, 'linear')
+        opt_info.C = logspace(-5, 13, 15);
+    else
+        opt_info.C = logspace(3, 9, 7);
+        opt_info.gamma = logspace(1, 7, 7);
+    end
 end
 if strcmpi(opt_info.kernel_name, 'linear')
     opt_info.gamma = nan;
@@ -44,7 +49,7 @@ if n_C==1 && n_G==1
     opt_C = opt_info.C;
     opt_gamma = opt_info.gamma;
 else
-    n_Fold = max(Fold_Index);
+    fprintf('CV over:\nC --> %s\ngamma: %s\n', num2str(opt_info.C,'%0.0e, '), num2str(opt_info.gamma,'%0.0e, '));
     grid_AUC = zeros(n_C, n_G);
     for ci=1:n_C
         for gi=1:n_G
@@ -68,7 +73,7 @@ else
         end
     end
     
-    fprintf('C \\ gamma');
+    fprintf('C \\ gamma ');
     fprintf('%5.0e   ',  opt_info.gamma);
     fprintf('\n');
     for ci=1:n_C
@@ -122,7 +127,7 @@ for fi=1:n_Fold
 end
 feat_zscr = zscore(feat_score, 0, 2);
 fs_average = mean(feat_zscr, 1);
-fprintf('\nFeature scoring finished ...\n');
+fprintf('Feature scoring finished ...\n');
 
 %% Saving results
 %result.SVMModel = SVMModel;

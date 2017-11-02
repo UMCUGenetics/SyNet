@@ -3,12 +3,11 @@ clear;
 
 %% Initialization
 met_lst = {'Avg', 'Std', 'DA2', 'Reg', 'PCA1', 'DPCA', 'DA2NoRem', 'Rnd'};
-net_lst = {'Random-NN05' 'Random-NN10' 'Random-NN20'};
+net_lst = {'Random_NN05' 'STRING_NN05'}; %'Random-NN10' 'Random-NN20'
 res_path = './Result_Files/';
 cv_ind = 50;
 n_study = 14;
 n_rep = 5;
-n_epoch = 10000;
 cmb_path = './Combined_AUC/';
 [~, ~] = mkdir(cmb_path);
 
@@ -27,13 +26,16 @@ for mi=1:numel(met_lst)
         end
         
         fprintf('Getting results for [%s, %s] ... \n', met_lst{mi}, net_lst{ni});
-        Te_AUC = zeros(n_epoch, n_rep, n_study, 'single');
-        Ind_AUC = zeros(n_epoch, n_rep, n_study, 'single');
         for si=1:n_study
             for ri=1:n_rep
                 res_name = sprintf([res_path 'RES_%s_%s_SyNet-SyNet_CVT%02d_Si%02d-Ri%03d.mat'], met_lst{mi}, net_lst{ni}, cv_ind, si, ri);
                 %fprintf('\t\tLoading [%s]\n', res_name);
                 res_info = load(res_name, 'Te_AUC', 'Ind_AUC');
+                if si==1 && ri==1
+                    n_epoch = numel(res_info.Te_AUC);
+                    Te_AUC = zeros(n_epoch, n_rep, n_study, 'single');
+                    Ind_AUC = zeros(n_epoch, n_rep, n_study, 'single');
+                end
                 Te_AUC(:, ri, si) = res_info.Te_AUC;
                 Ind_AUC(:, ri, si) = res_info.Ind_AUC;
             end

@@ -1,12 +1,12 @@
-function S04_Evaluate_Integration_Methods(Target_Study, Target_Repeat, method_name, net_name)
+function S03_Evaluate_Integration_Methods(Target_Study, Target_Repeat, method_name, net_name, MIN_SUBNET_SIZE)
 %% Run
 %{
 for ri in `seq 1 5`; do
 for si in `seq 1 14`; do
-PARAM="$si,$ri,'PCA1','Random-NN05'"; sbatch --job-name=IE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=6GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S04_Evaluate_Integration_Methods "$PARAM";
+PARAM="$si,$ri,'Avg','Random_NN05',5"; sbatch --job-name=IE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=5GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S03_Evaluate_Integration_Methods "$PARAM";
 done;
-done
 read -p "Press a key" -t 1800
+done
 %}
 
 
@@ -19,11 +19,12 @@ addpath(genpath('../../../../Useful_Sample_Codes/SLEP'));
 tr_name = 'SyNet';
 te_name = 'SyNet';
 cv_ind = 50;
-if ispc
+if ismac
     method_name = 'Rnd';
-    net_name = 'Random-NN20';
+    net_name = 'STRING_NN05';
     Target_Study = 3;
     Target_Repeat = 2;
+    MIN_SUBNET_SIZE = 5;
 end
 
 %% Load indices
@@ -55,8 +56,12 @@ nei_name = ['./NetNei_Files/NetNei_' net_name '.mat'];
 fprintf('Loading neighbor file: %s\n', nei_name);
 nei_info = load(nei_name);
 if ~isequal(nei_info.Gene_Name, cv_info.tr_info.Gene_Name), error(); end
-n_epoch = numel(nei_info.SubNet_Full);
 nei_info.nei_name = nei_name;
+
+%% Filter subnetworks
+Grp_Size = cellfun('length', nei_info.SubNet_Full);
+nei_info.SubNet_Full(Grp_Size<MIN_SUBNET_SIZE+1) = [];
+n_epoch = numel(nei_info.SubNet_Full);
 
 %% Get individual AUC
 resind_name = sprintf('./Result_Files/ResIND_%s-%s_CVT%02d_Si%02d-Ri%03d.mat', tr_name, te_name, cv_ind, Target_Study, Target_Repeat);
@@ -77,12 +82,14 @@ end
 fprintf('Comparing performance for [%d] neighbor sets:\n', n_epoch);
 Te_AUC = zeros(n_epoch,1);
 Ind_AUC = zeros(n_epoch,1);
+Used_IND = cell(n_epoch,1);
 for ei=1:n_epoch
     showprogress(ei, n_epoch);
     nei_lst = nei_info.SubNet_Full{ei};
     eTr = zTr(:, nei_lst);
     eTe = zTe(:, nei_lst);
     grp_size = numel(nei_lst);
+    Used_IND{ei} = nei_lst;
     
     switch method_name
         case 'Avg'
@@ -144,5 +151,5 @@ end
 %% Saving results
 sav_name = sprintf('./Result_Files/RES_%s_%s_%s-%s_CVT%02d_Si%02d-Ri%03d.mat', method_name, net_name, tr_name, te_name, cv_ind, Target_Study, Target_Repeat);
 fprintf('Saving results in [%s]\n', sav_name);
-save(sav_name, 'Te_AUC', 'cv_info', 'nei_info', 'Ind_AUC', 'Gene_TrAUC');
+save(sav_name, 'Te_AUC', 'cv_info', 'nei_info', 'Ind_AUC', 'Gene_TrAUC', 'Used_IND');
 end
