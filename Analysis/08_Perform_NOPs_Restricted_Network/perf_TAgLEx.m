@@ -1,4 +1,4 @@
-function result = perf_TAgLEx(dataset_info, opt_info)
+ function result = perf_TAgLEx(dataset_info, opt_info)
 
 %% Load CV info
 iTr = dataset_info.DatasetTr.UsedSample;
