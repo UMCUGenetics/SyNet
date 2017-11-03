@@ -4,14 +4,15 @@ clear;
 %% Initialization
 addpath('../11_Perform_LassoTypes/');
 addpath('../../../../Useful_Sample_Codes/ShowProgress/');
+addpath('../_Utilities/');
 sav_path = 'NetNei_Files/';
 [~,~] = mkdir(sav_path);
 MAX_SUBNET_SIZE = 20;
 load('../../Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat', 'Gene_Name');
 n_gene = numel(Gene_Name);
 GMap = containers.Map(Gene_Name, 1:n_gene);
-% net_name = 'STRING';
-net_name = 'Random';
+net_name = 'STRING';
+% net_name = 'Random';
 
 %% Load network
 switch net_name

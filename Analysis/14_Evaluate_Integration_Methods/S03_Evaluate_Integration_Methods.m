@@ -1,11 +1,14 @@
 function S03_Evaluate_Integration_Methods(Target_Study, Target_Repeat, method_name, net_name, MIN_SUBNET_SIZE)
 %% Run
 %{
+for mi in Avg Std DA2 Reg PCA1 DPCA DA2NoRem Rnd; do
 for ri in `seq 1 5`; do
 for si in `seq 1 14`; do
-PARAM="$si,$ri,'Avg','Random_NN05',5"; sbatch --job-name=IE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=5GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S03_Evaluate_Integration_Methods "$PARAM";
+PARAM="$si,$ri,'$mi','STRING_NN20',20"; 
+sbatch --job-name=IE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=5GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S03_Evaluate_Integration_Methods "$PARAM";
 done;
-read -p "Press a key" -t 1800
+done;
+read -p "Press a key" -t 1800;
 done
 %}
 

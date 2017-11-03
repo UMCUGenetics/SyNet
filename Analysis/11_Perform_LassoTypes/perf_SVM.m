@@ -101,33 +101,38 @@ tr_auc = 1;
 te_auc = getModelAUC(SVMModel, zTe, lTe);
 
 %% Ranking features
-fprintf('Ranking features using [%s] SVM over C=%5.0e and gamma=%5.0e ...\n', opt_info.kernel_name, opt_C, opt_gamma);
-feat_score = zeros(n_Fold, n_gene);
-for fi=1:n_Fold
-    fprintf('Folds %2d: ', fi);
-    iTr = Fold_Index~=fi;
-    iTe = Fold_Index==fi;
-    F_zTr = zTr(iTr,:);
-    F_lTr = lTr(iTr);
-    F_lTe = lTr(iTe);
-    n_Te = numel(F_lTe);
-    SVMModel = SVM(F_zTr, F_lTr, opt_info.kernel_name, opt_C, opt_gamma);
-    org_auc = getModelAUC(SVMModel, zTr(iTe,:), F_lTe);
-    F_zTe = zTr(iTe,:);
-    for gi=1:n_gene
-        showprogress(gi, n_gene);
-        F_zTe(:,gi) = randn(n_Te,1);
-        try
-            prt_auc = getModelAUC(SVMModel, F_zTe, F_lTe);
-            feat_score(fi,gi) = org_auc - prt_auc;
-        catch
+if n_gene>1000
+    fprintf('Too many features [%d], feature scoring is ignored ...\n', n_gene);
+    fs_average = randn(1, n_gene);
+else
+    fprintf('Ranking features using [%s] SVM over C=%5.0e and gamma=%5.0e ...\n', opt_info.kernel_name, opt_C, opt_gamma);
+    feat_score = zeros(n_Fold, n_gene);
+    for fi=1:n_Fold
+        fprintf('Folds %2d: ', fi);
+        iTr = Fold_Index~=fi;
+        iTe = Fold_Index==fi;
+        F_zTr = zTr(iTr,:);
+        F_lTr = lTr(iTr);
+        F_lTe = lTr(iTe);
+        n_Te = numel(F_lTe);
+        SVMModel = SVM(F_zTr, F_lTr, opt_info.kernel_name, opt_C, opt_gamma);
+        org_auc = getModelAUC(SVMModel, zTr(iTe,:), F_lTe);
+        F_zTe = zTr(iTe,:);
+        for gi=1:n_gene
+            showprogress(gi, n_gene);
+            F_zTe(:,gi) = randn(n_Te,1);
+            try
+                prt_auc = getModelAUC(SVMModel, F_zTe, F_lTe);
+                feat_score(fi,gi) = org_auc - prt_auc;
+            catch
+            end
+            F_zTe(:,gi) = zTr(iTe,gi);
         end
-        F_zTe(:,gi) = zTr(iTe,gi);
     end
+    feat_zscr = zscore(feat_score, 0, 2);
+    fs_average = mean(feat_zscr, 1);
+    fprintf('Feature scoring finished ...\n');
 end
-feat_zscr = zscore(feat_score, 0, 2);
-fs_average = mean(feat_zscr, 1);
-fprintf('Feature scoring finished ...\n');
 
 %% Saving results
 %result.SVMModel = SVMModel;
