@@ -103,7 +103,7 @@ te_auc = getModelAUC(SVMModel, zTe, lTe);
 %% Ranking features
 if n_gene>1000
     fprintf('Too many features [%d], feature scoring is ignored ...\n', n_gene);
-    fs_average = randn(1, n_gene);
+    result.SubNet_Score = randn(n_gene, 1);
 else
     fprintf('Ranking features using [%s] SVM over C=%5.0e and gamma=%5.0e ...\n', opt_info.kernel_name, opt_C, opt_gamma);
     feat_score = zeros(n_Fold, n_gene);
@@ -130,7 +130,8 @@ else
         end
     end
     feat_zscr = zscore(feat_score, 0, 2);
-    fs_average = mean(feat_zscr, 1);
+    result.SubNet_FeatImp = feat_score;
+    result.SubNet_Score = mean(feat_zscr, 1);
     fprintf('Feature scoring finished ...\n');
 end
 
@@ -141,8 +142,6 @@ result.opt_gamma = opt_gamma;
 result.tr_auc = tr_auc;
 result.te_auc = te_auc;
 result.SubNet_List = SubNet_List;
-result.SubNet_FeatImp = feat_score;
-result.SubNet_Score = fs_average;
 result.Gene_Name = Gene_Name;
 fprintf('@@@@@ Final test performance for this dataset is [%0.2f%%] AUC.\n', result.te_auc*100);
 end
