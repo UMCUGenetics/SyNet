@@ -16,7 +16,7 @@ if ismac || ispc
     fprintf('*** Warning!: Running on debug mode.\n');
     Target_Study = 3;
     Target_Repeat = 1;
-    method_lst = {'TSVM-Lin'};
+    method_lst = {'TLDA'};
     net_lst = {'None-G11748'};
     MAX_N_SUBNET = 500;
 end
@@ -144,6 +144,18 @@ for ni=1:n_net
                     opt_knn.UseTTest = 1;
                 end
                 result = perf_KNN(dataset_info, opt_knn);
+            case {'NB' 'TNB'}
+                opt_nb = opt_info;
+                if strcmpi(method_lst{mi}(1), 'T')
+                    opt_nb.UseTTest = 1;
+                end
+                result = perf_NB(dataset_info, opt_nb);
+            case {'LDA' 'TLDA'}
+                opt_lda = opt_info;
+                if strcmpi(method_lst{mi}(1), 'T')
+                    opt_lda.UseTTest = 1;
+                end
+                result = perf_LDA(dataset_info, opt_lda);
             case {'SVM-Lin','SVM-RBF','TSVM-Lin','TSVM-RBF'}
                 opt_svm = opt_info;
                 if strcmpi(method_lst{mi}(end-2:end), 'rbf')

@@ -5,7 +5,7 @@ clear;
 result_path = '../11_Perform_LassoTypes/Results_Files/';
 sav_path = './Collected_Results/';
 % method_lst = {'TReg' 'TNMCAd' 'KNN0' 'KNN1' 'KNN3' 'KNN5' 'KNN7' 'TNMC'  'LExAG' 'TNMCAd' 'TLEx' ...
-%     'DA2Lex' 'Lasso' 'GLasso' 'CFGLasso' 'GLasso2' 'GLasso7' 'GLasso10'
+%     'DA2Lex' 'Lasso' 'GLasso' 'CFGLasso' 'GLasso2' 'GLasso7' 'GLasso10' 'SVM-Lin' 'TSVM-Lin' 'SVM-RBF' 'TSVM-RBF'
 %     'GLasso20' 'TSVM-RBF' 'TKNN0' 'RnFrst' 'TRnFrst'
 %     };
 % net_lst = {
@@ -16,8 +16,8 @@ sav_path = './Collected_Results/';
 %     'STRING-G00500', 'STRING-P10000' ...
 %     'HPRD-G11748' 'I2D-G11748' 'KEGG-G11748' 'STRING-G11748' 'MSigDB-G11748' ...
 %     };
-method_lst = {'KNN0' 'TKNN0' 'SVM-Lin' 'TSVM-Lin' 'SVM-RBF' 'TSVM-RBF' 'GLasso'}; % 
-net_lst = {'None-G11748' 'ACr-G00500'};
+method_lst = {'NB','TNB','LDA','TLDA'}; % 
+net_lst = {'None-G11748'};
 feat_lst = [20 50 100 500 1000];
 n_net = numel(net_lst);
 n_met = numel(method_lst);
@@ -77,7 +77,7 @@ for mi=1:n_met
                         fprintf('Reading from: [%s]\n', file_info(1).name);
                         res_data = load([result_path file_info(1).name]);
                         switch method_lst{mi}
-                            case 'TNMC'
+                            case {'TNMC' 'NB' 'TNB' 'LDA' 'TLDA'}
                                 SubNet_Score = res_data.SubNet_Score;
                             case 'TNMCAd'
                                 SubNet_Score = res_data.SubNet_Score(1:res_data.opt_K);
