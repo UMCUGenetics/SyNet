@@ -16,7 +16,7 @@ if ismac || ispc
     fprintf('*** Warning!: Running on debug mode.\n');
     Target_Study = 3;
     Target_Repeat = 1;
-    method_lst = {'TLDA'};
+    method_lst = {'TNN'};
     net_lst = {'None-G11748'};
     MAX_N_SUBNET = 500;
 end
@@ -156,6 +156,13 @@ for ni=1:n_net
                     opt_lda.UseTTest = 1;
                 end
                 result = perf_LDA(dataset_info, opt_lda);
+            case {'NN' 'TNN'}
+                opt_nn = opt_info;
+                if strcmpi(method_lst{mi}(1), 'T')
+                    opt_nn.UseTTest = 1;
+                end
+                opt_nn.GridSearch = 1;
+                result = perf_NN(dataset_info, opt_nn);
             case {'SVM-Lin','SVM-RBF','TSVM-Lin','TSVM-RBF'}
                 opt_svm = opt_info;
                 if strcmpi(method_lst{mi}(end-2:end), 'rbf')
