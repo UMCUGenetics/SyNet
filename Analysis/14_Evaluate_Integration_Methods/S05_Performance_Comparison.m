@@ -32,12 +32,12 @@ for vi=1:n_vio
     data_r = LoadCmbRes(vio_lst{vi}{2});
     vio_pos(vi) = vi*2;
     
-    left_h = distributionPlot(data_l, 'color', neg_clr, 'xValues', vio_pos(vi)-0.47, 'showMM', 0, 'histOri', 'left');
+    left_h = distributionPlot(data_l, 'color', neg_clr, 'xValues', vio_pos(vi)-0.4, 'showMM', 0, 'distWidth', 0.7, 'histOri', 'left');
     set(left_h{1}, 'FaceAlpha', 0.8);
     box_h = boxplot(data_l, 'Positions', vio_pos(vi)-0.2, 'Color', neg_clr*0.7, 'Symbol', '', 'Widths', 0.3);
     set(box_h, 'LineWidth', 2);
     
-    right_h = distributionPlot(data_r, 'color', clr_map(vi,:), 'xValues', vio_pos(vi)+0.47, 'showMM', 0, 'histOri', 'right');
+    right_h = distributionPlot(data_r, 'color', clr_map(vi,:), 'xValues', vio_pos(vi)+0.4, 'showMM', 0, 'distWidth', 0.7, 'histOri', 'right');
     set(right_h{1}, 'FaceAlpha', 0.8);
     box_h = boxplot(data_r, 'Positions', vio_pos(vi)+0.2, 'Color', clr_map(vi,:)*0.7, 'Symbol', '', 'Widths', 0.3);
     set(box_h, 'LineWidth', 2);

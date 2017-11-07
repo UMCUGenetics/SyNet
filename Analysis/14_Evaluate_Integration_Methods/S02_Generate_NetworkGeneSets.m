@@ -13,13 +13,14 @@ n_gene = numel(Gene_Name);
 GMap = containers.Map(Gene_Name, 1:n_gene);
 net_name = 'STRING';
 % net_name = 'Random';
+shuffle_node = 1;
 
 %% Load network
 switch net_name
     case 'Random'
         n_gene = numel(Gene_Name);
         Net_Adj = rand(n_gene);
-    case 'STRING'
+    case {'STRING'}
         net_path = getPath(net_name);
 		fid = fopen(net_path, 'r');
 		Header_lst = regexp(fgetl(fid), '\t', 'split');
@@ -28,7 +29,7 @@ switch net_name
 			net_cell = textscan(fid, '%s%s', 'Delimiter', '\t', 'ReturnOnError', 0);
 			if ~feof(fid), error(); end
 		else
-			fprintf('Selecting of links from top weighted interactions.\n');
+			fprintf('Selecting links from top weighted interactions.\n');
 			net_cell = textscan(fid, '%s%s%d', 'Delimiter', '\t', 'ReturnOnError', 0);
             [vid, sid] = sort(net_cell{3}, 'Descend');
             net_cell = {net_cell{1}(sid) net_cell{2}(sid)};
@@ -62,6 +63,15 @@ SubNet_Full = cell(n_gene, 1);
 for gi=1:n_gene
 	showprogress(gi, n_gene);
 	SubNet_Full{gi} = getNetNeighborsBreadthFirst(Neig_cell, Neig_cell{gi}, MAX_SUBNET_SIZE+1, 1);
+end
+
+%% Shuffle nodes
+if shuffle_node
+    net_name = ['Shf-' net_name];
+    rnd_ID = randperm(n_gene)';
+    for gi=1:n_gene
+        SubNet_Full{gi} = rnd_ID(SubNet_Full{gi});
+    end
 end
 
 %% Save network neighbors
