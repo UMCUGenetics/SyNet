@@ -14,13 +14,14 @@ res_lst = {
     'MRK_CVT01_SVM-RBF_None-G11748_MSN-500.mat'
     'MRK_CVT01_SVM-Lin_None-G11748_MSN-500.mat'
     'MRK_CVT01_KNN0_None-G11748_MSN-500.mat'
-    'MRK_CVT01_TRnFrst_None-G11748_MSN-500.mat'
     'MRK_CVT01_LDA_None-G11748_MSN-500.mat'
+    'MRK_CVT01_TNN_None-G11748_MSN-500.mat'
+    'MRK_CVT01_TRnFrst_None-G11748_MSN-500.mat'
     'MRK_CVT01_TNB_None-G11748_MSN-500.mat'
-%     'MRK_CVT01_TReg_None-G11748_MSN-100.mat'
     'MRK_CVT01_TNMC_None-G11748_MSN-050.mat'
-%     'MRK_CVT01_TNMC_None-G11748_MSN-020.mat'
+%     'MRK_CVT01_TNMC_None-G11748_MSN-500.mat'
     'MRK_CVT01_TReg_None-G11748_MSN-050.mat'
+%     'MRK_CVT01_TReg_None-G11748_MSN-500.mat'
     'MRK_CVT01_LExAG_None-G11748_MSN-500.mat'
 };
 n_res = numel(res_lst);
@@ -64,7 +65,7 @@ ylabel('AUC', 'FontWeight', 'Bold');
 
 %% Saving
 output_name = sprintf('./Plots/S02_01_Vanilla_PerformanceComparison.pdf');
-set(gcf, 'PaperUnits', 'Inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [10 3], 'PaperPosition', [0 0 10 3]);
+set(gcf, 'PaperUnits', 'Inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [14 3], 'PaperPosition', [0 0 14 3]);
 print('-dpdf', '-r300', output_name);
 
 

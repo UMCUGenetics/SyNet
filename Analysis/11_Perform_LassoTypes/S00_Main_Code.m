@@ -16,7 +16,7 @@ if ismac || ispc
     fprintf('*** Warning!: Running on debug mode.\n');
     Target_Study = 3;
     Target_Repeat = 1;
-    method_lst = {'TNN'};
+    method_lst = {'TDT'};
     net_lst = {'None-G11748'};
     MAX_N_SUBNET = 500;
 end
@@ -175,6 +175,13 @@ for ni=1:n_net
                 end
                 opt_svm.GridSearch = 1;
                 result = perf_SVM(dataset_info, opt_svm);
+            case {'DT' 'TDT'}
+                opt_dt = opt_info;
+                if strcmpi(method_lst{mi}(1), 'T')
+                    opt_dt.UseTTest = 1;
+                end
+                opt_dt.GridSearch = 1;
+                result = perf_DecisionTree(dataset_info, opt_dt);
             case {'RnFrst' 'TRnFrst'}
                 opt_rf = opt_info;
                 if strcmpi(method_lst{mi}(1), 'T')
