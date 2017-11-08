@@ -20,37 +20,33 @@ output.Gene_Name = Gene_Name;
 switch net_name
     case 'Random'
         n_gene = numel(Gene_Name);
-        Net_Adj = rand(n_gene);
-    case {'STRING'}
+        Net_Adj = rand(n_gene)>0.6;
+    case 'STRING'
         net_path = getPath(net_name);
 		fid = fopen(net_path, 'r');
 		Header_lst = regexp(fgetl(fid), '\t', 'split');
-		if numel(Header_lst)==2
-			fprintf('No weight exists. Selecting all links.\n');
-			net_cell = textscan(fid, '%s%s', 'Delimiter', '\t', 'ReturnOnError', 0);
-			if ~feof(fid), error(); end
-		else
-			fprintf('Selecting links from top weighted interactions.\n');
-			net_cell = textscan(fid, '%s%s%d', 'Delimiter', '\t', 'ReturnOnError', 0);
-            [vid, sid] = sort(net_cell{3}, 'Descend');
-            net_cell = {net_cell{1}(sid) net_cell{2}(sid)};
-		end
+        fprintf('Selecting links from top weighted interactions.\n');
+        net_cell = textscan(fid, '%s%s%d', 'Delimiter', '\t', 'ReturnOnError', 0);
+        [vid, sid] = sort(net_cell{3}, 'Descend');
+        net_cell = {net_cell{1}(sid) net_cell{2}(sid) net_cell{3}(sid)};
 		fclose(fid);
+        
 		n_lnk = numel(net_cell{1});
         if n_lnk > realmax('single'), error(); end
 		fprintf('[i] Network contains [%d] links.\n', n_lnk);
 		Net_Adj = zeros(n_gene, 'single');
 		fprintf('Forming the Adj matrix with [%d] genes: ', n_gene);
-		for ii=1:n_lnk
-			showprogress(ii, n_lnk);
-			if GMap.isKey(net_cell{1}{ii}) && GMap.isKey(net_cell{2}{ii})
-				gi = GMap(net_cell{1}{ii});
-				gj = GMap(net_cell{2}{ii});
-				Net_Adj(gi, gj) = n_lnk - ii + 1;
-				Net_Adj(gj, gi) = n_lnk - ii + 1;
-			end
-		end
-		clear net_cell
+        for ii=1:n_lnk
+            showprogress(ii, n_lnk);
+            if GMap.isKey(net_cell{1}{ii}) && GMap.isKey(net_cell{2}{ii})
+                gi = GMap(net_cell{1}{ii});
+                gj = GMap(net_cell{2}{ii});
+                Net_Adj(gi, gj) = net_cell{3}(ii);
+                Net_Adj(gj, gi) = net_cell{3}(ii);
+            end
+        end
+        Net_Adj(Net_Adj<800) = 0;
+        clear net_cell
     otherwise
         fprintf('Unknown method');
 end
@@ -70,7 +66,7 @@ end
 %% Shuffle nodes
 if shuffle_node
     net_name = ['Shf-' net_name];
-    rnd_ID = randperm(n_gene)';
+    rnd_ID = randperm(n_gene);
     for gi=1:n_gene
         SubNet_Full{gi} = rnd_ID(SubNet_Full{gi});
     end
