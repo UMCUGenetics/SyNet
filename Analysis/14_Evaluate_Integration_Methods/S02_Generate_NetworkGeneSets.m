@@ -13,7 +13,8 @@ n_gene = numel(Gene_Name);
 GMap = containers.Map(Gene_Name, 1:n_gene);
 net_name = 'STRING';
 % net_name = 'Random';
-shuffle_node = 1;
+shuffle_node = 0;
+output.Gene_Name = Gene_Name;
 
 %% Load network
 switch net_name
@@ -57,6 +58,7 @@ end
 %% Generate Neighbor Sets
 fprintf('Generating neighbor sets and subnetworks: \n');
 Neig_cell = getNeighborsFromAdj(Net_Adj, MAX_SUBNET_SIZE);
+output.Neig_cell = Neig_cell;
 
 %% Generate Subnetworks
 SubNet_Full = cell(n_gene, 1);
@@ -72,10 +74,12 @@ if shuffle_node
     for gi=1:n_gene
         SubNet_Full{gi} = rnd_ID(SubNet_Full{gi});
     end
+    output.rnd_ID = rnd_ID;
 end
+output.SubNet_Full = SubNet_Full;
 
 %% Save network neighbors
 sav_name = sprintf([sav_path 'NetNei_%s_NN%02d.mat'], net_name, MAX_SUBNET_SIZE);
 fprintf('Saving network file to [%s]\n', sav_name);
-save(sav_name, 'SubNet_Full', 'Gene_Name');
+save(sav_name, '-struct', 'output');
 

@@ -9,12 +9,18 @@ addpath('../../../../Useful_Sample_Codes/Advance_Colormap/');
 load('../../Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat', 'Study_Name');
 
 vio_lst = {
-    {'CMB_Rnd_Random_NN20_CVT50.mat' 'CMB_Rnd_STRING_NN20_CVT50.mat'}
-    {'CMB_Avg_Random_NN20_CVT50.mat' 'CMB_Avg_STRING_NN20_CVT50.mat'}
-    {'CMB_Std_Random_NN20_CVT50.mat' 'CMB_Std_STRING_NN20_CVT50.mat'}
-    {'CMB_PCA1_Random_NN20_CVT50.mat' 'CMB_PCA1_STRING_NN20_CVT50.mat'}
-    {'CMB_DA2_Random_NN20_CVT50.mat' 'CMB_DA2_STRING_NN20_CVT50.mat'}
-    {'CMB_Reg_Random_NN20_CVT50.mat' 'CMB_Reg_STRING_NN20_CVT50.mat'}
+%     {'CMB_Rnd_Random_NN20_CVT50.mat' 'CMB_Rnd_STRING_NN20_CVT50.mat'}
+%     {'CMB_Avg_Random_NN20_CVT50.mat' 'CMB_Avg_STRING_NN20_CVT50.mat'}
+%     {'CMB_Std_Random_NN20_CVT50.mat' 'CMB_Std_STRING_NN20_CVT50.mat'}
+%     {'CMB_PCA1_Random_NN20_CVT50.mat' 'CMB_PCA1_STRING_NN20_CVT50.mat'}
+%     {'CMB_DA2_Random_NN20_CVT50.mat' 'CMB_DA2_STRING_NN20_CVT50.mat'}
+%     {'CMB_Reg_Random_NN20_CVT50.mat' 'CMB_Reg_STRING_NN20_CVT50.mat'}
+    {'CMB_Rnd_Shf-STRING_NN20_CVT50.mat' 'CMB_Rnd_STRING_NN20_CVT50.mat'}
+    {'CMB_Avg_Shf-STRING_NN20_CVT50.mat' 'CMB_Avg_STRING_NN20_CVT50.mat'}
+    {'CMB_Std_Shf-STRING_NN20_CVT50.mat' 'CMB_Std_STRING_NN20_CVT50.mat'}
+    {'CMB_PCA1_Shf-STRING_NN20_CVT50.mat' 'CMB_PCA1_STRING_NN20_CVT50.mat'}
+    {'CMB_DA2_Shf-STRING_NN20_CVT50.mat' 'CMB_DA2_STRING_NN20_CVT50.mat'}
+    {'CMB_Reg_Shf-STRING_NN20_CVT50.mat' 'CMB_Reg_STRING_NN20_CVT50.mat'}
 };
 n_vio = numel(vio_lst);
 clr_map = lines(n_vio);

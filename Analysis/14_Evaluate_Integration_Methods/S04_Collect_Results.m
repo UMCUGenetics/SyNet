@@ -3,7 +3,7 @@ clear;
 
 %% Initialization
 met_lst = {'Avg', 'Std', 'DA2', 'Reg', 'PCA1', 'DPCA', 'DA2NoRem', 'Rnd'};
-net_lst = {'Random_NN20' 'STRING_NN20' 'Random_NN05' 'STRING_NN05'};
+net_lst = {'Shf-STRING_NN20'}; % 'Random_NN20' 'STRING_NN20' 'Random_NN05' 'STRING_NN05'
 res_path = './Result_Files/';
 cv_ind = 50;
 n_study = 14;
