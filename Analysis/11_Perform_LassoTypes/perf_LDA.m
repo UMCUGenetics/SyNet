@@ -14,13 +14,10 @@ if isfield(opt_info, 'UseTTest')
     fprintf('Selecting top [%d] features from [%d] genes using t-test.\n', MAX_N_SUBNET, n_gene);
     
     %% Calculating pvalue for genes
-    pv_mat = zeros(n_gene, 1);
-    for gi=1:n_gene
-        [~, pv_mat(gi)] = ttest(zTr(:,gi), lTr);
-    end
+    pv_vec = ttest2Ex(zTr, lTr);
     
     %% Select top features
-    [SubNet_Score, scr_ind] = sort(-log10(pv_mat), 'Descend');
+    [SubNet_Score, scr_ind] = sort(-log10(pv_vec), 'Descend');
     zTr = zTr(:, scr_ind(1:MAX_N_SUBNET));
     zTe = zTe(:, scr_ind(1:MAX_N_SUBNET));
     Gene_Name = Gene_Name(scr_ind(1:MAX_N_SUBNET));

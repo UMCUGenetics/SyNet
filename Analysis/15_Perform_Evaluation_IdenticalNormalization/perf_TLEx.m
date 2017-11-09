@@ -10,13 +10,10 @@ MAX_N_SUBNET = opt_info.MAX_N_SUBNET;
 
 %% Select top genes
 fprintf('Evaluting [%d] individual genes.\n', n_gene);
-pv_mat = zeros(n_gene, 1);
-for gi=1:n_gene
-	[~, pv_mat(gi)] = ttest(xTr(:,gi), lTr);
-end
+pv_vec = ttest2Ex(xTr, lTr);
 
 %% Selecting top genes
-[SubNet_Score, scr_ind] = sort(-log10(pv_mat), 'Descend');
+[SubNet_Score, scr_ind] = sort(-log10(pv_vec), 'Descend');
 SubNet_List = num2cell(scr_ind);
 n_feat = min([MAX_N_SUBNET n_gene]);
 xTr = xTr(:, scr_ind(1:n_feat));

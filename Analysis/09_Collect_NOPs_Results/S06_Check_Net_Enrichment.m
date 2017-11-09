@@ -105,11 +105,8 @@ load('../../Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat', 'Gene_Expr
 zData = zscore(Gene_Expression);
 Patient_Label = (Patient_Label==1)*2-1;
 n_gene = numel(Gene_Name);
-pv_mat = zeros(n_gene, 1);
-for gi=1:n_gene
-	[~, pv_mat(gi)] = ttest(zData(:,gi), Patient_Label);
-end
-[top_val, top_ind] = sort(-log10(pv_mat), 'Descend');
+pv_vec = ttest2Ex(zData, Patient_Label);
+[top_val, top_ind] = sort(-log10(pv_vec), 'Descend');
 Top_Gene = Gene_Name(top_ind(1:n_top));
 end
 

@@ -34,13 +34,10 @@ for si=1:n_study
 	
 	%% Select top genes
 	fprintf('Evaluting [%d] individual genes.\n', n_gene);
-	pv_mat = zeros(n_gene, 1);
-	for gi=1:n_gene
-		[~, pv_mat(gi)] = ttest(zTr(:,gi), lTr);
-	end
-	
+	pv_vec = ttest2Ex(zTr, lTr);
+    
 	%% Selecting top genes
-	[~, scr_ind] = sort(-log10(pv_mat), 'Descend');
+	[~, scr_ind] = sort(-log10(pv_vec), 'Descend');
 	sTr = zTr(:, scr_ind(1:n_feat));
 	sTe = zTe(:, scr_ind(1:n_feat));
 	

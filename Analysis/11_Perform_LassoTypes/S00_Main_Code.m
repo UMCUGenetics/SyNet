@@ -16,7 +16,7 @@ if ismac || ispc
     fprintf('*** Warning!: Running on debug mode.\n');
     Target_Study = 3;
     Target_Repeat = 1;
-    method_lst = {'TDT'};
+    method_lst = {'TNN'};
     net_lst = {'None-G11748'};
     MAX_N_SUBNET = 500;
 end

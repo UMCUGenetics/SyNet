@@ -15,13 +15,10 @@ zTe = zscore(xTe);
 if isfield(opt_info, 'K')
     %% Select top genes
     fprintf('Evaluting [%d] individual genes.\n', n_gene);
-    pv_mat = zeros(n_gene, 1);
-    for gi=1:n_gene
-        [~, pv_mat(gi)] = ttest(zTr(:,gi), lTr);
-    end
+    pv_vec = ttest2Ex(zTr, lTr);
     
     %% Selecting top genes
-    [SubNet_Score, scr_ind] = sort(-log10(pv_mat), 'Descend');
+    [SubNet_Score, scr_ind] = sort(-log10(pv_vec), 'Descend');
     SubNet_List = num2cell(scr_ind);
     n_feat = min([opt_info.K n_gene]);
     zTr = zTr(:, scr_ind(1:n_feat));

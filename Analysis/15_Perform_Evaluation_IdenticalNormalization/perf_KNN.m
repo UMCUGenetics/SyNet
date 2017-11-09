@@ -13,13 +13,10 @@ MAX_N_SUBNET = opt_info.MAX_N_SUBNET;
 if isfield(opt_info, 'UseTTest')
     %% Select top genes
     fprintf('Sorting [%d] genes using t-test.\n', n_gene);
-    pv_mat = zeros(n_gene, 1);
-    for gi=1:n_gene
-        [~, pv_mat(gi)] = ttest(xTr(:,gi), lTr);
-    end
+    pv_vec = ttest2Ex(xTr, lTr);
     
     %% Selecting top genes
-    [SubNet_Score, scr_ind] = sort(-log10(pv_mat), 'Descend');
+    [SubNet_Score, scr_ind] = sort(-log10(pv_vec), 'Descend');
     
     %% Select top features
     SubNet_Score(MAX_N_SUBNET+1:end) = [];
