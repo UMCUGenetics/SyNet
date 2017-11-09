@@ -42,11 +42,13 @@ for vi=1:n_vio
     set(left_h{1}, 'FaceAlpha', 0.8);
     box_h = boxplot(data_l, 'Positions', vio_pos(vi)-0.2, 'Color', neg_clr*0.7, 'Symbol', '', 'Widths', 0.3);
     set(box_h, 'LineWidth', 2);
+%     text(vio_pos(vi)-0.2, 1.11, sprintf('n=%d', numel(data_l)), 'HorizontalAlignment', 'Right');
     
     right_h = distributionPlot(data_r, 'color', clr_map(vi,:), 'xValues', vio_pos(vi)+0.4, 'showMM', 0, 'distWidth', 0.7, 'histOri', 'right');
     set(right_h{1}, 'FaceAlpha', 0.8);
     box_h = boxplot(data_r, 'Positions', vio_pos(vi)+0.2, 'Color', clr_map(vi,:)*0.7, 'Symbol', '', 'Widths', 0.3);
     set(box_h, 'LineWidth', 2);
+%     text(vio_pos(vi)+0.2, 1.11, sprintf('n=%d', numel(data_l)), 'HorizontalAlignment', 'Left');
     
     [~, pval] = ttest2(data_l, data_r, 'Tail', 'Left');
     
