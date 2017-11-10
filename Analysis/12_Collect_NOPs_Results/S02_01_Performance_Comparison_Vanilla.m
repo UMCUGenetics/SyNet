@@ -16,12 +16,11 @@ res_lst = {
     'MRK_CVT01_KNN0_None-G11748_MSN-500.mat'
     'MRK_CVT01_LDA_None-G11748_MSN-500.mat'
     'MRK_CVT01_TNN_None-G11748_MSN-500.mat'
+    'MRK_CVT01_DT_None-G11748_MSN-500.mat'
     'MRK_CVT01_TRnFrst_None-G11748_MSN-500.mat'
-    'MRK_CVT01_TNB_None-G11748_MSN-500.mat'
+    'MRK_CVT01_NB_None-G11748_MSN-500.mat'
     'MRK_CVT01_TNMC_None-G11748_MSN-050.mat'
-%     'MRK_CVT01_TNMC_None-G11748_MSN-500.mat'
     'MRK_CVT01_TReg_None-G11748_MSN-050.mat'
-%     'MRK_CVT01_TReg_None-G11748_MSN-500.mat'
     'MRK_CVT01_LExAG_None-G11748_MSN-500.mat'
 };
 n_res = numel(res_lst);
@@ -32,6 +31,7 @@ figure('Position', [100 100 1500 400]);
 hold on
 clr_map = jet(n_res);
 clr_map(n_res-2,:) = [0.95 0.95 0];
+clr_map = clr_map*0.8;
 X_lbl = {};
 AUC_cmb = [];
 for si=1:n_res

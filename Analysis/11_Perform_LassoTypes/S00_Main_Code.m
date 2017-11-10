@@ -16,7 +16,7 @@ if ismac || ispc
     fprintf('*** Warning!: Running on debug mode.\n');
     Target_Study = 3;
     Target_Repeat = 1;
-    method_lst = {'TNN'};
+    method_lst = {'NMC'};
     net_lst = {'None-G11748'};
     MAX_N_SUBNET = 500;
 end
@@ -121,8 +121,12 @@ for ni=1:n_net
                 opt_rndg = opt_info;
                 opt_rndg.UseRndGene = 1;
                 result = perf_TAgLEx(dataset_info, opt_rndg);
-            case 'TNMC'
-                result = perf_TTNMC(dataset_info, opt_info);
+            case {'NMC' 'TNMC'}
+                opt_nmc = opt_info;
+                if strcmpi(method_lst{mi}(1), 'T')
+                    opt_nmc.UseTTest = 1;
+                end
+                result = perf_TTNMC(dataset_info, opt_nmc);
             case 'TNMCAd'
                 result = perf_TTNMC(dataset_info, setfield(opt_info, 'FindK', 1));
             case 'TAgNMC'

@@ -2,6 +2,7 @@ clc;
 clear;
 
 %% Initialization
+addpath('../_Utilities/');
 n_study = 14;
 n_rep = 5;
 
@@ -22,50 +23,49 @@ str_degree = cellfun('length', STR_nei);
 shf_degree = cellfun('length', SHF_nei);
 if ~isequal(str_degree, shf_degree), exist(); end
 
-%% Collection of data
-IND_auc = zeros(n_gene, n_rep, n_study);
-for ci=1:n_study
-    for ri=1:n_rep
-        res_name = sprintf('ResIND_SyNet-SyNet_CVT50_Si%02d-Ri%03d.mat', ci, ri);
-        fprintf('Result: %s\n', res_name);
-        res_data = load(['./Result_Files/' res_name]);
-        IND_auc(:, ri, ci) = res_data.Gene_TrAUC;
-    end
-end
-IND_auc = mean(mean(IND_auc, 3), 2);
+%% ttest
+GEPath = getPath('SyNet');
+load(GEPath, 'Gene_Expression', 'Patient_Label');
+zData = zscore(Gene_Expression);
+IND_pvl = -log10(ttest2Ex(zData, Patient_Label));
 
 %% Compute frequency of genes
 str_freq = histcounts(horzcat(STR_nei{:}), 1:n_gene+1);
 shf_freq = histcounts(horzcat(SHF_nei{:}), 1:n_gene+1);
-bin_lst = floor(linspace(1,n_gene,7));
 
 %% Plotting
 close all
 figure('Position', [100 100 1500 500]);
 hold on
-freq_set = floor(logspace(log10(1), log10(101), 7))';
+freq_set = unique(floor(logspace(log10(1), log10(100), 7)))';
 freq_class = [freq_set(1:end-1) freq_set(2:end)-1];
 freq_class(end) = inf;
 n_class = size(freq_class, 1);
 clr_map = [
-    0.0 0.0 1.0;
     0.7 0.7 0.7;
+    0.1 0.1 1.0;
     ];
-x_label = cell(n_class, 1);
-% IND_auc(IND_auc<0.55) = nan;
 for ci=1:n_class
-    has_ol = shf_freq>=freq_class(ci,1) & shf_freq<=freq_class(ci,2);
-    box_h = boxplot(IND_auc(has_ol), 'Positions', ci-0.2, 'Color', clr_map(2,:));
-    set(box_h, 'LineWidth', 2);
+    str_ol = shf_freq>=freq_class(ci,1) & shf_freq<=freq_class(ci,2);
+    BoxPlotEx(IND_pvl(str_ol), 'Positions', ci-0.25, 'Color', clr_map(1,:), 'Symbol', '');
     
-    has_ol = str_freq>=freq_class(ci,1) & str_freq<=freq_class(ci,2);
-    box_h = boxplot(IND_auc(has_ol), 'Positions', ci+0.2, 'Color', clr_map(1,:));
-    set(box_h, 'LineWidth', 2);
+    shf_ol = str_freq>=freq_class(ci,1) & str_freq<=freq_class(ci,2);
+    BoxPlotEx(IND_pvl(shf_ol), 'Positions', ci+0.25, 'Color', clr_map(2,:), 'Symbol', '');
     
-    text(ci, 0.50, sprintf('%d : %d\nn=%d', freq_class(ci,:), sum(has_ol)), 'HorizontalAlignment', 'Center');
+    text(ci, 0, sprintf('Interval %d : %d\n#gene=%d', freq_class(ci,:), sum(shf_ol)), 'FontWeight', 'Bold', 'FontSize', 10, ...
+    'HorizontalAlignment', 'Center', 'VerticalAlignment', 'Top');
+
+    [~, pval] = ttest2(IND_pvl(shf_ol), IND_pvl(str_ol), 'Tail', 'Right');
+    text(ci, 3, sprintf('p = %0.0e', pval), 'FontWeight', 'Bold', 'FontSize', 10, 'Color', 'r', ...
+        'HorizontalAlignment', 'Center', 'VerticalAlignment', 'Bottom');
 end
-xlim([0 n_class+1]);
-ylim([0.50 0.60]);
+title('Performance of genes according to their membership frequency in sub-networks', 'FontSize', 14);
+line_h(1) = plot([-1 -1], 'Color', clr_map(1,:), 'LineWidth', 7);
+line_h(2) = plot([-1 -1], 'Color', clr_map(2,:), 'LineWidth', 7);
+legend(line_h, {'Shuffled STRING' 'STRING'}, 'FontWeight', 'Bold', 'Location', 'NorthWest');
+ylabel('-Log10(p-value)', 'FontWeight', 'Bold');
+xlim([0.5 n_class+0.5]);
+ylim([0 9])
 set(gca, 'XTick', 1:n_class, 'XTickLabel', []);
 
 %% Saving the plot
