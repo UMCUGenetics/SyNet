@@ -16,8 +16,8 @@ sav_path = './Collected_Results/';
 %     'STRING-G00500', 'STRING-P10000' ...
 %     'HPRD-G11748' 'I2D-G11748' 'KEGG-G11748' 'STRING-G11748' 'MSigDB-G11748' ...
 %     };
-method_lst = {'NMC' 'DT' 'TDT' 'TNN'}; % 
-net_lst = {'None-G11748'};
+method_lst = {'Lasso'}; % 
+net_lst = {'STRING-G11748' 'KEGG-G11748' 'I2D-G11748' 'HPRD-G11748' 'MSigDB-G11748'};
 feat_lst = [20 50 100 500 1000];
 n_net = numel(net_lst);
 n_met = numel(method_lst);
