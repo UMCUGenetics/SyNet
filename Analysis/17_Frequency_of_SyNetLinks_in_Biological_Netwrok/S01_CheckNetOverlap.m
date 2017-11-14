@@ -1,16 +1,20 @@
-clc;
-clear;
+function S01_CheckNetOverlap(net_name, n_lnk, n_rep, SHUFFLE)
+%% Run: PARAM="'STRING',1000,10000,0"; sbatch --job-name=NO-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=7GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S01_CheckNetOverlap "$PARAM";
 
 %% Initialization
+addpath('../../../../Useful_Sample_Codes/ShowProgress');
 addpath('../_Utilities/');
-run_id = 100;
-n_lnk = 1000;
-n_rep = 10000;
-net_name = 'STRING';
 net_opt.GE_Path = getPath('SyNet');
 ge_data = load(net_opt.GE_Path, 'Gene_Name');
 net_opt.PreferredGenes = ge_data.Gene_Name;
-net_opt.MAX_N_PAIR = 10000;
+net_opt.MAX_N_PAIR = 100000;
+SEED_INFO=rng; Run_ID=double(SEED_INFO.Seed);
+if ismac
+    Run_ID = 100;
+    n_lnk = 1000;
+    n_rep = 10000;
+    net_name = 'STRING';
+end
 
 %% Load network
 fprintf('Loading [%s] network.\n', net_name);
@@ -20,6 +24,9 @@ Net_GeneName = net_info.Gene_Name;
 clear net_info
 n_gene = numel(Net_GeneName);
 if min(Net_Adj(:))<0, error('Not implemented for negative links'); end
+if SHUFFLE == 1
+    net_name = ['SHFL-' net_name];
+end
 
 %% Load SyNet
 SyNet_path = '../01_Pairwise_Evaluation_of_Genes/Top_Pairs/TopP_SyNet.mat';
@@ -30,10 +37,9 @@ SyNet_Map = containers.Map();
 for si=1:size(SyNet_lnk,1)
     Pair_str = [SyNet_GeneName{SyNet_lnk(si,1)} ';' SyNet_GeneName{SyNet_lnk(si,2)}];
     SyNet_Map(Pair_str) = si;
+    Pair_str = [SyNet_GeneName{SyNet_lnk(si,2)} ';' SyNet_GeneName{SyNet_lnk(si,1)}];
+    SyNet_Map(Pair_str) = si;
 end
-
-%% Make reference gene set
-InSyNet = ismember(Net_GeneName, SyNet_GeneName);
 
 %% Main loop
 fprintf('[%d] Random selection of [%d] links from [%s] ... \n', n_rep, n_lnk, net_name);
@@ -51,24 +57,27 @@ for ri=1:n_rep
     end
     Net_Lnk = Net_Lnk(1:n_lnk, :);
     
-    %% Filter non-existing genes
-    is_val = InSyNet(Net_Lnk);
+    if SHUFFLE == 1
+        Net_GeneName = Net_GeneName(randperm(n_gene));
+    end
     
     %% Measure overlap
     for li=1:n_lnk
-        Pair_str1 = [Net_GeneName{Net_Lnk(li,1)} ';' Net_GeneName{Net_Lnk(li,2)}];
-        Pair_str2 = [Net_GeneName{Net_Lnk(li,2)} ';' Net_GeneName{Net_Lnk(li,1)}];
-        if SyNet_Map.isKey(Pair_str1) || SyNet_Map.isKey(Pair_str2)
+        Pair_str = [Net_GeneName{Net_Lnk(li,1)} ';' Net_GeneName{Net_Lnk(li,2)}];
+        if SyNet_Map.isKey(Pair_str)
             OL_Freq(ri) = OL_Freq(ri) + 1;
         end
     end
 end
 
+%% Plotting
+% plot(sort(OL_Freq));
+
 %% Save output
-sav_name = sprinf('./Net_SyNet_Overlap/Net-OV_%s_NL%d_%d', net_name, n_lnk, run_id);
+sav_name = sprintf('./SyNet_Overlap/NetOV_%s_NL%d_RI%d', net_name, n_lnk, Run_ID);
 fprintf('Saving the results in [%s]\n', sav_name);
-save(sav_name, 'OL_Freq', 'net_name', 'Gene_Name', 'SyNet_path');
+save(sav_name, 'OL_Freq', 'net_name', 'Net_GeneName', 'SyNet_GeneName', 'SyNet_path');
 
-
+end
 
 

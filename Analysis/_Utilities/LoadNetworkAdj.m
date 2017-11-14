@@ -49,7 +49,7 @@ switch net_name
 		else
 			fprintf('Selecting of [%d] links from top weighted interactions.\n', net_info.MAX_N_PAIR);
 			net_cell = textscan(fid, '%s%s%d', net_info.MAX_N_PAIR, 'Delimiter', '\t', 'ReturnOnError', 0);
-            if ~issorted(net_cell{3}), error('given network file is not sorted.'); end
+            if ~issorted(net_cell{3}, 'Descend'), error('Given network file is not sorted.'); end
 		end
 		fclose(fid);
 		Gene_Name = unique(vertcat(net_cell{1:2}));
@@ -73,7 +73,7 @@ switch net_name
 end
 
 %% Node filtering
-del_ind = sum(Net_Adj==0,1)==0;
+del_ind = sum(Net_Adj~=0,1)==0;
 Net_Adj(del_ind, :) = [];
 Net_Adj(:, del_ind) = [];
 Gene_Name(del_ind) = [];
