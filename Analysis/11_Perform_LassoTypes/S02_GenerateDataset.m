@@ -300,7 +300,7 @@ fprintf('[%d] genes are removed due to having no interactions.\n', sum(del_ind))
 %% Storing
 net_info.Net_Adj = double(Net_Adj);
 net_info.Gene_Name = Gene_Name;
-fprintf('[%d] genes and [%d] links are left in the network.\n', numel(Gene_Name), numel(nonzeros(Net_Adj(:))));
+fprintf('[%d] genes and [%d] links are left in the network.\n', numel(Gene_Name), numel(nonzeros(triu(Net_Adj))));
 end
 
 function Dataset = UnifyData(data_info, net_info, Valid_Gene_List)

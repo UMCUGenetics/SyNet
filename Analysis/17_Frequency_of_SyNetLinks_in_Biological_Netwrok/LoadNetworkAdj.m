@@ -7,7 +7,7 @@ switch net_name
     case 'AbsCorr'
         ge_data = load(net_opt.GE_Path, 'Gene_Expression', 'Gene_Name');
         Net_Adj = abs(corr(zscore(ge_data.Gene_Expression), 'Type', 'Spearman'));
-        Net_Adj = Net_Adj>0.6;
+        Net_Adj = Net_Adj>0.5;
         Gene_Name = ge_data.Gene_Name;
         net_info.net_path = net_opt.GE_Path;
         clear ge_data
@@ -46,11 +46,11 @@ switch net_name
         fid = fopen(net_info.net_path, 'r');
         Header_lst = regexp(fgetl(fid), '\t', 'split');
         if numel(Header_lst)==2
-            fprintf('No weight exists. Random selection of [%d] links.\n', net_info.MAX_N_PAIR);
-            net_cell = textscan(fid,   '%s%s', net_info.MAX_N_PAIR, 'Delimiter', '\t', 'ReturnOnError', 0);
+            fprintf('No link weight exists. Selection of [%d] links from begining of file.\n', net_info.MAX_N_PAIR*5);
+            net_cell = textscan(fid,   '%s%s', net_info.MAX_N_PAIR*5, 'Delimiter', '\t', 'ReturnOnError', 0);
         else
-            fprintf('Selecting of [%d] links from top weighted interactions.\n', net_info.MAX_N_PAIR);
-            net_cell = textscan(fid, '%s%s%d', net_info.MAX_N_PAIR, 'Delimiter', '\t', 'ReturnOnError', 0);
+            fprintf('Link weights are found. Selecting of [%d] links from top weighted interactions.\n', net_info.MAX_N_PAIR*5);
+            net_cell = textscan(fid, '%s%s%d', net_info.MAX_N_PAIR*5, 'Delimiter', '\t', 'ReturnOnError', 0);
             if ~issorted(net_cell{3}, 'Descend'), error('Given network file is not sorted.'); end
         end
         fclose(fid);
@@ -59,7 +59,8 @@ switch net_name
         GMap = containers.Map(Gene_Name, 1:n_gene);
         Net_Adj = zeros(n_gene, 'single');
         n_lnk = numel(net_cell{1});
-        fprintf('Forming the Adj matrix with [%d] genes and [%d] links: ', n_gene, n_lnk);
+        fprintf('[%d] genes and [%d] links are loaded from [%s]\n', n_gene, n_lnk, net_name);
+        fprintf('Forming the Adj matrix ...\n');
         for li=1:n_lnk
             showprogress(li, n_lnk);
             if GMap.isKey(net_cell{1}{li}) && GMap.isKey(net_cell{2}{li})
@@ -73,13 +74,8 @@ switch net_name
     otherwise
         error('Unknown method.');
 end
-
-%% Node filtering
-del_ind = sum(Net_Adj~=0,1)==0;
-Net_Adj(del_ind, :) = [];
-Net_Adj(:, del_ind) = [];
-Gene_Name(del_ind) = [];
-fprintf('[%d] genes are removed due to having no interactions. [%d] genes are left.\n', sum(del_ind), numel(Gene_Name));
+if ~issymmetric(Net_Adj), fprintf('Warning: Raw Adj matrix is not symetric.\n'); end
+Net_Adj = max(Net_Adj, Net_Adj');
 
 %% Unifying gene list
 if isfield(net_opt, 'PreferredGenes')
@@ -89,6 +85,27 @@ if isfield(net_opt, 'PreferredGenes')
     Gene_Name = Gene_Name(Ind_List);
     fprintf('[%d] genes are left after filtering according to provided list.\n', numel(Gene_Name));
 end
+
+%% Link filtering
+if isfield(net_info, 'MAX_N_PAIR')
+    fprintf('[i] Selecting top %d interactions: ', net_info.MAX_N_PAIR);
+    scr_val = sort(Net_Adj(:), 'Descend');
+    adj_tresh = scr_val(net_info.MAX_N_PAIR*2); %% To take into account the both triangles in Adj matrix
+    Net_Adj(Net_Adj < adj_tresh) = 0;
+    net_info.Net_Threshold = adj_tresh;
+    if adj_tresh<=0
+        fprintf('Warning: Identified threshhold is [%d]. Fewer pairs are selected than requested [%d]\n', adj_tresh, net_info.MAX_N_PAIR);
+    end
+    clear scr_val
+    fprintf('[%d] genes and [%d] links are left in the network.\n', numel(Gene_Name), numel(nonzeros(triu(Net_Adj))));
+end
+
+%% Node filtering
+fprintf('[i] Filtering nodes with no iteractions ...\n');
+del_ind = sum(Net_Adj~=0,1)==0;
+Net_Adj(del_ind, :) = [];
+Net_Adj(:, del_ind) = [];
+Gene_Name(del_ind) = [];
 
 %% Storing
 if ~issymmetric(Net_Adj), error('Adj Matrix is not symetric.\n'); end
