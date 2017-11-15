@@ -7,7 +7,7 @@ switch net_name
     case 'AbsCorr'
         ge_data = load(net_opt.GE_Path, 'Gene_Expression', 'Gene_Name');
         Net_Adj = abs(corr(zscore(ge_data.Gene_Expression), 'Type', 'Spearman'));
-        Net_Adj = Net_Adj>0.5;
+        Net_Adj(Net_Adj<0.5) = 0;
         Gene_Name = ge_data.Gene_Name;
         net_info.net_path = net_opt.GE_Path;
         clear ge_data
@@ -76,6 +76,7 @@ switch net_name
 end
 if ~issymmetric(Net_Adj), fprintf('Warning: Raw Adj matrix is not symetric.\n'); end
 Net_Adj = max(Net_Adj, Net_Adj');
+Net_Adj(1:size(Net_Adj,1)+1:end) = 0;
 
 %% Unifying gene list
 if isfield(net_opt, 'PreferredGenes')
@@ -89,14 +90,20 @@ end
 %% Link filtering
 if isfield(net_info, 'MAX_N_PAIR')
     fprintf('[i] Selecting top %d interactions: ', net_info.MAX_N_PAIR);
-    scr_val = sort(Net_Adj(:), 'Descend');
-    adj_tresh = scr_val(net_info.MAX_N_PAIR*2); %% To take into account the both triangles in Adj matrix
-    Net_Adj(Net_Adj < adj_tresh) = 0;
-    net_info.Net_Threshold = adj_tresh;
-    if adj_tresh<=0
-        fprintf('Warning: Identified threshhold is [%d]. Fewer pairs are selected than requested [%d]\n', adj_tresh, net_info.MAX_N_PAIR);
+    Tmp_Adj = triu(Net_Adj, 1);
+    [~, scr_ind] = sort(Tmp_Adj(:), 'Descend');
+    clear Tmp_Adj
+    if numel(unique(Net_Adj(scr_ind(1:net_info.MAX_N_PAIR))))<=1
+        error('Identical weights are found. This function is not implemented for that. Shuffle the links before removing');
     end
-    clear scr_val
+    scr_ind(1:net_info.MAX_N_PAIR) = [];  %% *2 To take into account the both triangles in Adj matrix
+    net_info.Net_Threshold = Net_Adj(scr_ind(1));
+    Net_Adj(scr_ind) = 0;
+    Net_Adj = max(Net_Adj, Net_Adj');
+    if net_info.Net_Threshold<=0
+        fprintf('Warning: Identified threshhold is [%d]. Fewer pairs are selected than requested [%d]\n', net_info.Net_Threshold, net_info.MAX_N_PAIR);
+    end
+    clear scr_val scr_ind
     fprintf('[%d] genes and [%d] links are left in the network.\n', numel(Gene_Name), numel(nonzeros(triu(Net_Adj))));
 end
 

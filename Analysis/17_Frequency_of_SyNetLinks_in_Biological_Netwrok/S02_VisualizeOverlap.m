@@ -9,14 +9,15 @@ addpath('../../../../Useful_Sample_Codes/Advance_Colormap/');
 %% Load nets
 res_path = './SyNet_Overlap/';
 res_lst = {
+%     {'NetOV_AbsCorr-SHFL_NL1000.mat' 'NetOV_AbsCorr_NL1000.mat'}
     {'NetOV_STRING-SHFL_NL1000.mat' 'NetOV_STRING_NL1000.mat'}
-    {'NetOV_MSigDB-SHFL_NL1000.mat' 'NetOV_MSigDB_NL1000.mat'}
-    {'NetOV_KEGG-SHFL_NL1000.mat' 'NetOV_KEGG_NL1000.mat'}
-    {'NetOV_I2D-SHFL_NL1000.mat' 'NetOV_I2D_NL1000.mat'}
     {'NetOV_HPRD-SHFL_NL1000.mat' 'NetOV_HPRD_NL1000.mat'}
+    {'NetOV_I2D-SHFL_NL1000.mat' 'NetOV_I2D_NL1000.mat'}
+    {'NetOV_KEGG-SHFL_NL1000.mat' 'NetOV_KEGG_NL1000.mat'}
+    {'NetOV_MSigDB-SHFL_NL1000.mat' 'NetOV_MSigDB_NL1000.mat'}
 };
 n_res = numel(res_lst);
-clr_map = jet(n_res);
+clr_map = lines(n_res);
 max_Y = 20;
 edge_lst = floor(linspace(0, max_Y, 10));
 
@@ -34,10 +35,9 @@ for si=1:n_res
     data_rnd = res_data.OL_Freq;
     data_rnd(data_rnd>max_Y) = max_Y;
     
-    left_h = ViolinEx(si-offset, edge_lst, data_rnd, struct('ShrinkFactor', 0.5, 'BarColor', [0.8 0.8 0.8], 'Reverse', 1));
-%     left_h = distributionPlot(data_rnd, 'color', [0.8 0.8 0.8], 'xValues', si-0.4, 'showMM', 0, 'distWidth', 0.7, 'histOri', 'left');
-    set(left_h, 'FaceAlpha', 0.8);
-    box_h = boxplot(data_rnd, 'Positions', si-offset*2, 'Color', [0.7 0.7 0.7], 'Symbol', '', 'Widths', 0.2);
+    %left_h = ViolinEx(si-offset, edge_lst, data_rnd, struct('ShrinkFactor', 0.5, 'BarColor', [0.8 0.8 0.8], 'Reverse', 1));
+    %set(left_h, 'FaceAlpha', 0.8);
+    box_h = BoxPlotEx(data_rnd, 'Positions', si-offset*2, 'Color', [0.7 0.7 0.7], 'Symbol', '', 'Widths', 0.4);
     set(box_h, 'LineWidth', 2);
     
     res_name = [res_path res_lst{si}{2}];
@@ -46,9 +46,10 @@ for si=1:n_res
     data_net = res_data.OL_Freq;
     data_net(data_net>max_Y) = max_Y;
     
-    right_h = ViolinEx(si+offset, edge_lst, data_net, struct('ShrinkFactor', 0.5, 'BarColor', clr_map(si,:), 'Reverse', 0));
-    set(right_h, 'FaceAlpha', 0.8);
-    box_h = boxplot(data_net, 'Positions', si+offset*2, 'Color', clr_map(si,:)*0.7, 'Symbol', '', 'Widths', 0.2);
+    %right_h = ViolinEx(si+offset, edge_lst, data_net, struct('ShrinkFactor', 0.5, 'BarColor', clr_map(si,:), 'Reverse', 0));
+    %right_h = distributionPlot(data_net, 'color', clr_map(si,:), 'xValues', si+offset+0.4, 'showMM', 0, 'distWidth', 0.7, 'histOri', 'right', 'divFactor', 1);
+    %set(right_h, 'FaceAlpha', 0.8);
+    box_h = BoxPlotEx(data_net, 'Positions', si+offset*2, 'Color', clr_map(si,:), 'Symbol', '', 'Widths', 0.4);
     set(box_h, 'LineWidth', 2);
     
     [~, pval] = ttest2(data_rnd, data_net);
@@ -66,7 +67,7 @@ Y_lbl = arrayfun(@(y) sprintf('%0.0f', y), y_tick, 'UniformOutput', 0);
 set(gca, 'XTick', 1:n_res, 'XTickLabel', [], 'XTickLabelRotation', 0, ...
     'YTick', y_tick, 'YTickLabel', Y_lbl, 'FontWeight', 'Bold', 'FontSize', 10, ...
     'Ygrid', 'on', 'GridColor', [0.7 0.7 0.7], 'GridAlpha', 0.2);
-ylabel('Frequency', 'FontWeight', 'Bold');
+ylabel('# SyNet links', 'FontWeight', 'Bold');
 
 %% Saving
 output_name = sprintf('./Plots/S02_OverlappingComparison.pdf');
@@ -74,21 +75,21 @@ set(gcf, 'PaperUnits', 'Inches', 'PaperOrientation', 'landscape', 'PaperPosition
 print('-dpdf', '-r300', output_name);
 
 
-function [patch_h, bin_freq] = ViolinEx(x_Pos, x_edge, dist, opt)
+function [patch_h, bin_freq] = ViolinEx(x_Pos, edge_lst, dist, opt)
 if ~exist('opt', 'var'), opt = struct; end
 if ~isfield(opt, 'BarColor')
     opt.BarColor = [0.1 0.1 1];
 end
-n_bin = numel(x_edge)-1;
+n_bin = numel(edge_lst)-1;
 hold on
 
 %% Make PDF
 bin_freq = zeros(1, n_bin);
 for bi=1:n_bin
     if bi==n_bin
-        has_ol = dist>=x_edge(bi) & dist <= x_edge(bi+1);
+        has_ol = edge_lst(bi)<=dist & dist <= edge_lst(bi+1);
     else
-        has_ol = dist>=x_edge(bi) & dist < x_edge(bi+1);
+        has_ol = edge_lst(bi)<=dist & dist <  edge_lst(bi+1);
     end
     bin_freq(bi) = sum(has_ol);
 end
@@ -108,6 +109,6 @@ end
 
 %% Plot bars
 for bi=1:n_bin
-    patch_h(bi,1) = patch([x_Pos x_Pos+bin_nrm([bi bi]) x_Pos], x_edge([bi bi bi+1 bi+1]), 'b', 'EdgeColor', 'None', 'FaceColor', opt.BarColor);
+    patch_h(bi,1) = patch([x_Pos x_Pos+bin_nrm([bi bi]) x_Pos], edge_lst([bi bi bi+1 bi+1]), 'b', 'EdgeColor', 'None', 'FaceColor', opt.BarColor);
 end
 end

@@ -53,11 +53,17 @@ res_lst = {
 %     'MRK_CVT01_GLasso10_AvgSynACr-P10000_MSN-500.mat'
     
 %     'MRK_CVT01_GLasso2_AvgSynACr-P10000_MSN-500.mat'
-    'MRK_CVT01_GLasso_AvgSynACr-P10000_MSN-500.mat'
-    'MRK_CVT01_GLasso7_AvgSynACr-P10000_MSN-500.mat'
+%     'MRK_CVT01_GLasso_AvgSynACr-P10000_MSN-500.mat'
+%     'MRK_CVT01_GLasso7_AvgSynACr-P10000_MSN-500.mat'
 %     'MRK_CVT01_GLasso7_AvgSynACr-G05000_MSN-500.mat'
 %     'MRK_CVT01_GLasso10_AvgSynACr-P10000_MSN-500.mat'
 %     'MRK_CVT01_GLasso20_AvgSynACr-P10000_MSN-500.mat'
+
+%     'MRK_CVT01_GLasso_AvgSynACr-P20000_MSN-500.mat'
+%     'MRK_CVT01_GLasso_AvgSynACr-P50000_MSN-500.mat'
+    
+%     'MRK_CVT01_GLasso_AvgSynACr-P100000_MSN-500.mat'
+%     'MRK_CVT01_GLasso_AvgSynACr-P10000_MSN-500.mat'
     
     'MRK_CVT01_LExAG_None-G11748_MSN-500.mat'
     };

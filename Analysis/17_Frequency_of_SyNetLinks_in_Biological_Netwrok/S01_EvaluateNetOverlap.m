@@ -12,6 +12,7 @@ if ismac
     SampleSize = 1000;
     n_rep = 10000;
     net_name = 'STRING';
+    net_name = 'AbsCorr';
     SHUFFLE = 1;
 end
 

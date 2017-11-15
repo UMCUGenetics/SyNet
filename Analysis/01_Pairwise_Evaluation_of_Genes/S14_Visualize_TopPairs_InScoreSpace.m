@@ -102,9 +102,9 @@ if 0
 end
 
 %% Save mat file
-if 0
-    out_mat.PP_Info = Pair_Info(1:n_top*5, :);
-    out_mat.NP_Info = Pair_Info(randperm(n_total, n_top*10), :);
+if 1
+    out_mat.PP_Info = Pair_Info(1:n_top*20, :);
+    out_mat.NP_Info = Pair_Info(randperm(n_total, n_top*50), :);
     out_mat.Gene_Name = ge_info.Gene_Name;
     out_mat.Ind_AUC = Ind_AUC;
     save(['./Top_Pairs/TopP_' ge_name '.mat'], '-struct', 'out_mat');

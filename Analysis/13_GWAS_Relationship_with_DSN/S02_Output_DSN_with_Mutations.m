@@ -6,21 +6,21 @@ addpath('../../../../Useful_Sample_Codes/IsOverlapped/');
 addpath('../../../../Useful_Sample_Codes/ShowProgress/');
 
 %% Load Top Pairs
-dsn_info = load('./Top_Pairs/Top_SyNet_AvgSynACr.mat');
+dsn_info = load('../01_Pairwise_Evaluation_of_Genes/Top_Pairs/TopP_SyNet.mat');
 
 %% Load Gene coordinates
 gene_info = load('./Gene_Coordinates/Gene_Info_vGRCh37.75.mat');
 n_gene = numel(gene_info.Gene_Name);
 
 %% Load GWAS hits
-fid = fopen('./iCOGS/iCOGS_SurvData_Sort_RemNaN.tsv', 'r');
-gwas_cell = textscan(fid, '%f%f%*s%*s%*s%*s%*s%*s%*s%*s%f', 10000, 'HeaderLines', 1, 'Delimiter', '\t', 'CommentStyle', '@', 'ReturnOnError', 0);
+fid = fopen('./iCOGS/iCOGS_SurvData_NullRem_Sorted_OnlyCoordAndPValue.tsv', 'r');
+gwas_cell = textscan(fid, '%f%f%f', 10000, 'HeaderLines', 1, 'Delimiter', '\t', 'CommentStyle', '@', 'ReturnOnError', 0);
 fclose(fid);
-
-gwas_hit = [gwas_cell{1} gwas_cell{2} gwas_cell{2} -log10(gwas_cell{3})];
+gwas_hit = [gwas_cell{1} gwas_cell{2} gwas_cell{2} -log10(gwas_cell{3}) gwas_cell{3}];
 clear gwas_cell
 
 %% Find closest genes
+MAX_DISTANCE = 10e3;
 fprintf('Finding closest genes:\n');
 GH_Map = containers.Map;
 for gi=1:n_gene
@@ -29,7 +29,7 @@ for gi=1:n_gene
         continue;
     end
 	dist = crdDist(gwas_hit(:,1:3), gene_info.Gene_Crd(gi,1:3));
-	found_hit = find(dist<10e3);
+	found_hit = find(dist<MAX_DISTANCE);
 	for i=1:numel(found_hit)
 		hit_ind = found_hit(i);
         if GH_Map.isKey(gene_info.Gene_Name{gi})
@@ -43,8 +43,9 @@ end
 % Hit_info = vertcat(Hit_info{:});
 
 %% Output top GWAS hits
-fprintf('Writing the GWAS hits:\n');
-fid = fopen('./Network_tsv/DSN_iCOGS_Hits.tsv', 'w');
+hit_fname = sprintf('./DSN_iCOGS_Hits/iCOGS_Hits_Genes_MD%0.1fk.tsv', MAX_DISTANCE/1e3);
+fprintf('Writing the GWAS hits in %s\n', hit_fname);
+fid = fopen(hit_fname, 'w');
 fprintf(fid, 'Id\t-Log10(pval)\t#Hit\t#Hit/Size\n');
 for gi=1:numel(dsn_info.Gene_Name)
     gi_name = dsn_info.Gene_Name{gi};
@@ -64,13 +65,16 @@ end
 fclose(fid);
 
 %% Output pairs
-fprintf('Writing the pair scores:\n');
-fid = fopen('./Network_tsv/DSN_SyNet_vs_iCOGS.tsv', 'w');
-fprintf(fid, 'Source\tTarget\tType\tWeight\n');
-for pi=1:10000
-	gi_name = dsn_info.Gene_Name{dsn_info.PP_Info(pi,1)};
-	gj_name = dsn_info.Gene_Name{dsn_info.PP_Info(pi,2)};
-	gene_score = zeros(1,9);
+SyNet_fname = sprintf('./DSN_iCOGS_Hits/DSN_SyNet_PairsWith_iCOGS_Pval_MD%0.1fk.tsv', MAX_DISTANCE/1e3);
+fprintf('Writing the pair scores in %s\n', SyNet_fname);
+fid = fopen(SyNet_fname, 'w');
+fprintf(fid, 'Source\tTarget\tType\tWeight\tGWAS_Log10PVal\n');
+n_Top = 10000;
+for pi=1:n_Top
+    Pair_Info = dsn_info.PP_Info(pi,:);
+	gi_name = dsn_info.Gene_Name{Pair_Info(1)};
+	gj_name = dsn_info.Gene_Name{Pair_Info(2)};
+	gene_score = zeros(1,10);
 	if GH_Map.isKey(gi_name)
 		gene_score = [gene_score; GH_Map(gi_name)];
 	end
@@ -78,7 +82,7 @@ for pi=1:10000
 		gene_score = [gene_score; GH_Map(gj_name)];
 	end
 	
-	fprintf(fid, '%s\t%s\tUndirected\t%d\n', gi_name, gj_name, max(floor(gene_score(:,8))));
+	fprintf(fid, '%s\t%s\tUndirected\t%0.6f\t%0.3f\n', gi_name, gj_name, Pair_Info(15), max(gene_score(:,8)));
 end
 fclose(fid);
 
