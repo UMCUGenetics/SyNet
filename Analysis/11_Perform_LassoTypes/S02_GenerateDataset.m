@@ -133,7 +133,7 @@ switch net_info.net_name
 			Net_Adj(g_ind, g_ind) = rand(numel(g_ind));
 		end
 		clear GSet_lst
-	case {'STRING','HPRD','I2D'}
+	case {'STRING','HPRD','I2D','HBEpith','HBGland'}
 		net_info.net_path = getPath(net_info.net_name);
 		fid = fopen(net_info.net_path, 'r');
 		Header_lst = regexp(fgetl(fid), '\t', 'split');
@@ -157,7 +157,7 @@ switch net_info.net_name
 		GMap = containers.Map(Gene_Name, 1:n_gene);
 		Net_Adj = zeros(n_gene, 'single');
 		n_int = numel(net_cell{1});
-		fprintf('Forming the Adj matrix with [%d] genes: ', n_gene);
+		fprintf('Forming the Adj matrix from [%d] genes and [%d] links: ', n_gene, n_int);
 		for ii=1:n_int
 			showprogress(ii, n_int);
 			if GMap.isKey(net_cell{1}{ii}) && GMap.isKey(net_cell{2}{ii})
@@ -246,10 +246,9 @@ switch net_info.net_name
 		clear NetScr
 end
 clear tr_info te_info
-
+if ~issymmetric(Net_Adj), fprintf('[w] Warning: Adj Matrix is not symetric.\n'); end
 fprintf('Making sure the network is symetric ...\n');
 Net_Adj = max(Net_Adj, Net_Adj');
-if ~issymmetric(Net_Adj), error('Adj Matrix is not symetric.\n'); end
 
 %% Top selection
 fprintf('Normalizing edge weights between [0 1] ...\n');

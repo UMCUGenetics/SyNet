@@ -17,7 +17,7 @@ if ismac || ispc
     Target_Study = 3;
     Target_Repeat = 1;
     method_lst = {'NMC'};
-    net_lst = {'None-G11748'};
+    net_lst = {'HBEpith-G11748'};
     MAX_N_SUBNET = 500;
 end
 

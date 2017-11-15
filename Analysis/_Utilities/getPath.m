@@ -44,6 +44,10 @@ switch data_name
 		path_str = '../../Networks/HPRD/HPRD.tsv';
 	case 'I2D'
 		path_str = '../../Networks/I2D/I2D.tsv';
+    case 'HBEpith'
+		path_str = '../../Networks/HumanBase/HumanBase_mammary_epithelium_Top1Mil.tsv';
+    case 'HBGland'
+		path_str = '../../Networks/HumanBase/HumanBase_mammary_gland_Top1Mil.tsv';
 	otherwise
 		error();
 end
