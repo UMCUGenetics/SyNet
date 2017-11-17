@@ -180,21 +180,21 @@ switch net_info.net_name
 			switch nn_part
 				case 'Min'
 					ax_min = bsxfun(@min, ind_auc, ind_auc');
-					Pair_Dist = Pair_Dist + (oscore(ax_min)-1).^2;
+					Pair_Dist = Pair_Dist + (1-oscore(ax_min)).^2;
 					clear ax_min
 				case 'Avg'
 					ax_avg = bsxfun(@(x,y) (x+y)/2, ind_auc, ind_auc');
-					Pair_Dist = Pair_Dist + (oscore(ax_avg)-1).^2;
+					Pair_Dist = Pair_Dist + (1-oscore(ax_avg)).^2;
 					clear ax_avg
 				case 'ACr'
 					ge_data = load(tr_info.GEPath, 'Gene_Expression');
 					ax_crr = abs(corr(ge_data.Gene_Expression(tr_info.CVInd,:), 'Type', 'Spearman'));
 					ax_crr(1:size(ax_crr,1)+1:end) = 0;
-					Pair_Dist = Pair_Dist + (oscore(ax_crr)-1).^2;
+					Pair_Dist = Pair_Dist + (1-oscore(ax_crr)).^2;
 					clear ge_data ax_crr
 				case 'Syn'
 					pair_max = bsxfun(@max, ind_auc, ind_auc');
-					Pair_Dist = Pair_Dist + (oscore(Pair_AUC./pair_max)-1).^2;
+					Pair_Dist = Pair_Dist + (1-oscore(Pair_AUC./pair_max)).^2;
 					clear pair_max
 				case 'Std'
 					load(net_info.net_path, 'Pair_Std');
