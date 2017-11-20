@@ -60,6 +60,10 @@ GE_info.Gene_Expression = [];
 % [Pair_Info(:,1), Pair_Info(:,2)] = ind2sub([n_gene n_gene], sind(1:50));
 % Pair_Info(Pair_Info(:,1)>Pair_Info(:,2), :) = [];
 % a = GE_info.Gene_Name(Pair_Info);
+
+%% Reduce Adj dimention
+[coeff,score,latent,tsquared,explained,mu] = pca(Net_Adj, 'NumComponents', 10);
+Net_Adj = Net_Adj*coeff;
 n_Dim = size(Net_Adj, 2);
 
 %% Run a cross-validation
@@ -71,11 +75,11 @@ for fi=1:n_fold
     fprintf('Training SVM, Fold %d\n', fi);
     iTr = Fold_Index~=fi;
     SVMModel = SVM(Net_Adj(iTr, :), Census_isCancer(iTr, 1), 'Linear', 0.5);
-    if SVMModel.ClassNames(1)~=-1, error(); end
+    if SVMModel.ClassNames(2)~=1, error(); end
     Model_AUC(fi,1) = getModelAUC(SVMModel, Net_Adj(~iTr, :), Census_isCancer(~iTr, 1));
     
     %% Rerankong of genes
-    [~, Pred_prob] = getModelAUC(SVMModel, Net_Adj, Node_Label);
+    [~, Pred_prob] = getModelAUC(SVMModel, Net_Adj, Census_isCancer);
     %SVM_Confidence = max(Pred_prob, [], 2);
     %scatter(Net_Adj(:,1),Net_Adj(:,2), oscore(SVM_Confidence)*150+5, Node_Label*2);
     %colormap(lines(2));
