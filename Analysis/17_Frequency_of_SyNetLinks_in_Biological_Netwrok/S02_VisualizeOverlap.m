@@ -10,6 +10,8 @@ addpath('../../../../Useful_Sample_Codes/Advance_Colormap/');
 res_path = './SyNet_Overlap/';
 res_lst = {
 %     {'NetOV_AbsCorr-SHFL_NL1000.mat' 'NetOV_AbsCorr_NL1000.mat'}
+    {'NetOV_HBGland-SHFL_NL1000.mat' 'NetOV_HBGland_NL1000.mat'}
+    {'NetOV_HBEpith-SHFL_NL1000.mat' 'NetOV_HBEpith_NL1000.mat'}
     {'NetOV_STRING-SHFL_NL1000.mat' 'NetOV_STRING_NL1000.mat'}
     {'NetOV_HPRD-SHFL_NL1000.mat' 'NetOV_HPRD_NL1000.mat'}
     {'NetOV_I2D-SHFL_NL1000.mat' 'NetOV_I2D_NL1000.mat'}
@@ -18,7 +20,7 @@ res_lst = {
 };
 n_res = numel(res_lst);
 clr_map = lines(n_res);
-max_Y = 20;
+max_Y = 120;
 edge_lst = floor(linspace(0, max_Y, 10));
 
 %% Plotting performance
@@ -27,7 +29,7 @@ figure('Position', [100 100 1500 400]);
 hold on
 X_lbl = {};
 y_lim = [0 max(edge_lst)];
-offset = 0.01;
+offset = 0.2;
 for si=1:n_res
     res_name = [res_path res_lst{si}{1}];
     fprintf('Reading [%s]\n', res_name);
@@ -37,7 +39,7 @@ for si=1:n_res
     
     %left_h = ViolinEx(si-offset, edge_lst, data_rnd, struct('ShrinkFactor', 0.5, 'BarColor', [0.8 0.8 0.8], 'Reverse', 1));
     %set(left_h, 'FaceAlpha', 0.8);
-    box_h = BoxPlotEx(data_rnd, 'Positions', si-offset*2, 'Color', [0.7 0.7 0.7], 'Symbol', '', 'Widths', 0.4);
+    box_h = BoxPlotEx(data_rnd, 'Positions', si-offset, 'Color', [0.7 0.7 0.7], 'Symbol', '', 'Widths', 0.4);
     set(box_h, 'LineWidth', 2);
     
     res_name = [res_path res_lst{si}{2}];
@@ -49,23 +51,23 @@ for si=1:n_res
     %right_h = ViolinEx(si+offset, edge_lst, data_net, struct('ShrinkFactor', 0.5, 'BarColor', clr_map(si,:), 'Reverse', 0));
     %right_h = distributionPlot(data_net, 'color', clr_map(si,:), 'xValues', si+offset+0.4, 'showMM', 0, 'distWidth', 0.7, 'histOri', 'right', 'divFactor', 1);
     %set(right_h, 'FaceAlpha', 0.8);
-    box_h = BoxPlotEx(data_net, 'Positions', si+offset*2, 'Color', clr_map(si,:), 'Symbol', '', 'Widths', 0.4);
+    box_h = BoxPlotEx(data_net, 'Positions', si+offset, 'Color', clr_map(si,:), 'Symbol', '', 'Widths', 0.4);
     set(box_h, 'LineWidth', 2);
     
     [~, pval] = ttest2(data_rnd, data_net);
     
     res_info = regexp(res_lst{si}{2}, '_', 'split');
     net_name = sprintf('%s\n#G%d, #L%d', res_info{2}, numel(res_data.Net_GeneName), res_data.Net_nlnk);
-    text(si, y_lim(1), net_name, 'VerticalAlignment', 'Top', 'HorizontalAlignment', 'Center', ...
+    text(si, 1, net_name, 'VerticalAlignment', 'Top', 'HorizontalAlignment', 'Center', ...
         'FontSize', 12, 'FontWeight', 'Bold');
 end
 % legend([left_h{1} right_h{1}], {'Random', 'STRING'});
 xlim([0 n_res+1]);
 ylim(y_lim);
-y_tick = get(gca, 'YTick');
+y_tick = 2.^(0:10); %[0 ceil(logspace(log10(1), log10(120), 8))]; %get(gca, 'YTick');
 Y_lbl = arrayfun(@(y) sprintf('%0.0f', y), y_tick, 'UniformOutput', 0);
 set(gca, 'XTick', 1:n_res, 'XTickLabel', [], 'XTickLabelRotation', 0, ...
-    'YTick', y_tick, 'YTickLabel', Y_lbl, 'FontWeight', 'Bold', 'FontSize', 10, ...
+    'YTick', y_tick, 'YTickLabel', Y_lbl, 'YScale', 'Log', 'YMinorTick','off', 'YMinorGrid','off', 'FontWeight', 'Bold', 'FontSize', 12, ...
     'Ygrid', 'on', 'GridColor', [0.7 0.7 0.7], 'GridAlpha', 0.2);
 ylabel('# SyNet links', 'FontWeight', 'Bold');
 

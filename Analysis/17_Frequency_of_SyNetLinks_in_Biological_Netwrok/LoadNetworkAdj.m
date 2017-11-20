@@ -41,7 +41,7 @@ switch net_name
         end
         Net_Adj = max(Net_Adj, Net_Adj');
         clear GSet_lst GMap
-    case {'STRING','HPRD','I2D'}
+    case {'STRING','HPRD','I2D','HBEpith','HBGland'}
         net_info.net_path = getPath(net_name);
         fid = fopen(net_info.net_path, 'r');
         Header_lst = regexp(fgetl(fid), '\t', 'split');
