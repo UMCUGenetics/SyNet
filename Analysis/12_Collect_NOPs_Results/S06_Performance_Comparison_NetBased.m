@@ -36,7 +36,13 @@ res_lst = {
     'MRK_CVT01_Lasso_STRING-G00500_MSN-500.mat'
     'MRK_CVT01_CFGLasso_STRING-G00500_MSN-500.mat'
 %     'MRK_CVT01_GLasso_STRING-G00500_MSN-500.mat'
+
+    'MRK_CVT01_Lasso_HBGland-G11748_MSN-500.mat'
+    'MRK_CVT01_GLasso_HBGland-G11748_MSN-500.mat'
     
+    'MRK_CVT01_Lasso_HBEpith-G11748_MSN-500.mat'
+    'MRK_CVT01_GLasso_HBEpith-G11748_MSN-500.mat'
+
     'MRK_CVT01_Lasso_ACr-G00500_MSN-500.mat'
     'MRK_CVT01_CFGLasso_ACr-G00500_MSN-500.mat'
 %     'MRK_CVT01_GLasso_ACr-G00500_MSN-500.mat'

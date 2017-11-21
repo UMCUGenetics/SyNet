@@ -8,19 +8,30 @@ addpath('../../../../Useful_Sample_Codes/getAUC/');
 % addpath('../../../../Useful_Sample_Codes/OScore/');
 addpath('../_Utilities/');
 n_fold = 5;
+DEBUG = 0;
 
 %% Loading gene names from GE data
 GEPath = getPath('SyNet');
 fprintf('Loading gene names from expression data: [%s]\n', GEPath);
-GE_info = load(GEPath, 'Gene_Expression', 'Gene_Name');
-n_gene = numel(GE_info.Gene_Name);
+GE_Info = load(GEPath, 'Gene_Expression', 'Gene_Name');
+if DEBUG
+    GE_Info.Gene_Expression = GE_Info.Gene_Expression(:, 1:100);
+    GE_Info.Gene_Name = GE_Info.Gene_Name(1:100);
+end
+n_gene = numel(GE_Info.Gene_Name);
 
 %% Load GWAS hits over Cohort
 fid = fopen('./DSN_iCOGS_Hits/iCOGS_Hits_Genes_MD10.0k.tsv', 'r');
 % Id	-Log10(pval)	#Hit	#Hit/Size
 GWAS_Info = textscan(fid, '%s%f%f%f', 'HeaderLines', 1, 'Delimiter', '\t', 'CommentStyle', '@', 'ReturnOnError', 0);
 fclose(fid);
-if ~isequal(GE_info.Gene_Name, GWAS_Info{1}), error(); end
+if DEBUG
+    GWAS_Info{1} = GWAS_Info{1}(1:100);
+    GWAS_Info{2} = GWAS_Info{2}(1:100);
+    GWAS_Info{3} = GWAS_Info{3}(1:100);
+    GWAS_Info{4} = GWAS_Info{4}(1:100);
+end
+if ~isequal(GE_Info.Gene_Name, GWAS_Info{1}), error(); end
 
 %% Loading cancer genes
 fid = fopen('./Census_data/Census.tsv', 'r');
@@ -28,16 +39,20 @@ fid = fopen('./Census_data/Census.tsv', 'r');
 Census_info = textscan(fid, '%s%s%s%s', 'HeaderLines', 1, 'Delimiter', '\t', 'CommentStyle', '@', 'ReturnOnError', 0);
 if ~feof(fid), error(); end
 fclose(fid);
-is_in = ismember(Census_info{1}, GE_info.Gene_Name);
+is_in = ismember(Census_info{1}, GE_Info.Gene_Name);
 Census_info = [Census_info{1}(is_in) Census_info{2}(is_in) Census_info{3}(is_in) Census_info{4}(is_in)];
-Census_isCancer = double(ismember(GE_info.Gene_Name, Census_info(:,1)));
+Census_isCancer = double(ismember(GE_Info.Gene_Name, Census_info(:,1)));
 
 %% Loading SyNet
-dsn_name = 'SyNet';
+dsn_name = ['../01_Pairwise_Evaluation_of_Genes/Network_Files/DSN_SyNet.mat'];
 fprintf('Loading [%s] network.\n', dsn_name);
-DSN_info = load(['../01_Pairwise_Evaluation_of_Genes/Network_Files/DSN_' dsn_name '.mat'], 'Pair_AUC', 'Gene_Name');
-if ~isequal(GE_info.Gene_Name, DSN_info.Gene_Name), error(); end
-Corr_mat = corr(zscore(GE_info.Gene_Expression), 'Type', 'Spearman');
+DSN_info = load(dsn_name, 'Pair_AUC', 'Gene_Name');
+if DEBUG
+    DSN_info.Pair_AUC = DSN_info.Pair_AUC(1:100, 1:100);
+    DSN_info.Gene_Name = DSN_info.Gene_Name(1:100);
+end
+if ~isequal(GE_Info.Gene_Name, DSN_info.Gene_Name), error(); end
+Corr_mat = corr(zscore(GE_Info.Gene_Expression), 'Type', 'Spearman');
 Corr_mat(1:n_gene+1:end) = 0;
 Pair_Dist = (1-SetToZO(abs(Corr_mat))).^2;
 clear Corr_mat
@@ -48,7 +63,7 @@ ax_avg = bsxfun(@(x,y) (x+y)/2, ind_auc, ind_auc');
 Pair_Dist = Pair_Dist + (1-SetToZO(ax_avg)).^2;
 Net_Adj = -sqrt(Pair_Dist); % single(
 clear DSN_info Pair_Dist ind_auc ax_avg pair_max
-GE_info.Gene_Expression = [];
+GE_Info.Gene_Expression = [];
 
 % load fisheriris
 % inds = ~strcmp(species,'setosa');
@@ -62,13 +77,13 @@ GE_info.Gene_Expression = [];
 % a = GE_info.Gene_Name(Pair_Info);
 
 %% Reduce Adj dimension
-fprintf('Reducing dimention of Adj mat ...\n');
-[~, sid] = sort(std(Net_Adj), 'Descend');
+fprintf('Reducing dimension of Adj mat ...\n');
+% [~, sid] = sort(std(Net_Adj), 'Descend');
+[~, sid] = sort(abs(corr(Net_Adj, Census_isCancer, 'Type', 'Spearman')), 'Descend');
 Net_Adj = Net_Adj(:, sid(1:2000));
 % [coeff,score,latent,tsquared,explained,mu] = pca(Net_Adj, 'NumComponents', 10);
-[coeff, ~, ~, ~, explained, ~] = pca(Net_Adj, 'NumComponents', 50);
+[coeff, ~, ~, ~, explained, ~] = pca(Net_Adj, 'NumComponents', 200);
 Net_Adj = Net_Adj*coeff;
-n_Dim = size(Net_Adj, 2);
 
 %% Run a cross-validation
 Fold_Rank = zeros(n_gene, n_fold);
@@ -76,14 +91,15 @@ Model_AUC = zeros(n_fold, 1);
 Fold_Index = crossvalind('KFold', Census_isCancer, n_fold);
 for fi=1:n_fold
     %% Train SVM over adjacency matrix
-    fprintf('Training SVM, Fold %d\n', fi);
+    fprintf('Training SVM, Fold %d: ', fi);
     iTr = Fold_Index~=fi;
-    SVMModel = SVM(Net_Adj(iTr, :), Census_isCancer(iTr, 1), 'Linear', 0.5);
+    SVMModel = SVM(Net_Adj(iTr, :), Census_isCancer(iTr), 'Linear', 0.5);
     if SVMModel.ClassNames(2)~=1, error(); end
-    Model_AUC(fi,1) = getModelAUC(SVMModel, Net_Adj(~iTr, :), Census_isCancer(~iTr, 1));
+    Model_AUC(fi,1) = getModelAUC(SVMModel, Net_Adj(~iTr, :), Census_isCancer(~iTr));
+    fprintf('AUC is %0.2f\n', Model_AUC(fi)*100);
     
     %% Rerankong of genes
-    [~, Pred_prob] = getModelAUC(SVMModel, Net_Adj, Census_isCancer);
+    [Pred_Lbl, Pred_prob] = predict(SVMModel, Net_Adj);
     %SVM_Confidence = max(Pred_prob, [], 2);
     %scatter(Net_Adj(:,1),Net_Adj(:,2), oscore(SVM_Confidence)*150+5, Node_Label*2);
     %colormap(lines(2));
@@ -117,7 +133,7 @@ function SVMModel = SVM(X, Y, kernel_name, C, gamma)
 if strcmpi(kernel_name, 'rbf')
     SVMModel = fitcsvm(X, Y, 'Verbose', 0, 'KernelFunction', kernel_name, 'BoxConstraint', C, 'KernelScale', gamma);
 else
-    SVMModel = fitcsvm(X, Y, 'Verbose', 1, 'KernelFunction', kernel_name, 'BoxConstraint', C);
+    SVMModel = fitcsvm(X, Y, 'Verbose', 1, 'KernelFunction', kernel_name, 'BoxConstraint', C); % 'Weights'
 end
 end
 
