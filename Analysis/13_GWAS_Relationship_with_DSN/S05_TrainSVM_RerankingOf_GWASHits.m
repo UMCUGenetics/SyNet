@@ -46,7 +46,7 @@ pair_max = bsxfun(@max, ind_auc, ind_auc');
 Pair_Dist = Pair_Dist + (1-SetToZO(DSN_info.Pair_AUC ./ pair_max)).^2;
 ax_avg = bsxfun(@(x,y) (x+y)/2, ind_auc, ind_auc');
 Pair_Dist = Pair_Dist + (1-SetToZO(ax_avg)).^2;
-Net_Adj = single(-sqrt(Pair_Dist));
+Net_Adj = -sqrt(Pair_Dist); % single(
 clear DSN_info Pair_Dist ind_auc ax_avg pair_max
 GE_info.Gene_Expression = [];
 
@@ -61,8 +61,12 @@ GE_info.Gene_Expression = [];
 % Pair_Info(Pair_Info(:,1)>Pair_Info(:,2), :) = [];
 % a = GE_info.Gene_Name(Pair_Info);
 
-%% Reduce Adj dimention
-[coeff,score,latent,tsquared,explained,mu] = pca(Net_Adj, 'NumComponents', 10);
+%% Reduce Adj dimension
+fprintf('Reducing dimention of Adj mat ...\n');
+[~, sid] = sort(std(Net_Adj), 'Descend');
+Net_Adj = Net_Adj(:, sid(1:2000));
+% [coeff,score,latent,tsquared,explained,mu] = pca(Net_Adj, 'NumComponents', 10);
+[coeff, ~, ~, ~, explained, ~] = pca(Net_Adj, 'NumComponents', 50);
 Net_Adj = Net_Adj*coeff;
 n_Dim = size(Net_Adj, 2);
 
@@ -86,7 +90,7 @@ for fi=1:n_fold
     %scatter(Net_Adj(:,1),Net_Adj(:,2), oscore(Pred_prob(:,2))*150+5, Node_Label*2);
     Fold_Rank(:, fi) = Pred_prob(:,2);
 end
-NetWAS_Rank = SetToZO(median(Fold_Rank, 2));
+NetWAS_Rank = SetToZO(mean(Fold_Rank, 2));
 [~, NetWAS_Sind] = sort(NetWAS_Rank, 'Descend');
 
 %% Comparing identified gene set
@@ -94,16 +98,17 @@ gwas_isHit = GWAS_Info{2} > -log10(0.005);
 GWAS_Score = getAUC(Census_isCancer, gwas_isHit);
 
 %% Plotting
-n_TopList = floor(n_gene * linspace(0.01,1,20));
+n_TopList = floor(n_gene * linspace(0.001,0.1,50));
 n_thresh = numel(n_TopList);
 figure('Position', [100 100 1500 700]);
 gwas_h = plot([0 n_thresh], GWAS_Score([1 1]), ':', 'LineWidth', 2, 'Color', [1 0 0]);
+hold on
 for ti=1:numel(n_TopList)
     Rank_arr = rand(n_gene, 1);
     Rank_arr(NetWAS_Sind(1:n_TopList)) = NetWAS_Rank(NetWAS_Sind(1:n_TopList));
-    NetWAS_score = getAUC(Census_isCancer, NetWAS_Rank(NetWAS_Sind(1:n_TopList)));
+    NetWAS_score = getAUC(Census_isCancer, Rank_arr);
     
-    netwas_h(ti,1) = plot(ti, NetWAS_score, 'O', 'LineWidth', 2, 'Color', [0 0 1]);
+    netwas_h(ti,1) = plot(ti, NetWAS_score, 'O', 'LineWidth', 1, 'Color', [0 0 1]);
 end
 
 
