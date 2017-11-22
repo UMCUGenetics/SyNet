@@ -12,7 +12,7 @@ DSN_info = load(dsn_name);
 n_gene = numel(DSN_info.Gene_Name);
 
 %% Load GWAS hits over Cohort
-MAX_DISTANCE = 50000;
+MAX_DISTANCE = 10000;
 fid = fopen(sprintf('../13_GWAS_Relationship_with_DSN/DSN_iCOGS_Hits/iCOGS_Hits_Genes_MD%0.1fk.tsv', MAX_DISTANCE/1e3), 'r');
 % Id	-Log10(pval)	#Hit	#Hit/Size
 GWAS_Info = textscan(fid, '%s%f%f%f', 'HeaderLines', 1, 'Delimiter', '\t', 'CommentStyle', '@', 'ReturnOnError', 0);
@@ -20,7 +20,7 @@ fclose(fid);
 if ~isequal(GWAS_Info{1}, DSN_info.Gene_Name), error(); end
 
 %% Output makeHeatFile.py scores --heat_file
-fid = fopen(sprintf('./HotNet2_Input_Files/iCOGS_heatfile_MD%0.1fk.tsv', MAX_DISTANCE/1e3), 'w');
+fid = fopen(sprintf('./HotNet2_Input_Files/iCOGS_MD%0.1fk_heatfile.tsv', MAX_DISTANCE/1e3), 'w');
 for gi=1:n_gene
     fprintf(fid, '%s\t%0.2f\n', GWAS_Info{1}{gi}, GWAS_Info{2}(gi));
 end
@@ -49,7 +49,7 @@ n_pair = size(Pair_List, 1);
 n_gene = numel(Gene_Name);
 
 %% Output edge list: makeNetworkFiles.py --edgelist_file
-fid = fopen(sprintf('./HotNet2_Input_Files/%s_edgelist_NP%06d.tsv', Net_Name, n_pair), 'w');
+fid = fopen(sprintf('./HotNet2_Input_Files/%s_NP%06d_edgelist.tsv', Net_Name, n_pair), 'w');
 for pi=1:n_pair
     fprintf(fid, '%d\t%d\n', Pair_List(pi,1:2));
 end
