@@ -68,7 +68,7 @@ for ni=1:n_net
     ds_id = S02_GenerateDataset(cv_id, net_lst{ni});
     
     %% Load Dataset info
-    dataset_list = dir([dataset_path 'DID_' ds_id '*.mat']);
+    dataset_list = dir([dataset_path 'DID_' ds_id '_*.mat']);
     if numel(dataset_list)~=1, error('Missing or duplicate dataset found.. \n[%s]\n', strjoin({dataset_list.name}, ', ')); end
     dataset_name = [dataset_path dataset_list(1).name];
     fprintf('Loading dataset [%s] ...\n', dataset_name);
