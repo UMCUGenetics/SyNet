@@ -1,12 +1,15 @@
+function S01_Compute_Topological_Measure(net_name, n_pair, TM_Name)
 clc;
-clear;
-
+% clear;
+% TM set: for tn={}
 %% Inialization
 addpath('../_Utilities/');
 addpath('../../../../Useful_Sample_Codes/ShowProgress');
-net_name = 'STRING';
-n_pair = 2000;
-tm_name = 'ShortestPath';
+if ismac
+    net_name = 'HBGland'; % 'STRING' 'HPRD' 'HBEpith','HBGland'
+    n_pair = 10000;
+    TM_Name = 'PageRank-FB0.75';
+end
 
 %% Load SyNet
 SyNet_info = load('../01_Pairwise_Evaluation_of_Genes/Top_Pairs/TopP_SyNet.mat', 'PP_Info', 'NP_Info', 'Gene_Name');
@@ -54,25 +57,45 @@ Ref_Adj(r,r) = Net_Adj(i,i);
 %}
 
 %% Compute topological measiure
+Output_results = struct();
 Output_results.Ref_GeneName = Ref_GeneName;
-Output_results.Pair_Score = zeros(n_pair, 1);
-fprintf('Computing [%s] from network [%s] ...\n', tm_name, net_name);
-Net_Graph = graph(Net_Adj~=0);
+Output_results.Pair_Info = Pair_Info;
+fprintf('Computing [%s] from network [%s] ...\n', TM_Name, net_name);
+Net_Graph = graph(Net_Adj~=0, 'OmitSelfLoops');
 Pair_Index = sub2ind([n_RefGeneName n_RefGeneName], Pair_Info(:,1), Pair_Info(:,2));
-switch tm_name
-    case 'Degree'
-        Output_results.Gene_Degree = Net_Graph.degree;
-        Pair_Degree = [Output_results.Gene_Degree(Pair_Info(:,1)) Output_results.Gene_Degree(Pair_Info(:,2))];
-        Output_results.Pair_Score = mean(Pair_Degree, 2);
+switch TM_Name
     case 'ShortestPath'
         Dist_Mat = Net_Graph.distances('Method', 'unweighted');
-        Output_results.Pair_Score = Dist_Mat(Pair_Index);
+        Output_results.Pair_AvgScore = Dist_Mat(Pair_Index);
+        Output_results.Pair_DifScore = Output_results.Pair_AvgScore;
+    case 'Degree'
+        Output_results.Gene_Degree = centrality(Net_Graph, 'degree');
+        [Output_results.Pair_AvgScore, Output_results.Pair_DifScore] = ConvertGeneToPairs(Output_results.Gene_Degree, Pair_Info(:,1:2));
+    case {'PageRank-FB0.65' 'PageRank-FB0.75' 'PageRank-FB0.85' 'PageRank-FB0.95'}
+        Output_results.FollowProbability = str2double(TM_Name(end-3:end));
+        Output_results.Gene_PageRank = centrality(Net_Graph, 'pagerank', 'FollowProbability', Output_results.FollowProbability);
+        [Output_results.Pair_AvgScore, Output_results.Pair_DifScore] = ConvertGeneToPairs(Output_results.Gene_PageRank, Pair_Info(:,1:2));
+    case 'Closeness'
+        Output_results.Gene_Closeness = centrality(Net_Graph, 'closeness');
+        [Output_results.Pair_AvgScore, Output_results.Pair_DifScore] = ConvertGeneToPairs(Output_results.Gene_Closeness, Pair_Info(:,1:2));
+    case 'Betweenness'
+        Output_results.Gene_Betweenness = centrality(Net_Graph, 'betweenness');
+        [Output_results.Pair_AvgScore, Output_results.Pair_DifScore] = ConvertGeneToPairs(Output_results.Gene_Betweenness, Pair_Info(:,1:2));
+    case 'Eigenvector'
+        Output_results.Gene_Eigenvector = centrality(Net_Graph, 'eigenvector');
+        [Output_results.Pair_AvgScore, Output_results.Pair_DifScore] = ConvertGeneToPairs(Output_results.Gene_Eigenvector, Pair_Info(:,1:2));
 end
 
 %% Save the results
-sav_name = sprintf('./Topological_Results/TM_%s_NP%06d_%s.mat', net_name, NET_N_PAIR, tm_name);
+sav_name = sprintf('./Topological_Results/TM_%s_NP%06d_%s.mat', net_name, NET_N_PAIR, TM_Name);
 fprintf('Saving the results in [%s]\n', sav_name);
 save(sav_name, '-struct', 'Output_results');
+end
 
-
+%% Functions %%%%%%%%%%%%%%%%%%%%%%
+function [Avg_Score, Diff_Score] = ConvertGeneToPairs(Gene_Score, Pair_Indices)
+Pair_Score = sort([Gene_Score(Pair_Indices(:,1)) Gene_Score(Pair_Indices(:,2))], 2, 'Descend');
+Avg_Score = mean(Pair_Score, 2);
+Diff_Score = Pair_Score(:,1) - Pair_Score(:,2);
+end
 
