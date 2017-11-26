@@ -1,12 +1,14 @@
-function S01_Compute_Topological_Measure(net_name, n_pair, TM_Name)
+function S01_Compute_Topological_Measure(net_name, n_pair, TM_Name, RemoveGSet, SaveID)
 clc;
 % clear;
 % TM set: for tn={}
 %% Inialization
 addpath('../_Utilities/');
 addpath('../../../../Useful_Sample_Codes/ShowProgress');
+if ~exist('SaveID', 'var'), SaveID=''; end % datestr(now, 'dd-mmm-yyyy_HH:MM:SS')
+if ~exist('RemoveGSet', 'var'), RemoveGSet={}; end
 if ismac
-    net_name = 'HBGland'; % 'STRING' 'HPRD' 'HBEpith','HBGland'
+    net_name = 'I2D'; % 'I2D' 'STRING' 'HPRD' 'HBEpith','HBGland'
     n_pair = 10000;
     TM_Name = 'PageRank-FB0.75';
 end
@@ -28,6 +30,15 @@ net_opt.MAX_N_PAIR = n_pair;
 net_info = LoadNetworkAdj(net_name, net_opt);
 NET_N_PAIR = net_info.N_PAIR;
 if min(net_info.Net_Adj(:))<0, error('Not implemented for negative links'); end
+
+%% Filter network
+if ~isempty(RemoveGSet)
+    is_in = ismember(net_info.Gene_Name, RemoveGSet);
+    fprintf('[%d] genes are given: [%d] genes from total of [%d] genes are filtered.\n', nueml(RemoveGSet), sum(is_in), numel(is_in));
+    net_info.Gene_Name(is_in) = [];
+    net_info.Net_Adj(is_in, :) = [];
+    net_info.Net_Adj(:, is_in) = [];
+end
 
 %% Reorder Adjacency matrix
 GMap = containers.Map(net_info.Gene_Name, 1:numel(net_info.Gene_Name));
@@ -87,7 +98,11 @@ switch TM_Name
 end
 
 %% Save the results
-sav_name = sprintf('./Topological_Results/TM_%s_NP%06d_%s.mat', net_name, NET_N_PAIR, TM_Name);
+if strcmp(SaveID,'')
+    sav_name = sprintf('./Topological_Results/TM_%s_NP%06d_%s.mat', net_name, NET_N_PAIR, TM_Name);
+else
+    sav_name = sprintf('./Topological_Results/TM_%s_NP%06d_%s_%s.mat', net_name, NET_N_PAIR, TM_Name, SaveID);
+end
 fprintf('Saving the results in [%s]\n', sav_name);
 save(sav_name, '-struct', 'Output_results');
 end
