@@ -36,6 +36,7 @@ for pi=1:numel(Perp_lst)
     end
     set(plot_h(2), 'MarkerEdgeColor', 'None');
     legend(plot_h([2 1]), {'SyNet' 'Random'}, 'fontsize', 12, 'fontweight', 'bold');
+    title('Visualization of topological measures using t-SNE');
     
     %% Saving
     sav_name = sprintf('./Plots/S04_DR_TopologicalMeasure_t-SNE_Perp%03d.png', perplexity);

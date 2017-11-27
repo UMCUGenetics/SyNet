@@ -25,15 +25,13 @@ indData_path = 'MRK_CVT01_LExAG_None-G11748_MSN-500.mat';
 
 %% Plotting performance
 close all
-figure('Position', [100 100 1500 400]);
-subplot(1, 2, 2);
+figure('Position', [100 100 700 400]);
 hold on
-xlabel('Standard deviation (across repeats)', 'FontSize', 12, 'FontWeight', 'Bold');
-ylabel('Standard deviation (across study)', 'FontSize', 12, 'FontWeight', 'Bold');
+xlabel('Average AUC', 'FontSize', 12, 'FontWeight', 'Bold');
+ylabel('Standard deviation', 'FontSize', 12, 'FontWeight', 'Bold');
 clr_map = jet(n_res)*0.95;
 Method_lst = cell(n_res, 1);
-% set(gca, 'XLim', [0.595 0.675], 'YLim', [0.015 0.043], 'FontWeight', 'Bold', 'FontSize', 12);
-Spider_Data = zeros(2, n_res);
+
 for si=1:n_res
     [auc1_mat, ~       ] = LoadData([res_path res_lst{si}{1}]);
     [auc2_mat, res_info] = LoadData([res_path res_lst{si}{2}]);
@@ -43,40 +41,15 @@ for si=1:n_res
     [avg2_tot, std2_rep, std2_study] = GetStdAvg(auc2_mat);
     Spider_Data(:, si) = [avg1_tot; avg2_tot];
     
-    line_h(si,1) = plot([std1_rep std2_rep], [std1_study std2_study], 'Color', clr_map(si,:), 'LineWidth', 3);
-    plot(std2_rep, std2_study, 'O', 'MarkerFaceColor', clr_map(si,:)*0.9, 'MarkerEdgeColor', clr_map(si,:)*0.8, 'MarkerSize', 10);
+    line_h(si,1) = plot([avg1_tot avg2_tot], [std1_rep std2_rep], 'Color', clr_map(si,:), 'LineWidth', 3);
+    plot(avg2_tot, std2_rep, 'O', 'MarkerFaceColor', clr_map(si,:)*0.9, 'MarkerEdgeColor', clr_map(si,:)*0.8, 'MarkerSize', 10);
 end
 Method_lst(end-1:end+1) = {'Correlation' 'SyNet' ' '};
-legend(line_h, Method_lst(1:end-1), 'FontWeight', 'Bold', 'Location', 'SouthEast');
-
-sp_h = subplot(1, 2, 1);
-Spider_Data(:, end+1) = 0.61;
-Spider_Data(3, :) = ones(1, n_res+1)*0.61;
-Spider_Data(4, :) = ones(1, n_res+1)*0.68;
-spider_plot(Spider_Data*100, Method_lst, 7, 1,...
-    'Marker', 'o',...
-    'LineStyle', '-',...
-    'LineWidth', 2,...
-    'MarkerSize', 5);
-view(-122.5, 90);
-line_h = findobj(sp_h, 'Type', 'Line');
-set(line_h(1), 'Color', [0.6 0.6 0.6], 'MarkerFaceColor', [0.6 0.6 0.6], 'MarkerEdgeColor', 'none');
-% set(line_h(1), 'Color', [0.9 0.9 0.9 0.0], 'MarkerFaceColor', 'none', 'MarkerEdgeColor', 'none');
-set(line_h(2), 'Color', [0.9 0.9 0.9 0.0], 'MarkerFaceColor', 'none', 'MarkerEdgeColor', 'none');
-text_h = findobj(sp_h, 'Type', 'text');
-for i=2:19
-    txt_pos = get(text_h(i), 'Position');
-    set(text_h(i), 'FontWeight', 'Bold', 'LineStyle', 'none', 'Background', 'none', 'Position', txt_pos*1.1, 'HorizontalAlignment', 'Center');
-end
-delete(text_h([1 20:end]));
-% auc_mat = LoadData([res_path indData_path]);
-% bar_h(si+1,:) = DrawHorzErrBar(auc_mat, 0.001, 'Color', [0 0 0], 'LineWidth', 4);
-
-legend({'Individual genes' 'Network based'}, 'FontWeight', 'Bold', 'Location', 'SouthWest');
+legend(line_h, Method_lst(1:end-1), 'FontWeight', 'Bold', 'Location', 'NorthEast');
 
 %% Saving
-output_name = sprintf('./Plots/S06_PerformanceComparison_NetBased_SpiderPlot.pdf');
-set(gcf, 'PaperUnits', 'Inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [12 4], 'PaperPosition', [0 0 12 4]);
+output_name = sprintf('./Plots/S06_PerformanceComparison_NetBased_PerfAvgVsStd.pdf');
+set(gcf, 'PaperUnits', 'Inches', 'PaperOrientation', 'Landscape', 'PaperPositionMode','auto', 'PaperSize', [7 4], 'PaperPosition', [0 0 7 4]);
 print('-dpdf', '-r300', output_name);
 
 %% Function %%%%%%%%%%%%%%%%%%%%
