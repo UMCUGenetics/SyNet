@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Submit: sbatch --job-name=HotNet2 --output=Logs/HN.%J_%a-%N.out --partition=general --qos=long --mem=16GB --time=40:00:00 --ntasks=1 --cpus-per-task=40 S02_Prepare_${net_name}_Network.sh
+# Submit: sbatch --job-name=HotNet2 --output=Logs/HN.%J_%a-%N.out --partition=general --qos=long --mem=16GB --time=100:00:00 --ntasks=1 --cpus-per-task=40 S02_PrepareAndRun_HotNet2.sh
 # Visualize python2 server.py -i ../../HotNet2_results/
 set -o xtrace
 
@@ -11,7 +11,8 @@ num_cores=50
 num_network_permutations=100
 num_heat_permutations=1000
 #net_name=SyNet
-net_name=STRING
+#net_name=STRING
+net_name=SyNet-Shuff
 
 # Create network data.
 for beta in 0.1 0.3 0.5 0.7 0.9; do

@@ -10,6 +10,9 @@ done;
 done;
 read -p "`date`: $PARAM. Press a key" -t 1800
 done
+
+for nn in 1 2 5 7 10 20 50; do
+PARAM="14,$ri,'Reg','STRING-Shf_NN${nn}',${nn}";
 %}
 
 
@@ -21,12 +24,12 @@ addpath('../_Utilities/');
 addpath(genpath('../../../../Useful_Sample_Codes/SLEP'));
 tr_name = 'SyNet';
 te_name = 'SyNet';
-cv_ind = 50;
+cv_ind = 51;
 if ismac
-    method_name = 'Rnd';
+    method_name = 'Reg';
     net_name = 'STRING_NN05';
-    Target_Study = 3;
-    Target_Repeat = 2;
+    Target_Study = 14;
+    Target_Repeat = 1;
     MIN_SUBNET_SIZE = 5;
 end
 
@@ -54,18 +57,6 @@ zTe = zscore(data.Gene_Expression(iTe,:));
 lTe = (data.Patient_Label(iTe)==1)*2-1;
 clear data
 
-%% Load neighbors
-nei_name = ['./NetNei_Files/NetNei_' net_name '.mat'];
-fprintf('Loading neighbor file: %s\n', nei_name);
-nei_info = load(nei_name);
-if ~isequal(nei_info.Gene_Name, cv_info.tr_info.Gene_Name), error(); end
-nei_info.nei_name = nei_name;
-
-%% Filter subnetworks
-Grp_Size = cellfun('length', nei_info.SubNet_Full);
-nei_info.SubNet_Full(Grp_Size<MIN_SUBNET_SIZE+1) = [];
-n_epoch = numel(nei_info.SubNet_Full);
-
 %% Get individual AUC
 resind_name = sprintf('./Result_Files/ResIND_%s-%s_CVT%02d_Si%02d-Ri%03d.mat', tr_name, te_name, cv_ind, Target_Study, Target_Repeat);
 if exist(resind_name, 'file')
@@ -81,10 +72,24 @@ else
     save(resind_name, 'Gene_TrAUC');
 end
 
+%% Load neighbors
+nei_name = ['./NetNei_Files/NetNei_' net_name '.mat'];
+fprintf('Loading neighbor file: %s\n', nei_name);
+nei_info = load(nei_name);
+if ~isequal(nei_info.Gene_Name, cv_info.tr_info.Gene_Name), error(); end
+nei_info.nei_name = nei_name;
+
+%% Filter subnetworks
+fprintf('Filtering [%d] subnetworks with size smaller than [%d] ...\n', numel(nei_info.SubNet_Full), MIN_SUBNET_SIZE+1);
+Grp_Size = cellfun('length', nei_info.SubNet_Full);
+nei_info.SubNet_Full(Grp_Size<MIN_SUBNET_SIZE+1) = [];
+n_epoch = numel(nei_info.SubNet_Full);
+fprintf('We are left with [%d] subnetworks ...\n', n_epoch);
+
 %% Main loop
 fprintf('Comparing performance for [%d] neighbor sets:\n', n_epoch);
-Te_AUC = zeros(n_epoch,1);
-Ind_AUC = zeros(n_epoch,1);
+Cmb_TeAUC = zeros(n_epoch,1);
+Ind_TeAUC = zeros(n_epoch,1);
 Used_IND = cell(n_epoch,1);
 for ei=1:n_epoch
     showprogress(ei, n_epoch);
@@ -145,14 +150,14 @@ for ei=1:n_epoch
     end
     
     %% Evaluate prediction
-    Te_AUC(ei,1) = getAUC(lTe, pred, 50);
+    Cmb_TeAUC(ei,1) = getAUC(lTe, pred, 50);
     %[~, ~, ~, auc] = perfcurve(lTe, pred, -1)
     [~, tg_ind] = max(Gene_TrAUC(nei_lst));
-    Ind_AUC(ei) = getAUC(lTe, eTe(:,tg_ind), 50);
+    Ind_TeAUC(ei) = getAUC(lTe, eTe(:,tg_ind), 50);
 end
 
 %% Saving results
 sav_name = sprintf('./Result_Files/RES_%s_%s_%s-%s_CVT%02d_Si%02d-Ri%03d.mat', method_name, net_name, tr_name, te_name, cv_ind, Target_Study, Target_Repeat);
 fprintf('Saving results in [%s]\n', sav_name);
-save(sav_name, 'Te_AUC', 'cv_info', 'nei_info', 'Ind_AUC', 'Gene_TrAUC', 'Used_IND');
+save(sav_name, 'Cmb_TeAUC', 'Ind_TeAUC', 'cv_info', 'nei_info', 'Gene_TrAUC', 'Used_IND');
 end

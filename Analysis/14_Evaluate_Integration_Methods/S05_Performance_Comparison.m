@@ -9,23 +9,24 @@ addpath('../../../../Useful_Sample_Codes/Advance_Colormap/');
 load('../../Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat', 'Study_Name');
 
 vio_lst = {
-%     {'CMB_Rnd_Random_NN20_CVT50.mat' 'CMB_Rnd_STRING_NN20_CVT50.mat'}
-%     {'CMB_Avg_Random_NN20_CVT50.mat' 'CMB_Avg_STRING_NN20_CVT50.mat'}
-%     {'CMB_Std_Random_NN20_CVT50.mat' 'CMB_Std_STRING_NN20_CVT50.mat'}
-%     {'CMB_PCA1_Random_NN20_CVT50.mat' 'CMB_PCA1_STRING_NN20_CVT50.mat'}
-%     {'CMB_DA2_Random_NN20_CVT50.mat' 'CMB_DA2_STRING_NN20_CVT50.mat'}
-%     {'CMB_Reg_Random_NN20_CVT50.mat' 'CMB_Reg_STRING_NN20_CVT50.mat'}
-    {'CMB_Rnd_Shf-STRING_NN20_CVT50.mat' 'CMB_Rnd_STRING_NN20_CVT50.mat'}
-    {'CMB_Avg_Shf-STRING_NN20_CVT50.mat' 'CMB_Avg_STRING_NN20_CVT50.mat'}
-    {'CMB_Std_Shf-STRING_NN20_CVT50.mat' 'CMB_Std_STRING_NN20_CVT50.mat'}
-    {'CMB_PCA1_Shf-STRING_NN20_CVT50.mat' 'CMB_PCA1_STRING_NN20_CVT50.mat'}
-    {'CMB_DA2_Shf-STRING_NN20_CVT50.mat' 'CMB_DA2_STRING_NN20_CVT50.mat'}
-    {'CMB_Reg_Shf-STRING_NN20_CVT50.mat' 'CMB_Reg_STRING_NN20_CVT50.mat'}
+%     {'CMB_Rnd_STRING-Shf_NN20_CVT50.mat' 'CMB_Rnd_STRING_NN20_CVT50.mat'}
+%     {'CMB_Avg_STRING-Shf_NN20_CVT50.mat' 'CMB_Avg_STRING_NN20_CVT50.mat'}
+%     {'CMB_Std_STRING-Shf_NN20_CVT50.mat' 'CMB_Std_STRING_NN20_CVT50.mat'}
+%     {'CMB_PCA1_STRING-Shf_NN20_CVT50.mat' 'CMB_PCA1_STRING_NN20_CVT50.mat'}
+%     {'CMB_DA2_STRING-Shf_NN20_CVT50.mat' 'CMB_DA2_STRING_NN20_CVT50.mat'}
+%     {'CMB_Reg_STRING-Shf_NN20_CVT50.mat' 'CMB_Reg_STRING_NN20_CVT50.mat'}
+    {'CMB_Reg_STRING-Shf_NN01_CVT51.mat' 'CMB_Reg_STRING_NN01_CVT51.mat'}
+    {'CMB_Reg_STRING-Shf_NN02_CVT51.mat' 'CMB_Reg_STRING_NN02_CVT51.mat'}
+    {'CMB_Reg_STRING-Shf_NN05_CVT51.mat' 'CMB_Reg_STRING_NN05_CVT51.mat'}
+    {'CMB_Reg_STRING-Shf_NN07_CVT51.mat' 'CMB_Reg_STRING_NN07_CVT51.mat'}
+    {'CMB_Reg_STRING-Shf_NN10_CVT51.mat' 'CMB_Reg_STRING_NN10_CVT51.mat'}
+    {'CMB_Reg_STRING-Shf_NN20_CVT51.mat' 'CMB_Reg_STRING_NN20_CVT51.mat'}
+    {'CMB_Reg_STRING-Shf_NN50_CVT51.mat' 'CMB_Reg_STRING_NN50_CVT51.mat'}
 };
 n_vio = numel(vio_lst);
 clr_map = lines(n_vio);
 neg_clr = [0.7 0.7 0.7];
-y_lim = [0.85 1.13];
+y_lim = [0.85 1.15];
 
 %% Plotting performance
 close all
@@ -53,7 +54,7 @@ for vi=1:n_vio
     [~, pval] = ttest2(data_l, data_r, 'Tail', 'Left');
     
     res_info = regexp(vio_lst{vi}{1}, '_', 'split');
-    net_name = sprintf('%s\n%2.0e', res_info{2}, pval);
+    net_name = sprintf('%s-%s\n%2.0e', res_info{2}, res_info{4}, pval);
     text(vio_pos(vi), y_lim(1), net_name, 'VerticalAlignment', 'Top', 'HorizontalAlignment', 'Center', ...
         'FontSize', 12, 'FontWeight', 'Bold');
 end
@@ -78,9 +79,9 @@ cmb_path = './Combined_AUC/';
 cmb_name = [cmb_path cmb_name];
 fprintf('Reading [%s]\n', cmb_name);
 cmb_data = load(cmb_name);
-if any(isnan(cmb_data.Ind_AUC(:))) || any(isnan(cmb_data.Te_AUC(:))), error(); end
+if any(isnan(cmb_data.Ind_TeAUC(:))) || any(isnan(cmb_data.Cmb_TeAUC(:))), error(); end
 
-mean_ind = mean(mean(cmb_data.Ind_AUC, 3),2);
-mean_grp = mean(mean(cmb_data.Te_AUC, 3),2);
+mean_ind = median(median(cmb_data.Ind_TeAUC, 3),2);
+mean_grp = median(median(cmb_data.Cmb_TeAUC, 3),2);
 res = mean_grp./mean_ind;
 end

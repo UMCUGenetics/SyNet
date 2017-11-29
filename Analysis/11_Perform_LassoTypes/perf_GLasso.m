@@ -22,7 +22,7 @@ end
 fprintf('[i] Using MAX SN Size = %d\n', MAX_SUBNET_SIZE);
 
 %% Correcting the gene directions
-[xTr, xTe] = CorrectGeneDirection(xTr, xTe, lTr);
+% [xTr, xTe] = CorrectGeneDirection(xTr, xTe, lTr);
 
 %% Normalization
 fprintf('Normalizing data ...\n');

@@ -49,7 +49,6 @@ res_lst = {
     
     'MRK_CVT01_Lasso_AvgSynACr-G00500_MSN-500.mat'
     'MRK_CVT01_CFGLasso_AvgSynACr-G00500_MSN-500.mat'
-%     'MRK_CVT01_GLasso_AvgSynACr-G00500_MSN-500.mat'
     
     'MRK_CVT01_LExAG_None-G11748_MSN-500.mat'
     };

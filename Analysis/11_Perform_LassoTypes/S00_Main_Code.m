@@ -14,10 +14,10 @@ UMC: PARAM="$si,$ri,{'TAgNMC','TNMC','TLEx','TAgLEx'},{'Random-T00010'},10"; qsu
 %% ####
 if ismac || ispc
     fprintf('*** Warning!: Running on debug mode.\n');
-    Target_Study = 3;
+    Target_Study = 14;
     Target_Repeat = 1;
-    method_lst = {'NMC'};
-    net_lst = {'HBEpith-G11748'};
+    method_lst = {'GLasso'};
+    net_lst = {'AvgSynACr-P10000'};
     MAX_N_SUBNET = 500;
 end
 
@@ -56,7 +56,7 @@ n_meth = numel(method_lst);
 
 %% Main Loop
 fprintf([repmat('/',1,20) ' Start of main loop ' repmat('/',1,20) '\n']);
-cv_id = sprintf('CVT01_Si%02d-Ri%03d', Target_Study, Target_Repeat);
+cv_id = sprintf('CVT51_Si%02d-Ri%03d', Target_Study, Target_Repeat);
 fprintf('[i] CV ID is: %s\n', cv_id);
 fprintf('[i] Method list is: %s\n', strjoin(method_lst, ', '));
 fprintf('[i] Network list is: %s\n', strjoin(net_lst, ', '));
@@ -65,9 +65,10 @@ fprintf([repmat('/',1,60) '\n']);
 te_auc = nan(n_net, n_meth);
 for ni=1:n_net
     fprintf(['****** Network Gen [%s] ' repmat('*',1,40) '\n'], net_lst{ni});
-    ds_id = S02_GenerateDataset(cv_id, net_lst{ni});
+    S02_GenerateDataset(cv_id, net_lst{ni});
     
     %% Load Dataset info
+    ds_id = sprintf('%s_%s', cv_id, net_lst{ni});
     dataset_list = dir([dataset_path 'DID_' ds_id '_*.mat']);
     if numel(dataset_list)~=1, error('Missing or duplicate dataset found.. \n[%s]\n', strjoin({dataset_list.name}, ', ')); end
     dataset_name = [dataset_path dataset_list(1).name];
@@ -98,7 +99,7 @@ for ni=1:n_net
                 InfSN_info = opt_info;
                 InfSN_info.MAX_N_SUBNET = inf;
                 result = perf_DA2Lex(dataset_info, InfSN_info, 'Mean');
-            case {'GLasso2' 'GLasso' 'GLasso7' 'GLasso10' 'GLasso20'}
+            case {'GLasso2' 'GLasso3' 'GLasso5' 'GLasso7' 'GLasso10' 'GLasso15' 'GLasso20'}
                 opt_gls = opt_info;
                 opt_gls.lam_list = [zeros(20,1) logspace(log10(1e-2), 0, 20)'];
                 opt_gls.MAX_SUBNET_SIZE = str2double(method_lst{mi}(7:end));

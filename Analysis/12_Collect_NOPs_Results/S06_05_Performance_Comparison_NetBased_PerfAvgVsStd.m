@@ -39,7 +39,6 @@ for si=1:n_res
     
     [avg1_tot, std1_rep, std1_study] = GetStdAvg(auc1_mat);
     [avg2_tot, std2_rep, std2_study] = GetStdAvg(auc2_mat);
-    Spider_Data(:, si) = [avg1_tot; avg2_tot];
     
     line_h(si,1) = plot([avg1_tot avg2_tot], [std1_rep std2_rep], 'Color', clr_map(si,:), 'LineWidth', 3);
     plot(avg2_tot, std2_rep, 'O', 'MarkerFaceColor', clr_map(si,:)*0.9, 'MarkerEdgeColor', clr_map(si,:)*0.8, 'MarkerSize', 10);
@@ -69,3 +68,4 @@ avg_total = mean(avg_study);
 % std_study = mean(std(auc_mat, 0, 2));
 std_study = std(mean(auc_mat, 2));
 end
+

@@ -20,17 +20,24 @@ fclose(fid);
 if ~isequal(GWAS_Info{1}, DSN_info.Gene_Name), error(); end
 
 %% Output makeHeatFile.py scores --heat_file
-fid = fopen(sprintf('./HotNet2_Input_Files/iCOGS_MD%0.1fk_heatfile.tsv', MAX_DISTANCE/1e3), 'w');
-for gi=1:n_gene
-    fprintf(fid, '%s\t%0.2f\n', GWAS_Info{1}{gi}, GWAS_Info{2}(gi));
-end
-fclose(fid);
+% fid = fopen(sprintf('./HotNet2_Input_Files/iCOGS_MD%0.1fk_heatfile.tsv', MAX_DISTANCE/1e3), 'w');
+% for gi=1:n_gene
+%     fprintf(fid, '%s\t%0.2f\n', GWAS_Info{1}{gi}, GWAS_Info{2}(gi));
+% end
+% fclose(fid);
 
 %% Output SyNet
-OutputHotNetwork('SyNet', DSN_info.PP_Info( 1:10000,1:2), DSN_info.Gene_Name);
-OutputHotNetwork('SyNet', DSN_info.PP_Info( 1:20000,1:2), DSN_info.Gene_Name);
-OutputHotNetwork('SyNet', DSN_info.PP_Info( 1:50000,1:2), DSN_info.Gene_Name);
-OutputHotNetwork('SyNet', DSN_info.PP_Info(1:100000,1:2), DSN_info.Gene_Name);
+% OutputHotNetwork('SyNet', DSN_info.PP_Info( 1:10000,1:2), DSN_info.Gene_Name);
+% OutputHotNetwork('SyNet', DSN_info.PP_Info( 1:20000,1:2), DSN_info.Gene_Name);
+% OutputHotNetwork('SyNet', DSN_info.PP_Info( 1:50000,1:2), DSN_info.Gene_Name);
+% OutputHotNetwork('SyNet', DSN_info.PP_Info(1:100000,1:2), DSN_info.Gene_Name);
+
+%% Output Shuffled SyNet
+rind = randperm(n_gene);
+OutputHotNetwork('SyNet-Shuff', DSN_info.PP_Info( 1:10000,1:2), DSN_info.Gene_Name(rind));
+OutputHotNetwork('SyNet-Shuff', DSN_info.PP_Info( 1:20000,1:2), DSN_info.Gene_Name(rind));
+OutputHotNetwork('SyNet-Shuff', DSN_info.PP_Info( 1:50000,1:2), DSN_info.Gene_Name(rind));
+OutputHotNetwork('SyNet-Shuff', DSN_info.PP_Info(1:100000,1:2), DSN_info.Gene_Name(rind));
 
 %% Output STRING
 net_opt.GE_Path = getPath('SyNet');
@@ -38,10 +45,10 @@ ge_data = load(net_opt.GE_Path, 'Gene_Name');
 net_opt.PreferredGenes = ge_data.Gene_Name;
 net_opt.MAX_N_PAIR = 150000;
 net_info = LoadNetworkPairs('STRING', net_opt);
-OutputHotNetwork('STRING', net_info.Pair_Index( 1:10000,1:2), net_info.Gene_Name);
-OutputHotNetwork('STRING', net_info.Pair_Index( 1:20000,1:2), net_info.Gene_Name);
-OutputHotNetwork('STRING', net_info.Pair_Index( 1:50000,1:2), net_info.Gene_Name);
-OutputHotNetwork('STRING', net_info.Pair_Index(1:100000,1:2), net_info.Gene_Name);
+% OutputHotNetwork('STRING', net_info.Pair_Index( 1:10000,1:2), net_info.Gene_Name);
+% OutputHotNetwork('STRING', net_info.Pair_Index( 1:20000,1:2), net_info.Gene_Name);
+% OutputHotNetwork('STRING', net_info.Pair_Index( 1:50000,1:2), net_info.Gene_Name);
+% OutputHotNetwork('STRING', net_info.Pair_Index(1:100000,1:2), net_info.Gene_Name);
 
 %% Functions %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function OutputHotNetwork(Net_Name, Pair_List, Gene_Name)
