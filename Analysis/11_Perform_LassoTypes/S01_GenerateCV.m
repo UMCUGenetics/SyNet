@@ -1,10 +1,10 @@
 function S01_GenerateCV(Train_name, Train_Ind, Test_name, Test_Ind, rep_ind)
-% S01_GenerateCV('SyNet', 1:14, 'SyNet', 1, 1)
+% S01_GenerateCV('SyNet', 1:14, 'SyNet', 14, 1)
 
 %% Initialization
 addpath('../_Utilities/');
 [~,~] = mkdir('./CV_Files');
-CV_ID = 51;
+CV_ID = 52;
 if strcmp(Train_name, Test_name) && any(ismember(Train_Ind, Test_Ind)) && numel(Train_Ind)~=1
 	fprintf('[i] Warning: Leakage found.\n');
 	Train_Ind = setdiff(Train_Ind, Test_Ind);
