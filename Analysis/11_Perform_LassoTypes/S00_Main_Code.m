@@ -3,10 +3,11 @@ function S00_Main_Code(Target_Study, Target_Repeat, method_lst, net_lst, MAX_N_S
 %{
 for ri in `seq 1 10`; do
 for si in `seq 1 14`; do
-PARAM="$si,$ri,{'TRnFrst'},{'None-G11748'}"; sbatch --job-name=NE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code "$PARAM";
+PARAM="$si,$ri,{'GLasso2'},{'AvgSynACr-P10000'}"; sbatch --job-name=NE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code "$PARAM";
 done;
 read -p "`date`: $PARAM. Press a key" -t 1800
 done
+--exclude=maxwell
 
 UMC: PARAM="$si,$ri,{'TAgNMC','TNMC','TLEx','TAgLEx'},{'Random-T00010'},10"; qsub -N "NE-$PARAM" -l h_rt=24:00:00 -l h_vmem=5G ~/bulk/env/run_Matlab.sh S00_Main_Code "$PARAM";
 %}
@@ -56,7 +57,7 @@ n_meth = numel(method_lst);
 
 %% Main Loop
 fprintf([repmat('/',1,20) ' Start of main loop ' repmat('/',1,20) '\n']);
-cv_id = sprintf('CVT52_Si%02d-Ri%03d', Target_Study, Target_Repeat);
+cv_id = sprintf('CVT01_Si%02d-Ri%03d', Target_Study, Target_Repeat);
 fprintf('[i] CV ID is: %s\n', cv_id);
 fprintf('[i] Method list is: %s\n', strjoin(method_lst, ', '));
 fprintf('[i] Network list is: %s\n', strjoin(net_lst, ', '));

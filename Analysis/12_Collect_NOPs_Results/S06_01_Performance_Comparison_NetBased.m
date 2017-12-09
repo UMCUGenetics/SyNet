@@ -47,6 +47,15 @@ res_lst = {
     'MRK_CVT01_CFGLasso_ACr-G00500_MSN-500.mat'
 %     'MRK_CVT01_GLasso_ACr-G00500_MSN-500.mat'
     
+    'MRK_CVT01_Lasso_Syn-P10000_MSN-500.mat'
+    'MRK_CVT01_GLasso5_Syn-P10000_MSN-500.mat'
+    
+    'MRK_CVT01_Lasso_AvgSyn-P10000_MSN-500.mat'
+    'MRK_CVT01_GLasso5_AvgSyn-P10000_MSN-500.mat'
+    
+    'MRK_CVT01_Lasso_AvgSynACr-P10000_MSN-500.mat'
+    'MRK_CVT01_GLasso_AvgSynACr-P10000_MSN-500.mat'
+
     'MRK_CVT01_Lasso_AvgSynACr-G00500_MSN-500.mat'
     'MRK_CVT01_CFGLasso_AvgSynACr-G00500_MSN-500.mat'
     
@@ -95,6 +104,7 @@ set(gca, 'XTick', 1:n_res, 'XTickLabel', X_lbl, 'XTickLabelRotation', 10, ...
     'Ygrid', 'on', 'GridColor', [0.7 0.7 0.7], 'GridAlpha', 0.4);
 ylabel('AUC', 'FontWeight', 'Bold');
 
+return
 %% Saving
 output_name = sprintf('./Plots/S06_PerformanceComparison_NetBased.pdf');
 set(gcf, 'PaperUnits', 'Inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [13 3], 'PaperPosition', [0 0 13 3]);

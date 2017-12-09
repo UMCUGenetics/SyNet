@@ -16,8 +16,8 @@ sav_path = './Collected_Results/';
 %     'STRING-G00500', 'STRING-P10000' ...
 %     'HPRD-G11748' 'I2D-G11748' 'KEGG-G11748' 'STRING-G11748' 'MSigDB-G11748' 'HBEpith-G11748' 'HBGland-G11748' ...
 %     };
-method_lst = {'TLEx' 'Lasso' 'GLasso'}; % 
-net_lst = {'AvgSynACr-G00700' 'AvgSynACr-P10000'};
+method_lst = {'TLEx' 'Lasso' 'GLasso' 'GLasso5'}; % 
+net_lst = {'AvgSyn-P10000' 'Syn-P10000'};
 feat_lst = [20 50 100 500 700 1000];
 n_net = numel(net_lst);
 n_met = numel(method_lst);
@@ -91,7 +91,7 @@ for mi=1:n_met
                             case 'Lasso'
                                 SubNet_Score = abs(res_data.B(:,res_data.fit.IndexMinMSE));
                                 res_data.SubNet_List = num2cell(1:numel(res_data.Gene_Name))';
-                            case {'GLasso' 'GLasso2' 'GLasso7' 'GLasso10' 'GLasso20' 'CFGLasso' 'FERALAvgStdInt' 'FERALAvgStd' 'FERALInt'}
+                            case {'GLasso' 'GLasso2' 'GLasso5' 'GLasso7' 'GLasso10' 'GLasso20' 'CFGLasso' 'FERALAvgStdInt' 'FERALAvgStd' 'FERALInt'}
                                 Group_Index = res_data.fit.Options.ind; %res_data.SubNet_GInd;
                                 n_snet = size(Group_Index,2);
                                 SubNet_Score = zeros(n_snet, 1);
