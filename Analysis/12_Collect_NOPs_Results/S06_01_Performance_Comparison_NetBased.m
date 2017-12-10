@@ -58,7 +58,16 @@ res_lst = {
     
     'MRK_CVT01_GLasso_AvgSynACr-G00500_MSN-500.mat'
     'MRK_CVT01_GLasso_AvgSynACr-P10000_MSN-500.mat'
-
+    
+    'MRK_CVT01_Lasso_STRING-G00500_MSN-500.mat'
+    'MRK_CVT01_NetLasso_STRING-P100000_MSN-500.mat'
+    
+    'MRK_CVT01_Lasso_AvgSynACr-P10000_MSN-500.mat'
+    'MRK_CVT01_NetLasso_AvgSynACr-P100000_MSN-500.mat'
+    
+    'MRK_CVT01_NetLasso_STRING-P50000_MSN-500.mat'
+    'MRK_CVT01_NetLasso_AvgSynACr-P50000_MSN-500.mat'
+    
     'MRK_CVT01_Lasso_AvgSynACr-G00500_MSN-500.mat'
     'MRK_CVT01_CFGLasso_AvgSynACr-G00500_MSN-500.mat'
     

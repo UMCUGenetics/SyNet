@@ -3,11 +3,10 @@ function S00_Main_Code(Target_Study, Target_Repeat, method_lst, net_lst, MAX_N_S
 %{
 for ri in `seq 1 10`; do
 for si in `seq 1 14`; do
-PARAM="$si,$ri,{'GLasso2'},{'AvgSynACr-P10000'}"; sbatch --job-name=NE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code "$PARAM";
+PARAM="$si,$ri,{'GLasso2'},{'AvgSynACr-P10000'}"; sbatch --exclude=maxwell --job-name=NE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code "$PARAM";
 done;
 read -p "`date`: $PARAM. Press a key" -t 1800
 done
---exclude=maxwell
 
 UMC: PARAM="$si,$ri,{'TAgNMC','TNMC','TLEx','TAgLEx'},{'Random-T00010'},10"; qsub -N "NE-$PARAM" -l h_rt=24:00:00 -l h_vmem=5G ~/bulk/env/run_Matlab.sh S00_Main_Code "$PARAM";
 %}
@@ -15,10 +14,10 @@ UMC: PARAM="$si,$ri,{'TAgNMC','TNMC','TLEx','TAgLEx'},{'Random-T00010'},10"; qsu
 %% ####
 if ismac || ispc
     fprintf('*** Warning!: Running on debug mode.\n');
-    Target_Study = 14;
+    Target_Study = 13;
     Target_Repeat = 1;
-    method_lst = {'NetLasso'};
-    net_lst = {'STRING-P100000'};
+    method_lst = {'NetGL'};
+    net_lst = {'AvgSynACr-P50000'};
     MAX_N_SUBNET = 500;
 end
 
@@ -75,6 +74,7 @@ for ni=1:n_net
     dataset_name = [dataset_path dataset_list(1).name];
     fprintf('Loading dataset [%s] ...\n', dataset_name);
     dataset_info = load(dataset_name);
+    dataset_info.dataset_name = dataset_name;
     fprintf('Dataset has Train: [%d x %d], Test: [%d x %d] samples and genes.\n', size(dataset_info.DatasetTr.Gene_Expression), size(dataset_info.DatasetTe.Gene_Expression))
     
     %% Loop over methods
@@ -105,6 +105,17 @@ for ni=1:n_net
                 opt_gls.lam_list = [zeros(20,1) logspace(log10(1e-2), 0, 20)'];
                 opt_gls.MAX_SUBNET_SIZE = str2double(method_lst{mi}(7:end));
                 result = perf_GLasso(dataset_info, opt_gls);
+            case 'NetGL'
+                opt_ngl = opt_info;
+                opt_ngl.lam_list = [zeros(20,1) logspace(log10(1e-2), 0, 20)'];
+                tmp_res_ptr = sprintf('./Results_Files/DID_%s_*_MSN-500_MTN-NetLasso.mat', ds_id);
+                tmp_res_info = dir(tmp_res_ptr);
+                if numel(tmp_res_info)~=1, error(); end
+                fprintf('[i] Net lasso results found in [%s], loading ...\n', tmp_res_info.name);
+                tmp_info = load(sprintf('./Results_Files/%s', tmp_res_info.name));
+                opt_ngl.MAX_N_Gene = tmp_info.BestNetwork;
+                clear tmp_info tmp_res_info tmp_res_ptr
+                result = perf_NetGL(dataset_info, opt_ngl);
             case 'CFGLasso'
                 result = perf_CFGLasso(dataset_info, opt_info);
             case {'FERALAvg' 'FERALAvgStdInt' 'FERALAvgStd' 'FERALInt'}

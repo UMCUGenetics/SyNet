@@ -71,7 +71,7 @@ DatasetTe.GEPath = te_info.GEPath;
 
 %% Save dataset
 fprintf('Saving dataset in [%s].\n', dataset_name);
-save(dataset_name, 'DatasetTr', 'DatasetTe');
+save(dataset_name, 'DatasetTr', 'DatasetTe', 'cv_name');
 end
 
 function net_info = LoadNetworkInfo(net_name, tr_info, te_info)

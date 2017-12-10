@@ -5,7 +5,7 @@ clear;
 result_path = '../11_Perform_LassoTypes/Results_Files/';
 sav_path = './Collected_Results/';
 % method_lst = {'TReg' 'TNMCAd' 'KNN0' 'KNN1' 'KNN3' 'KNN5' 'KNN7' 'TNMC'  'LExAG' 'TNMCAd' 'TLEx' ...
-%     'DA2Lex' 'Lasso' 'GLasso' 'CFGLasso' 'GLasso2' 'GLasso7' 'GLasso10' 'SVM-Lin' 'TSVM-Lin' 'SVM-RBF' 'TSVM-RBF'
+%     'DA2Lex' 'Lasso' 'GLasso' 'CFGLasso' 'GLasso2' 'GLasso5' 'GLasso7' 'GLasso10' 'SVM-Lin' 'TSVM-Lin' 'SVM-RBF' 'TSVM-RBF'
 %     'GLasso20' 'TSVM-RBF' 'TKNN0' 'RnFrst' 'TRnFrst' 'DT' 'TDT'
 %     };
 % net_lst = {
@@ -16,8 +16,8 @@ sav_path = './Collected_Results/';
 %     'STRING-G00500', 'STRING-P10000' ...
 %     'HPRD-G11748' 'I2D-G11748' 'KEGG-G11748' 'STRING-G11748' 'MSigDB-G11748' 'HBEpith-G11748' 'HBGland-G11748' ...
 %     };
-method_lst = {'TLEx' 'Lasso' 'GLasso' 'GLasso5'}; % 
-net_lst = {'AvgSyn-P10000' 'Syn-P10000'};
+method_lst = {'NetLasso'}; % 
+net_lst = {'STRING-P50000' 'AvgSynACr-P50000'};
 feat_lst = [20 50 100 500 700 1000];
 n_net = numel(net_lst);
 n_met = numel(method_lst);
@@ -91,6 +91,14 @@ for mi=1:n_met
                             case 'Lasso'
                                 SubNet_Score = abs(res_data.B(:,res_data.fit.IndexMinMSE));
                                 res_data.SubNet_List = num2cell(1:numel(res_data.Gene_Name))';
+                            case 'NetLasso'
+                                SubNet_Score = abs(res_data.B(:,res_data.fit.IndexMinMSE));
+                                res_data.SubNet_List = num2cell(1:numel(res_data.Gene_Name))';
+                                if ~isfield(out_cmb, 'BestNetwork')
+                                    out_cmb.BestNetwork = res_data.BestNetwork;
+                                else
+                                    out_cmb.BestNetwork(end+1,1) = res_data.BestNetwork;
+                                end
                             case {'GLasso' 'GLasso2' 'GLasso5' 'GLasso7' 'GLasso10' 'GLasso20' 'CFGLasso' 'FERALAvgStdInt' 'FERALAvgStd' 'FERALInt'}
                                 Group_Index = res_data.fit.Options.ind; %res_data.SubNet_GInd;
                                 n_snet = size(Group_Index,2);
