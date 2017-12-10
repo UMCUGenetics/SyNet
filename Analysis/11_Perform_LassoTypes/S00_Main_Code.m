@@ -17,8 +17,8 @@ if ismac || ispc
     fprintf('*** Warning!: Running on debug mode.\n');
     Target_Study = 14;
     Target_Repeat = 1;
-    method_lst = {'GLasso'};
-    net_lst = {'AvgSynACr-P10000'};
+    method_lst = {'NetLasso'};
+    net_lst = {'STRING-P100000'};
     MAX_N_SUBNET = 500;
 end
 
@@ -111,8 +111,10 @@ for ni=1:n_net
                 feral_info = opt_info;
                 feral_info.CompFeat = arrayfun(@(i) method_lst{mi}(i:i+2), 6:3:numel(method_lst{mi}), 'UniformOutput', 0);
                 result = perf_FERAL(dataset_info, feral_info);
-            case 'Lasso'
+            case {'Lasso'}
                 result = perf_Lasso(dataset_info, opt_info);
+            case {'NetLasso'}
+                result = perf_NetLasso(dataset_info, opt_info);
             case 'LExAG'
                 result = perf_LExAG(dataset_info, opt_info);
             case 'TLEx'
