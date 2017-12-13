@@ -133,7 +133,7 @@ switch net_info.net_name
 			Net_Adj(g_ind, g_ind) = rand(numel(g_ind));
 		end
 		clear GSet_lst
-	case {'STRING','HPRD','I2D','HBBone','HBBrain','HBColon','HBIntestine','HBLung','HBLympNode','HBEpith','HBGland','HBOvary','IntAct','HumanInt','BioPlex','BioGRID'}
+	case {'STRING','STRINGnShuff','HPRD','I2D','HBBone','HBBrain','HBColon','HBIntestine','HBLung','HBLympNode','HBEpith','HBGland','HBOvary','IntAct','HumanInt','BioPlex','BioGRID'}
 		net_info.net_path = getPath(net_info.net_name);
 		fid = fopen(net_info.net_path, 'r');
 		Header_lst = regexp(fgetl(fid), '\t', 'split');
@@ -154,7 +154,12 @@ switch net_info.net_name
 		Gene_Name = intersect(intersect(Gene_Name, tr_info.Gene_Name), te_info.Gene_Name); %% Filter extra genes
 		fprintf('[i] Network contains [%d] genes after filtering.\n', numel(Gene_Name));
 		n_gene = numel(Gene_Name);
-		GMap = containers.Map(Gene_Name, 1:n_gene);
+        if strcmp(net_info.net_name(end-5:end), 'nShuff')
+            fprintf('[w] Warning: Shuffled network is selected, nodes will be shuffled ...\n');
+            GMap = containers.Map(Gene_Name, randperm(n_gene));
+        else
+            GMap = containers.Map(Gene_Name, 1:n_gene);
+        end
 		Net_Adj = zeros(n_gene, 'single');
 		n_int = numel(net_cell{1});
 		fprintf('Forming the Adj matrix from [%d] genes and [%d] links: ', n_gene, n_int);
@@ -167,7 +172,7 @@ switch net_info.net_name
 				Net_Adj(gj, gi) = n_int - ii + 1;
 			end
 		end
-		clear net_cell
+		clear net_cell GMap
 	otherwise
 		net_info.net_path = sprintf([dsn_path 'DSN_SyNetS%02d.mat'], te_info.Study_Ind);
 		load(net_info.net_path, 'Pair_AUC', 'Gene_Name');
