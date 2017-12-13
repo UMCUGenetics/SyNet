@@ -27,7 +27,8 @@ else
     top_pair = zeros(n_lnk, 2, 'uint16');
     [top_pair(:,1), top_pair(:,2)] = ind2sub([n_gene n_gene], scr_ind);
     if any(top_pair(:)>=65535), error('Not implemented for such a large number of genes!'); end
-    [~, top_ind] = unique(top_pair(1:1e6,:)', 'Stable');
+    top_pair(1e6+1:end,:) = []; % Save some computations
+    [~, top_ind] = unique(top_pair', 'Stable');
     Pivot_Index = ceil(top_ind(MAX_N_GENE)/2);
     Net_Threshold = Net_Adj(scr_ind(Pivot_Index));
     Net_Adj(scr_ind(Pivot_Index+1:end)) = 0;

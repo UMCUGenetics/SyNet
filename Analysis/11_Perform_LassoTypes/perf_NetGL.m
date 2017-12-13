@@ -31,7 +31,7 @@ fprintf('Generating neighbor sets and subnetworks: \n');
 Neig_cell = getNeighborsFromAdj(Net_Adj);
 
 %% Select number of neighbor
-NeigSize_lst = [2 3 5 7 10 20];
+NeigSize_lst = [3 7 15 20];
 n_nei = numel(NeigSize_lst);
 Grid_auc = zeros(n_nei, n_lam, n_fold);
 for ni=1:numel(NeigSize_lst)
@@ -83,6 +83,7 @@ lasso_opt = {'lassoType', 'sgt', 'CV', 5, 'iCvPar', Fold_Index, 'relTol', 5e-2, 
 [opt_B, opt_fit] = lassoEx(cmbTr, lTr, lasso_opt{:});
 
 %% Collect Subnet scores
+n_snet = size(Group_IndexTr, 2);
 SubNet_Score = zeros(n_snet, 1);
 for si=1:n_snet
 	SubNet_Score(si) = mean(abs(opt_B(Group_IndexTr(1:2,si), IndexBestLamb)));

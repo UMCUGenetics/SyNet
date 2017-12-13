@@ -14,9 +14,9 @@ UMC: PARAM="$si,$ri,{'TAgNMC','TNMC','TLEx','TAgLEx'},{'Random-T00010'},10"; qsu
 %% ####
 if ismac || ispc
     fprintf('*** Warning!: Running on debug mode.\n');
-    Target_Study = 13;
-    Target_Repeat = 1;
-    method_lst = {'NetGL'};
+    Target_Study = 14;
+    Target_Repeat = 2;
+    method_lst = {'NetLasso', 'NetGL'};
     net_lst = {'AvgSynACr-P50000'};
     MAX_N_SUBNET = 500;
 end
@@ -49,7 +49,7 @@ if ~exist('net_lst', 'var') || isempty(net_lst)
         };
 end
 if ~exist('method_lst', 'var') || isempty(method_lst)
-    method_lst = {'TNMC' 'TNMCAd' 'TLEx' 'Lasso' 'GLasso' 'CFGLasso'}; % 'Regress' 'AS-Feral'
+    method_lst = {'TNMC' 'TNMCAd' 'TLEx' 'Lasso' 'GLasso' 'CFGLasso' 'NetLasso' 'NetGL'}; % 'Regress' 'AS-Feral'
 end
 n_net = numel(net_lst);
 n_meth = numel(method_lst);
@@ -111,7 +111,7 @@ for ni=1:n_net
                 tmp_res_ptr = sprintf('./Results_Files/DID_%s_*_MSN-500_MTN-NetLasso.mat', ds_id);
                 tmp_res_info = dir(tmp_res_ptr);
                 if numel(tmp_res_info)~=1, error(); end
-                fprintf('[i] Net lasso results found in [%s], loading ...\n', tmp_res_info.name);
+                fprintf('[i] Net lasso result is found in [%s], loading ...\n', tmp_res_info.name);
                 tmp_info = load(sprintf('./Results_Files/%s', tmp_res_info.name));
                 opt_ngl.MAX_N_Gene = tmp_info.BestNetwork;
                 clear tmp_info tmp_res_info tmp_res_ptr

@@ -8,7 +8,7 @@ SEED_INFO=rng; Run_ID=double(SEED_INFO.Seed);
 %rng shuffle % creates a different seed each time, but its not nessasary as seed is set in the job submission
 
 %% Set Data ID
-ds_lst = dir(sprintf([dataset_path '*_%s_%s_*'], cv_id, net_name));
+ds_lst = dir(sprintf([dataset_path '*_%s_%s_*.mat'], cv_id, net_name));
 if numel(ds_lst)>0
 	ds_id = sprintf('%s_%s', cv_id, net_name);
 	fprintf('[i] Dataset is already built for [%s]. Using [%s] ...\n', ds_id, ds_lst(1).name);
@@ -133,7 +133,7 @@ switch net_info.net_name
 			Net_Adj(g_ind, g_ind) = rand(numel(g_ind));
 		end
 		clear GSet_lst
-	case {'STRING','HPRD','I2D','HBBone','HBBrain','HBColon','HBIntestine','HBLung','HBLympNode','HBEpith','HBGland','HBOvary','IntAct','HumanInt'}
+	case {'STRING','HPRD','I2D','HBBone','HBBrain','HBColon','HBIntestine','HBLung','HBLympNode','HBEpith','HBGland','HBOvary','IntAct','HumanInt','BioPlex','BioGRID'}
 		net_info.net_path = getPath(net_info.net_name);
 		fid = fopen(net_info.net_path, 'r');
 		Header_lst = regexp(fgetl(fid), '\t', 'split');

@@ -13,63 +13,41 @@ load('../../Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat', 'Study_Nam
 %% Select methods and networks
 res_path = './Collected_Results/';
 res_lst = {
-    'MRK_CVT01_Lasso_Random-G00500_MSN-500.mat'
-    'MRK_CVT01_CFGLasso_Random-G00500_MSN-500.mat'
-%     'MRK_CVT01_GLasso_Random-G00500_MSN-500.mat'
+    'MRK_CVT01_NetLasso_BioPlex-P25000_MSN-500.mat'
+    'MRK_CVT01_NetGL_BioPlex-P25000_MSN-500.mat'
     
-    'MRK_CVT01_Lasso_I2D-G00500_MSN-500.mat'
-    'MRK_CVT01_CFGLasso_I2D-G00500_MSN-500.mat'
-%     'MRK_CVT01_GLasso_I2D-G00500_MSN-500.mat'
+    'MRK_CVT01_NetLasso_BioGRID-P25000_MSN-500.mat'
+    'MRK_CVT01_NetGL_BioGRID-P25000_MSN-500.mat'
     
-    'MRK_CVT01_Lasso_MSigDB-G00500_MSN-500.mat'
-    'MRK_CVT01_CFGLasso_MSigDB-G00500_MSN-500.mat'
-%     'MRK_CVT01_GLasso_MSigDB-G00500_MSN-500.mat'
+    'MRK_CVT01_NetLasso_IntAct-P25000_MSN-500.mat'
+    'MRK_CVT01_NetGL_IntAct-P25000_MSN-500.mat'
     
-    'MRK_CVT01_Lasso_HPRD-G00500_MSN-500.mat'
-    'MRK_CVT01_CFGLasso_HPRD-G00500_MSN-500.mat'
-%     'MRK_CVT01_GLasso_HPRD-G00500_MSN-500.mat'
-    
-    'MRK_CVT01_Lasso_KEGG-G00500_MSN-500.mat'
-    'MRK_CVT01_CFGLasso_KEGG-G00500_MSN-500.mat'
-%     'MRK_CVT01_GLasso_KEGG-G00500_MSN-500.mat'
-    
-    'MRK_CVT01_Lasso_STRING-G00500_MSN-500.mat'
-    'MRK_CVT01_CFGLasso_STRING-G00500_MSN-500.mat'
-%     'MRK_CVT01_GLasso_STRING-G00500_MSN-500.mat'
+    'MRK_CVT01_NetLasso_STRING-P25000_MSN-500.mat'
+    'MRK_CVT01_NetGL_STRING-P25000_MSN-500.mat'
+        
+    'MRK_CVT01_NetLasso_HBGland-P25000_MSN-500.mat'
+    'MRK_CVT01_NetGL_HBGland-P25000_MSN-500.mat'
 
-    'MRK_CVT01_Lasso_HBGland-G11748_MSN-500.mat'
-    'MRK_CVT01_GLasso_HBGland-G11748_MSN-500.mat'
+    'MRK_CVT01_NetLasso_HBLympNode-P25000_MSN-500.mat'
+    'MRK_CVT01_NetGL_HBLympNode-P25000_MSN-500.mat'
     
-    'MRK_CVT01_Lasso_HBEpith-G11748_MSN-500.mat'
-    'MRK_CVT01_GLasso_HBEpith-G11748_MSN-500.mat'
+    'MRK_CVT01_NetLasso_HBEpith-P25000_MSN-500.mat'
+    'MRK_CVT01_NetGL_HBEpith-P25000_MSN-500.mat'
+        
+    'MRK_CVT01_NetLasso_ACr-P25000_MSN-500.mat'
+    'MRK_CVT01_NetGL_ACr-P25000_MSN-500.mat'
+        
+    'MRK_CVT01_NetLasso_Syn-P25000_MSN-500.mat'
+    'MRK_CVT01_NetGL_Syn-P25000_MSN-500.mat'
+    
+    'MRK_CVT01_NetLasso_AvgSyn-P25000_MSN-500.mat'
+    'MRK_CVT01_NetGL_AvgSyn-P25000_MSN-500.mat'
+    
+    'MRK_CVT01_NetLasso_AvgSynACr-P25000_MSN-500.mat'
+    'MRK_CVT01_NetGL_AvgSynACr-P25000_MSN-500.mat'
 
-    'MRK_CVT01_Lasso_ACr-G00500_MSN-500.mat'
-    'MRK_CVT01_CFGLasso_ACr-G00500_MSN-500.mat'
-%     'MRK_CVT01_GLasso_ACr-G00500_MSN-500.mat'
-    
-    'MRK_CVT01_Lasso_Syn-P10000_MSN-500.mat'
-    'MRK_CVT01_GLasso5_Syn-P10000_MSN-500.mat'
-    
-    'MRK_CVT01_Lasso_AvgSyn-P10000_MSN-500.mat'
-    'MRK_CVT01_GLasso5_AvgSyn-P10000_MSN-500.mat'
-    
-    'MRK_CVT01_Lasso_AvgSynACr-P10000_MSN-500.mat'
-    'MRK_CVT01_GLasso_AvgSynACr-P10000_MSN-500.mat'
-    
-    'MRK_CVT01_GLasso_AvgSynACr-G00500_MSN-500.mat'
-    'MRK_CVT01_GLasso_AvgSynACr-P10000_MSN-500.mat'
-    
-    'MRK_CVT01_Lasso_STRING-G00500_MSN-500.mat'
-    'MRK_CVT01_NetLasso_STRING-P100000_MSN-500.mat'
-    
-    'MRK_CVT01_Lasso_AvgSynACr-P10000_MSN-500.mat'
-    'MRK_CVT01_NetLasso_AvgSynACr-P100000_MSN-500.mat'
-    
-    'MRK_CVT01_NetLasso_STRING-P50000_MSN-500.mat'
-    'MRK_CVT01_NetLasso_AvgSynACr-P50000_MSN-500.mat'
-    
-    'MRK_CVT01_Lasso_AvgSynACr-G00500_MSN-500.mat'
-    'MRK_CVT01_CFGLasso_AvgSynACr-G00500_MSN-500.mat'
+%     'MRK_CVT01_Lasso_AvgSynACr-P10000_MSN-500.mat'
+%     'MRK_CVT01_GLasso_AvgSynACr-P10000_MSN-500.mat'
     
     'MRK_CVT01_LExAG_None-G11748_MSN-500.mat'
     };
@@ -81,24 +59,18 @@ figure('Position', [100 100 1500 400]);
 hold on
 clr_map = jet(ceil(n_res/2));
 X_lbl = {};
-AUC_cmb = [];
 xlim([0 n_res+1]);
-ylim([0.60 0.68]);
+ylim([0.61 0.67]);
 for si=1:n_res
     res_name = [res_path res_lst{si}];
     res_info = regexp(res_lst{si}, '_', 'split');
     fprintf('Reading [%s]\n', res_name);
     res_data = load(res_name);
     if any(isnan(res_data.AUC_mat(:))), error(); end
-    auc_rep = mean(res_data.AUC_mat);
-    AUC_cmb(:,si) = auc_rep;
+    auc_rep = mean(res_data.AUC_mat,1);
     
-    %dist_h = distributionPlot(auc_rep', 'color', clr_map(si,:), 'xValues', si, 'showMM', 5);
-    %set(dist_h{2}, 'Color', 'k');
-    %set(dist_h{2}(1), 'Marker', '.', 'LineWidth', 2, 'MarkerSize', 10);
-    %bar_h = bar(si, mean(auc_rep), 'FaceColor', clr_map(ceil(si/2),:));
     bar_h = patch([si-0.25 si+0.25 si+0.25 si-0.25], [0 0 mean(auc_rep) mean(auc_rep)], 'b', 'FaceColor', clr_map(ceil(si/2),:)); 
-    if isequal(res_info{3}, 'CFGLasso') %mod(si,2)==0
+    if isequal(res_info{3}, 'NetGL')
         patch_h = findobj(bar_h, 'Type', 'patch');
         hatchfill(patch_h, 'single', -45, 5, clr_map(ceil(si/2),:));
     end

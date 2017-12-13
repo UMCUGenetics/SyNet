@@ -16,8 +16,8 @@ sav_path = './Collected_Results/';
 %     'STRING-G00500', 'STRING-P10000' ...
 %     'HPRD-G11748' 'I2D-G11748' 'KEGG-G11748' 'STRING-G11748' 'MSigDB-G11748' 'HBEpith-G11748' 'HBGland-G11748' ...
 %     };
-method_lst = {'NetLasso'}; % 
-net_lst = {'STRING-P50000' 'AvgSynACr-P50000'};
+method_lst = {'NetLasso' 'NetGL'}; % 
+net_lst = {'BioPlex-P25000' 'BioGRID-P25000' 'Syn-P25000' 'HBLympNode-P25000' 'HBBone-P25000'};
 feat_lst = [20 50 100 500 700 1000];
 n_net = numel(net_lst);
 n_met = numel(method_lst);
@@ -47,6 +47,7 @@ for mi=1:n_met
                             result_path, cv_ind, net_lst{ni}, feat_lst(fi), method_lst{mi});
                 file_info = dir(res_ptr);
                 if numel(file_info)==0
+                    %fprintf('[w] No results found for [%s] ...\n', res_ptr);
                     continue;
                 end
                 fprintf('/// Collecting [%s]\n', sav_name);
@@ -106,6 +107,21 @@ for mi=1:n_met
                                 for gi=1:n_snet
                                     set_ind = Group_Index(1,gi):Group_Index(2,gi);
                                     SubNet_Score(gi) = max(abs(res_data.B(set_ind, res_data.fit.IndexMinMSE)));
+                                end
+                            case 'NetGL'
+                                Group_Index = res_data.fit.Options.ind;
+                                n_snet = size(Group_Index,2);
+                                SubNet_Score = zeros(n_snet, 1);
+                                for gi=1:n_snet
+                                    set_ind = Group_Index(1,gi):Group_Index(2,gi);
+                                    SubNet_Score(gi) = max(abs(res_data.B(set_ind, res_data.fit.IndexMinMSE)));
+                                end
+                                if ~isfield(out_cmb, 'OptGrpSize')
+                                    out_cmb.OptGrpSize = res_data.OptNeiSize;
+                                    out_cmb.OptNGene = res_data.OptNetSize;
+                                else
+                                    out_cmb.OptGrpSize(end+1,1) = res_data.OptNeiSize;
+                                    out_cmb.OptNGene(end+1,1) = res_data.OptNetSize;
                                 end
                             case 'LExAG'
                                 SubNet_Score = abs(res_data.B(:,res_data.fit.IndexMinMSE));
