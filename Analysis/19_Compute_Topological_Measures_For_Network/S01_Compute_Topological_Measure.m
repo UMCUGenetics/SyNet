@@ -1,17 +1,24 @@
-function S01_Compute_Topological_Measure(net_name, n_pair, TM_Name, RemoveGSet, SaveID)
-clc;
-% clear;
-% TM set: for tn={}
+function S01_Compute_Topological_Measure(net_name, TM_Name, RemoveGSet)
+% clc;
+%{
+TM_lst = {'ShortestPath' 'Degree' 'PageRank-FB0.65' 'PageRank-FB0.75' 'PageRank-FB0.85' 'PageRank-FB0.95' 'Closeness' 'Betweenness' 'Eigenvector'};
+Net_lst = {'AbsCorr','STRING','IntAct','BioPlex','BioGRID','HBLympNode','HBEpith','HBGland','HBOvary'};
+for ti=1:numel(TM_lst)
+for ni=1:numel(Net_lst)
+S01_Compute_Topological_Measure(Net_lst{ni}, TM_lst{ti}, {});
+end
+end
+%}
+
 %% Inialization
 addpath('../_Utilities/');
 addpath('../../../../Useful_Sample_Codes/ShowProgress');
-if ~exist('SaveID', 'var'), SaveID=''; end % datestr(now, 'dd-mmm-yyyy_HH:MM:SS')
 if ~exist('RemoveGSet', 'var'), RemoveGSet={}; end
-if ismac
-    net_name = 'I2D'; % 'I2D' 'STRING' 'HPRD' 'HBEpith','HBGland'
-    n_pair = 10000;
-    TM_Name = 'PageRank-FB0.75';
-end
+n_pair = 10000;
+% if ismac
+%     net_name = 'STRING'; % 'I2D' 'STRING' 'HPRD' 'HBEpith','HBGland'
+%     TM_Name = 'PageRank-FB0.75';
+% end
 
 %% Load SyNet
 SyNet_info = load('../01_Pairwise_Evaluation_of_Genes/Top_Pairs/TopP_SyNet.mat', 'PP_Info', 'NP_Info', 'Gene_Name');
@@ -25,8 +32,9 @@ clear SyNet_info
 
 %% Load network
 fprintf('Loading [%s] network.\n', net_name);
+net_opt.GE_Path = getPath('SyNet');
 net_opt.PreferredGenes = Ref_GeneName;
-net_opt.MAX_N_PAIR = n_pair;
+net_opt.MAX_N_PAIR = 25000;
 net_info = LoadNetworkAdj(net_name, net_opt);
 NET_N_PAIR = net_info.N_PAIR;
 if min(net_info.Net_Adj(:))<0, error('Not implemented for negative links'); end
@@ -71,6 +79,7 @@ Ref_Adj(r,r) = Net_Adj(i,i);
 Output_results = struct();
 Output_results.Ref_GeneName = Ref_GeneName;
 Output_results.Pair_Info = Pair_Info;
+Output_results.NET_N_PAIR = NET_N_PAIR;
 fprintf('Computing [%s] from network [%s] ...\n', TM_Name, net_name);
 Net_Graph = graph(Net_Adj~=0, 'OmitSelfLoops');
 Pair_Index = sub2ind([n_RefGeneName n_RefGeneName], Pair_Info(:,1), Pair_Info(:,2));
@@ -98,11 +107,7 @@ switch TM_Name
 end
 
 %% Save the results
-if strcmp(SaveID,'')
-    sav_name = sprintf('./Topological_Results/TM_%s_NP%06d_%s.mat', net_name, NET_N_PAIR, TM_Name);
-else
-    sav_name = sprintf('./Topological_Results/TM_%s_NP%06d_%s_%s.mat', net_name, NET_N_PAIR, TM_Name, SaveID);
-end
+sav_name = sprintf('./Topological_Results/TM_%s_NP%06d_%s.mat', net_name, net_opt.MAX_N_PAIR, TM_Name);
 fprintf('Saving the results in [%s]\n', sav_name);
 save(sav_name, '-struct', 'Output_results');
 end

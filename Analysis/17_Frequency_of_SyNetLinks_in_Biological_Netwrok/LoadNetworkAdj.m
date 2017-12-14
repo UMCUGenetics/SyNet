@@ -41,7 +41,8 @@ switch net_name
         end
         Net_Adj = max(Net_Adj, Net_Adj');
         clear GSet_lst GMap
-    case {'STRING','HPRD','I2D','HBEpith','HBGland'}
+    case {'STRING','STRINGnShuff','HPRD','I2D','HBBone','HBBrain','HBColon','HBIntestine','HBLung',...
+            'HBLympNode','HBEpith','HBGland','HBOvary','IntAct','HumanInt','BioPlex','BioGRID'}
         net_info.net_path = getPath(net_name);
         fid = fopen(net_info.net_path, 'r');
         Header_lst = regexp(fgetl(fid), '\t', 'split');
@@ -50,7 +51,7 @@ switch net_name
             net_cell = textscan(fid,   '%s%s', net_info.MAX_N_PAIR*5, 'Delimiter', '\t', 'ReturnOnError', 0);
         else
             fprintf('Link weights are found. Selecting of [%d] links from top weighted interactions.\n', net_info.MAX_N_PAIR*5);
-            net_cell = textscan(fid, '%s%s%d', net_info.MAX_N_PAIR*5, 'Delimiter', '\t', 'ReturnOnError', 0);
+            net_cell = textscan(fid, '%s%s%f', net_info.MAX_N_PAIR*5, 'Delimiter', '\t', 'ReturnOnError', 0);
             if ~issorted(net_cell{3}, 'Descend'), error('Given network file is not sorted.'); end
         end
         fclose(fid);

@@ -9,23 +9,25 @@ addpath(genpath('../../../../Useful_Sample_Codes/SLEP'));
 addpath(genpath('../../../../Useful_Sample_Codes/getAUC'));
 lasso_opt = {'lassoType', 't', 'CV', [], 'relTol', 5e-2, 'n_lC', 20, 'lC_ratio', 1e-2, 'verbose', 0};
 IS_STRICT_CV = 1;
-CLS_Name = 'Lasso';
-CLS_Name = 'RandomForest';
+% CLS_Name = 'Lasso';
+% CLS_Name = 'RandomForest';
 CLS_Name = 'Regress';
 Regex_lst = {
-    '^HPRD'
-    '^I2D'
+    '^BioPlex'
+    '^BioGRID'
+    '^IntAct'
     '^STRING'
     '^HBEpith'
-    '^(?!HBGland).'
+    '^HBLympNode'
+%     '^(?!HBGland).'
     '^HBGland'
     '.'
     };
 n_regex = numel(Regex_lst);
-n_Fold = 50;
+n_Fold = 20;
 
 %% Load TM data
-load('./Topological_Data/TMData_NS20000_NF90.mat', 'zTM_Data', 'TM_Label', 'TM_Name', 'Pair_Info');
+load('./Topological_Data/TMData_NS20000_NF126.mat', 'TM_Data_z', 'TM_Label', 'TM_Name', 'Pair_Info');
 %qTM_Data = quantilenorm(zTM_Data); % , 'Display', true
 
 %% Evaluation of classifier
@@ -33,7 +35,7 @@ Grp_AUC = zeros(n_Fold, n_regex);
 Grp_Name = cell(n_regex,1);
 for ri=1:n_regex
     In_Grp = cellfun('length', regexp(TM_Name, Regex_lst{ri}, 'once'))==1;
-    zData = zTM_Data(:, In_Grp);
+    zData = TM_Data_z(:, In_Grp);
     %zData = qTM_Data(:, In_Grp);
     Feat_Name = TM_Name(In_Grp);
     
@@ -50,6 +52,7 @@ for ri=1:n_regex
     Fold_Index = crossvalind('KFold', TM_Label, n_Fold);
     Fold_auc = zeros(n_Fold, 1);
     Feat_Imp = zeros(n_Fold, n_feature);
+    Feat_B = zeros(n_Fold, n_feature);
     for fi=1:n_Fold
         iTr = Fold_Index~=fi;
         iTe = Fold_Index==fi;
@@ -66,8 +69,10 @@ for ri=1:n_regex
         
         switch CLS_Name
             case 'Regress'
-                Feat_Imp(fi, :) = regress(lTr, zTr);
-                Fold_auc(fi) = getAUC(lTe, zTe*Feat_Imp(fi, :)', 50) * 100;
+                B = regress(lTr, zTr);
+                Fold_auc(fi) = getAUC(lTe, zTe*B, 50) * 100;
+                Feat_B(fi,:) = B;
+                Feat_Imp(fi, :) = abs(B);
             case 'Lasso'
                 [B, fit] = lassoEx(zTr, lTr, lasso_opt{:});
                 Feat_Imp(fi, :) = B(:, 8);
@@ -100,18 +105,23 @@ for ri=1:n_regex
     Grp_AUC(:, ri) = Fold_auc;
     Grp_Name{ri} = sprintf('%s', Regex_lst{ri}(2:end));
 end
-Grp_Name([5 end]) = {'All but HBGland' 'All networks'};
+% Grp_Name([5 end]) = {'All but HBGland' 'All networks'};
+Grp_Name(end) = {'All networks'};
 
 %% Plotting AUC per group of features
 figure('Position', [100 100 700 500]);
 hold on
 clr_map = hsv(n_regex)*0.8;
 for ri=1:n_regex
-    box_h = BoxPlotEx(Grp_AUC(:, ri), 'Positions', ri, 'Color', clr_map(ri,:), 'Symbol', '', 'Widths', 0.8);
+    met_clr = getColor(Grp_Name{ri});
+    box_h = BoxPlotEx(Grp_AUC(:, ri), 'Positions', ri, 'Color', met_clr, 'Symbol', '', 'Widths', 0.8);
     set(box_h, 'LineWidth', 1.5);
 end
-set(gca, 'XTick', 1:n_regex, 'XTickLabel', Grp_Name, 'XTickLabelRotation', 20, 'FontWeight', 'Bold', ...
-    'XLim', [0 n_regex+1], 'YLim', [55 95]);
+ylim([60 100]);
+y_tick = get(gca, 'YTick');
+y_tick_label = arrayfun(@(y) sprintf('%0.0f%%', y), y_tick, 'UniformOutput', 0);
+set(gca, 'XTick', 1:n_regex, 'XTickLabel', Grp_Name, 'XTickLabelRotation', 20, 'XLim', [0 n_regex+1], 'FontWeight', 'Bold', ...
+    'YTick', y_tick, 'YTickLabel', y_tick_label);
 ylabel(sprintf('AUC (across %d folds)', n_Fold));
 title('Prediction of SyNet links', 'FontSize', 12);
 if IS_STRICT_CV
@@ -133,5 +143,5 @@ mFeat_Imp = mean(zFeat_Imp);
 figure('Position', [100 100 1500 700]);
 imagesc(zFeat_Imp(:, sind));
 set(gca, 'XTick', 1:n_feature, 'XTickLabel', TM_Name(sind), 'XTickLabelRotation', 45);
-disp(table(TM_Name(sind(1:5)), mFeat_Imp(sind(1:5))', 'VariableNames', {'FeatureName' 'AvgScore'}));
+disp(table(TM_Name(sind(1:10)), mFeat_Imp(sind(1:10))', 'VariableNames', {'FeatureName' 'AvgScore'}));
 

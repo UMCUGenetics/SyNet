@@ -25,8 +25,6 @@ n_res = numel(res_lst);
 close all
 figure('Position', [100 100 700 400]);
 hold on
-xlabel('Average AUC', 'FontSize', 12, 'FontWeight', 'Bold');
-ylabel('Standard deviation', 'FontSize', 12, 'FontWeight', 'Bold');
 Method_lst = cell(n_res, 1);
 
 for si=1:n_res
@@ -41,7 +39,10 @@ for si=1:n_res
     plot(avg1_tot, std1_rep, 'S', 'MarkerFaceColor',     [1 1 1], 'MarkerEdgeColor', met_clr*1.0, 'MarkerSize', 10, 'LineWidth', 2);
     plot(avg2_tot, std2_rep, 'O', 'MarkerFaceColor', met_clr*1.0, 'MarkerEdgeColor', met_clr*1.0, 'MarkerSize', 10);
 end
-legend(line_h, Method_lst, 'FontWeight', 'Bold', 'Location', 'NorthEast');
+legend(line_h, Method_lst, 'FontWeight', 'Bold', 'FontSize', 10, 'Location', 'NorthEast');
+set(gca, 'FontWeight', 'Bold', 'FontSize', 8);
+xlabel('Average AUC', 'FontSize', 12, 'FontWeight', 'Bold');
+ylabel('Standard deviation', 'FontSize', 12, 'FontWeight', 'Bold');
 
 %% Saving
 output_name = sprintf('./Plots/S06_PerformanceComparison_NetBased_PerfAvgVsStd.pdf');

@@ -7,15 +7,14 @@ addpath('../../../../Useful_Sample_Codes/Tight_Subplot/');
 addpath('../../../../Useful_Sample_Codes/Distribution_Plot/');
 addpath('../../../../Useful_Sample_Codes/Advance_Colormap/');
 neg_clr = [0.7 0.7 0.7];
-net_lst = {'I2D', 'STRING', 'HPRD', 'HBEpith', 'HBGland'};
+net_lst = {'BioPlex','BioGRID','IntAct','STRING','HBEpith','HBLympNode','HBGland'};
 n_net = numel(net_lst);
 tm_lst = {'Degree' 'PageRank-FB0.85' 'Closeness' 'Betweenness'}; 
 n_tm = numel(tm_lst);
 
 %% Loading TM data
-load('./Topological_Data/TMData_NS20000_NF90.mat');
-[n_sample, n_feature] = size(TM_Data_NRM);
-clr_map = min(ones(n_net,3), lines(n_net)*1.1);
+load('./Topological_Data/TMData_NS20000_NF144.mat');
+[n_sample, n_feature] = size(TM_Data_filtered);
 
 %% Main loop
 figure('Position', [100 100 1600 500]);
@@ -24,31 +23,30 @@ step = 1;
 for ti=1:n_tm
     set(gcf, 'CurrentAxes', sp_h(step));
     hold on
-    Used_Data = [];
     for ni=1:n_net
         Feat_Ind = cellfun('length', strfind(TM_Name, sprintf('%s-%s-A', net_lst{ni}, tm_lst{ti})))==1;
         if sum(Feat_Ind)~=1, error(); end
         
-        data_neg = TM_Data_NRM(TM_Label==-1, Feat_Ind);
+        data_neg = TM_Data_filtered(TM_Label==-1, Feat_Ind);
         box_h = BoxPlotEx(data_neg, 'Positions', ni-0.17, 'Color', neg_clr, 'Symbol', '', 'Widths', 0.3);
         set(box_h, 'LineWidth', 2);
         
-        data_pos = TM_Data_NRM(TM_Label==1, Feat_Ind);
-        box_h = BoxPlotEx(data_pos, 'Positions', ni+0.17, 'Color', clr_map(ni,:), 'Symbol', '', 'Widths', 0.3);
+        data_pos = TM_Data_filtered(TM_Label==1, Feat_Ind);
+        met_clr = getColor(net_lst{ni});
+        box_h = BoxPlotEx(data_pos, 'Positions', ni+0.17, 'Color', met_clr, 'Symbol', '', 'Widths', 0.3);
         set(box_h, 'LineWidth', 2);        
     end
-    y_lim = prctile(Used_Data, [0 99]);
     switch tm_lst{ti}
         case 'Degree'
-            set(gca, 'YLim', [0 70]);
+            set(gca, 'YLim', [0 250]);
         case 'PageRank-FB0.85'
             set(gca, 'YLim', [0 1.5e-3]);
         case 'Eigenvector'
             set(gca, 'YLim', [0 1e-3]);
         case 'Closeness'
-            set(gca, 'YLim', [0 1.4e-5]);
+            set(gca, 'YLim', [0 2.3e-5]);
         case 'Betweenness'
-            set(gca, 'YLim', [0 1e4]);
+            set(gca, 'YLim', [0 4e4]);
     end
     set(gca, 'XTick', 1:n_net, 'XTickLabel', net_lst, 'XTickLabelRotation', 20, ...
         'XLim', [0.3 n_net+0.7], 'FontWeight', 'Bold');

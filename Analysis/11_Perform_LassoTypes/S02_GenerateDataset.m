@@ -146,7 +146,7 @@ switch net_info.net_name
 			net_cell = {net_cell{1}(rind) net_cell{2}(rind)};
 		else
 			fprintf('Selecting of [%d] links from top weighted interactions.\n', MAX_N_PAIR);
-			net_cell = textscan(fid, '%s%s%d', MAX_N_PAIR, 'Delimiter', '\t', 'ReturnOnError', 0);
+			net_cell = textscan(fid, '%s%s%f', MAX_N_PAIR, 'Delimiter', '\t', 'ReturnOnError', 0);
 		end
 		fclose(fid);
 		Gene_Name = unique(vertcat(net_cell{1:2}));

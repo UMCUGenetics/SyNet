@@ -8,6 +8,7 @@ addpath('../../../../Useful_Sample_Codes/ErrorbarEx/');
 addpath('../../../../Useful_Sample_Codes/Distribution_Plot/');
 addpath('../../../../Useful_Sample_Codes/Advance_Colormap/');
 addpath('../../../../Useful_Sample_Codes/Hatchfill/');
+addpath('../_Utilities/');
 load('../../Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat', 'Study_Name');
 
 %% Select methods and networks
@@ -16,6 +17,8 @@ res_lst = {
 %     {'MRK_CVT01_NetLasso_BioGRID-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_BioGRID-P25000_MSN-500.mat'}
 %     {'MRK_CVT01_NetLasso_IntAct-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_IntAct-P25000_MSN-500.mat'}
 %     {'MRK_CVT01_NetLasso_STRING-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_STRING-P25000_MSN-500.mat'}
+%     {'MRK_CVT01_NetLasso_HBOvary-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBOvary-P25000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_HBBone-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBBone-P25000_MSN-500.mat'}
     {'MRK_CVT01_NetLasso_HBGland-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBGland-P25000_MSN-500.mat'}
     {'MRK_CVT01_NetLasso_HBLympNode-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBLympNode-P25000_MSN-500.mat'}
     {'MRK_CVT01_NetLasso_HBEpith-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBEpith-P25000_MSN-500.mat'}
@@ -56,16 +59,17 @@ for si=1:n_res
         %set(hatch_h, 'Color', met_clr*0.8, 'LineWidth', 1.5);
         errorbarEx(bar_pos, mean(auc2_study), std(auc2_study), std(auc2_study), 1.5, 0.1, [0 0 0]);
     end
-    text(si, y_lim(1), met_lbl, 'FontSize', 10, 'FontWeight', 'Bold', 'HorizontalAlignment', 'Center', 'VerticalAlignment', 'Top', 'Rotation', 0);
+    text(si, y_lim(1)-0.002, met_lbl, 'FontSize', 10, 'FontWeight', 'Bold', 'HorizontalAlignment', 'Center', 'VerticalAlignment', 'Top', 'Rotation', 0);
 end
 
 y_tick = get(gca, 'YTick');
 Y_lbl = arrayfun(@(y) sprintf('%0.0f%%', y*100), y_tick, 'UniformOutput', 0);
 set(gca, 'XTick', [], 'XTickLabel', [], 'XTickLabelRotation', 10, ...
-    'YTick', y_tick, 'YTickLabel', Y_lbl, 'FontWeight', 'Bold', 'FontSize', 10, ...
+    'YTick', y_tick, 'YTickLabel', Y_lbl, 'FontWeight', 'Bold', 'FontSize', 7, ...
     'Ygrid', 'on', 'GridColor', [0.7 0.7 0.7], 'GridAlpha', 0.4);
 ylabel('AUC', 'FontWeight', 'Bold');
 
+return
 %% Saving
 output_name = sprintf('./Plots/S06_PerformanceComparison_NetBased.pdf');
 set(gcf, 'PaperUnits', 'Inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [5 3], 'PaperPosition', [0 0 5 3]);
