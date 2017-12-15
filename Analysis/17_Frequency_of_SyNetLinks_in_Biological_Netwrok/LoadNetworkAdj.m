@@ -2,16 +2,19 @@ function net_info = LoadNetworkAdj(net_name, net_opt)
 
 %% Load network data
 net_info.net_name = net_name;
-net_info.MAX_N_PAIR = net_opt.MAX_N_PAIR;
-switch net_name
-    case 'AbsCorr'
+if ~exist('net_opt', 'var'), net_opt = struct(); end
+if isfield(net_opt, 'MAX_N_PAIR')
+    net_info.MAX_N_PAIR = net_opt.MAX_N_PAIR;
+end
+switch 1
+    case ismember(net_name, 'AbsCorr')
         ge_data = load(net_opt.GE_Path, 'Gene_Expression', 'Gene_Name');
         Net_Adj = abs(corr(zscore(ge_data.Gene_Expression), 'Type', 'Spearman'));
         Net_Adj(Net_Adj<0.5) = 0;
         Gene_Name = ge_data.Gene_Name;
         net_info.net_path = net_opt.GE_Path;
         clear ge_data
-    case {'KEGG', 'MSigDB'}
+    case ismember(net_name, {'KEGG', 'MSigDB'})
         net_info.net_path = getPath(net_name);
         GSet_lst = regexp(fileread(net_info.net_path), '\n', 'split')';
         if strcmp(GSet_lst{end},''), GSet_lst(end)=[]; end
@@ -41,11 +44,7 @@ switch net_name
         end
         Net_Adj = max(Net_Adj, Net_Adj');
         clear GSet_lst GMap
-    case {'STRING','STRINGnShuff','HPRD','I2D','IntAct','HumanInt','BioPlex','BioGRID', ...
-            'HBBlood', 'HBBone', 'HBBrain', 'HBColon', 'HBEpidermis', 'HBEpith', 'HBEye', 'HBGland', ...
-            'HBHeart', 'HBIntestine', 'HBKidney', 'HBLiver', 'HBLung', 'HBLympnode', 'HBMuscle', 'HBNervs', ...
-            'HBNeuron', 'HBOvary', 'HBProstate', 'HBRetina', 'HBStomach', 'HBUterus', ...
-            'HBSpermatid' 'HBSpermatocyte' 'HBSpermatogonium' 'HBTestis'}
+    case any(~cellfun('isempty', regexp(net_name, {'HB.*' 'STRING','STRINGnShuff','HPRD','I2D','IntAct','HumanInt','BioPlex','BioGRID'})))
         net_info.net_path = getPath(net_name);
         fid = fopen(net_info.net_path, 'r');
         Header_lst = regexp(fgetl(fid), '\t', 'split');
@@ -76,7 +75,37 @@ switch net_name
         end
         clear net_cell GMap
     otherwise
-        error('Unknown method.');
+        net_info.net_path = '../01_Pairwise_Evaluation_of_Genes/Network_Files/DSN_SyNet.mat';
+        load(net_info.net_path, 'Pair_AUC', 'Gene_Name');
+        n_gene = size(Pair_AUC,1);
+        Ind_AUC = Pair_AUC(1:n_gene+1:end)';
+        Pair_Dist = zeros(n_gene);
+        for ni=1:3:numel(net_info.net_name)
+            nn_part = net_info.net_name(ni:ni+2);
+            fprintf('Computing [%s] ... \n', nn_part);
+            switch nn_part
+                case 'Avg'
+                    ax_avg = bsxfun(@(x,y) (x+y)/2, Ind_AUC, Ind_AUC');
+                    Pair_Dist = Pair_Dist + (1-oscore(ax_avg)).^2;
+                    clear ax_avg
+                case 'ACr'
+                    GEPath = getPath('SyNet');
+                    ge_data = load(GEPath, 'Gene_Expression');
+                    ax_crr = abs(corr(ge_data.Gene_Expression, 'Type', 'Spearman'));
+                    ax_crr(1:size(ax_crr,1)+1:end) = 0;
+                    Pair_Dist = Pair_Dist + (1-oscore(ax_crr)).^2;
+                    clear ge_data ax_crr
+                case 'Syn'
+                    pair_max = bsxfun(@max, Ind_AUC, Ind_AUC');
+                    Pair_Dist = Pair_Dist + (1-oscore(Pair_AUC./pair_max)).^2;
+                    clear pair_max
+                otherwise
+                    error('Unknown axis.');
+            end
+        end
+        Net_Adj = single(-sqrt(Pair_Dist));
+        Net_Adj = oscore(Net_Adj);
+        clear NetScr
 end
 if ~issymmetric(Net_Adj), fprintf('Warning: Raw Adj matrix is not symetric.\n'); end
 Net_Adj = max(Net_Adj, Net_Adj');
@@ -117,6 +146,7 @@ del_ind = sum(Net_Adj~=0,1)==0;
 Net_Adj(del_ind, :) = [];
 Net_Adj(:, del_ind) = [];
 Gene_Name(del_ind) = [];
+fprintf('[i] [%d] genes were filtered.\n', sum(del_ind));
 
 %% Storing
 if ~issymmetric(Net_Adj), error('Adj Matrix is not symetric.\n'); end
@@ -135,4 +165,9 @@ for gi=1:n_ref
     Ind_List(gi) = gMap(ref_lst{gi});
 end
 if ~isequal(ref_lst, que_lst(Ind_List)), error(); end
+end
+
+function lst = oscore(lst)
+lst = lst - min(lst(:));
+lst = lst ./ max(lst(:));
 end

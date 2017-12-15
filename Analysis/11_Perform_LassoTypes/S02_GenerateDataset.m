@@ -87,23 +87,14 @@ if strcmp(net_info.param_type, 'P')
 else
 	MAX_N_PAIR = inf;
 end
-switch net_info.net_name
-	case 'None'
+switch 1
+	case ismember(net_info.net_name, {'None'})
         fprintf('No network is chosen. Ignoring network preparation...\n');
 		net_info.Gene_Name = tr_info.Gene_Name;
 		net_info.Net_Adj = zeros(numel(net_info.Gene_Name), 'single');
         net_info.net_path = '';
         return;
-    case 'Random'
-		Gene_Name = tr_info.Gene_Name;
-		Net_Adj = rand(numel(Gene_Name));
-	case 'Corr'
-		Net_Adj = corr(tr_info.Gene_Expression, 'Type', 'Spearman');
-		Gene_Name = tr_info.Gene_Name;
-	case 'AbsCorr'
-		Net_Adj = abs(corr(tr_info.Gene_Expression, 'Type', 'Spearman'));
-		Gene_Name = tr_info.Gene_Name;
-	case {'KEGG', 'MSigDB'}
+	case ismember(net_info.net_name, {'KEGG', 'MSigDB'})
 		net_info.net_path = getPath(net_info.net_name);
 		GSet_lst = regexp(fileread(net_info.net_path), '\n', 'split')';
 		if strcmp(GSet_lst{end},''), GSet_lst(end)=[]; end
@@ -133,8 +124,7 @@ switch net_info.net_name
 			Net_Adj(g_ind, g_ind) = rand(numel(g_ind));
 		end
 		clear GSet_lst
-	case {'STRING','STRINGnShuff','HPRD','I2D''IntAct','HumanInt','BioPlex','BioGRID',...
-            'HBBone','HBBrain','HBColon','HBIntestine','HBLung','HBLympNode', 'HBEpith','HBGland','HBOvary','HBLiver'}
+    case any(~cellfun('isempty', regexp(net_info.net_name, {'HB.*' 'STRING','STRINGnShuff','HPRD','I2D','IntAct','HumanInt','BioPlex','BioGRID'})))
 		net_info.net_path = getPath(net_info.net_name);
 		fid = fopen(net_info.net_path, 'r');
 		Header_lst = regexp(fgetl(fid), '\t', 'split');

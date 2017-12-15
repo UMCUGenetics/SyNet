@@ -17,7 +17,7 @@ if ismac || ispc
     Target_Study = 14;
     Target_Repeat = 2;
     method_lst = {'NetLasso', 'NetGL'};
-    net_lst = {'STRINGnShuff-P25000'};
+    net_lst = {'HBBrain-P25000'};
     MAX_N_SUBNET = 500;
 end
 

@@ -25,6 +25,7 @@ res_lst = {
     {'MRK_CVT01_NetLasso_ACr-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_ACr-P25000_MSN-500.mat'}
 %     {'MRK_CVT01_NetLasso_HBColon-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBColon-P25000_MSN-500.mat'}
     {'MRK_CVT01_NetLasso_HBBrain-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBBrain-P25000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_HBLiver-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBLiver-P25000_MSN-500.mat'}
 %     {'MRK_CVT01_NetLasso_HBIntestine-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBIntestine-P25000_MSN-500.mat'}
 %     {'MRK_CVT01_NetLasso_HBLung-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBLung-P25000_MSN-500.mat'}
 %     {'MRK_CVT01_NetLasso_Syn-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_Syn-P25000_MSN-500.mat'}

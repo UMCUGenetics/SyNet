@@ -16,14 +16,14 @@ res_lst = {
     'MRK_CVT01_NetLasso_BioGRID-P25000_MSN-500.mat'
     'MRK_CVT01_NetLasso_IntAct-P25000_MSN-500.mat'
     'MRK_CVT01_NetLasso_STRING-P25000_MSN-500.mat'
+    'MRK_CVT01_NetLasso_STRINGnShuff-P25000_MSN-500.mat'
+    'MRK_CVT01_NetLasso_HBBrain-P25000_MSN-500.mat'
     'MRK_CVT01_NetLasso_HBGland-P25000_MSN-500.mat'
     'MRK_CVT01_NetLasso_HBLympNode-P25000_MSN-500.mat'
-    'MRK_CVT01_NetLasso_HBEpith-P25000_MSN-500.mat'
     'MRK_CVT01_NetLasso_ACr-P25000_MSN-500.mat'
     'MRK_CVT01_NetLasso_AvgSynACr-P25000_MSN-500.mat'
     'MRK_CVT01_TLEx_tTest-G11748_MSN-700.mat'
     'MRK_CVT01_LExAG_None-G11748_MSN-500.mat'
-    'MRK_CVT01_NetLasso_STRINGnShuff-P25000_MSN-500.mat'
     };
 n_res = numel(res_lst);
 
@@ -55,6 +55,7 @@ set(gca, 'XTick', 1:n_res, 'XTickLabel', Method_lbl, 'XTickLabelRotation', 10, .
     'Ygrid', 'on', 'GridColor', [0.7 0.7 0.7], 'GridAlpha', 0.4);
 ylabel('AUC', 'FontWeight', 'Bold');
 
+return
 %% Saving
 output_name = sprintf('./Plots/S05_PerformanceComparison_GenesInNet_G700.pdf');
 set(gcf, 'PaperUnit', 'inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [13 3], 'PaperPosition', [0 0 13 3]);
