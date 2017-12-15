@@ -1,4 +1,12 @@
 function path_str = getPath(data_name)
+%% Check if its human base networks
+if strcmp(data_name(1:2), 'HB')
+    path_str = sprintf('../../Networks/HumanBase/HumanBase_%s_top_sorted_Top1Mil.tsv', lower(data_name(3:end)));
+    fprintf('[i] HumanBase network is requested. Returning [%s]\n', path_str);
+    return
+end
+
+%% Check other known data
 switch data_name
 	case 'ACES'
 		path_str = '../../../../../Dataset/ACES/GE.mat';
@@ -44,24 +52,6 @@ switch data_name
 		path_str = '../../Networks/HPRD/HPRD.tsv';
 	case 'I2D'
 		path_str = '../../Networks/I2D/I2D.tsv';
-    case 'HBBone'
-        path_str = '../../Networks/HumanBase/HumanBase_bone_top_sorted_Top1Mil.tsv';
-    case 'HBBrain'
-        path_str = '../../Networks/HumanBase/HumanBase_brain_top_sorted_Top1Mil.tsv';
-    case 'HBColon'
-        path_str = '../../Networks/HumanBase/HumanBase_colon_top_sorted_Top1Mil.tsv';
-    case 'HBIntestine'
-        path_str = '../../Networks/HumanBase/HumanBase_intestine_top_sorted_Top1Mil.tsv';
-    case 'HBLung'
-        path_str = '../../Networks/HumanBase/HumanBase_lung_top_sorted_Top1Mil.tsv';
-    case 'HBLympNode'
-        path_str = '../../Networks/HumanBase/HumanBase_lymph_node_top_sorted_Top1Mil.tsv';
-	case 'HBEpith'
-		path_str = '../../Networks/HumanBase/HumanBase_mammary_epithelium_top_sorted_Top1Mil.tsv';
-    case 'HBGland'
-		path_str = '../../Networks/HumanBase/HumanBase_mammary_gland_top_sorted_Top1Mil.tsv';
-    case 'HBOvary'
-        path_str = '../../Networks/HumanBase/HumanBase_ovary_top_sorted_Top1Mil.tsv';
     case 'IntAct'
         path_str = '../../Networks/IntAct/IntAct_Sorted.tsv';
     case 'HumanInt'

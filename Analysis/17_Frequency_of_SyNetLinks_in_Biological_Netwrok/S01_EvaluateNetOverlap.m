@@ -1,5 +1,5 @@
 function S01_EvaluateNetOverlap(net_name, SHUFFLE)
-%% Run: PARAM="'STRING',0"; sbatch --job-name=NO-$PARAM --output=Logs/NO-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=7GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S01_EvaluateNetOverlap "$PARAM";
+%% Run: PARAM="'STRING',0"; sbatch --job-name=NO-$PARAM --output=Logs/NO-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=5GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S01_EvaluateNetOverlap "$PARAM";
 clc;
 
 %% Initialization
@@ -12,7 +12,7 @@ net_opt.MAX_N_PAIR = 25000;
 SampleSize = 10000;
 n_rep = 10000;
 if ismac
-    net_name = 'HBOvary';
+    net_name = 'HBBlood';
     %net_name = 'AbsCorr';
     SHUFFLE = 0;
 end

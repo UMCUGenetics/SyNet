@@ -29,6 +29,8 @@ for si=1:numel(Opt_Subnet_List)
     sn_name = sprintf('SN_%03d_%s', si, opt_delta_str);
     fprintf('Processing [%s]: \n', sn_name);
     [HotNet_Gene_lst, HotNet_Pair_lst] = Output_SubNet(sn_name, Opt_Subnet_List{si}, viz_data.gene2heat);
+    
+    %% Make HotNet2 graph
     HotNet_n_pair = size(HotNet_Pair_lst, 1);
     HotNet_n_gene = numel(HotNet_Gene_lst);
     HotNet_Adj = false(HotNet_n_gene);
@@ -42,7 +44,9 @@ for si=1:numel(Opt_Subnet_List)
     end
     HotNet_Graph = graph(HotNet_Adj, HotNet_Gene_lst);
     
+    %% Identify extra links
     Extra_lnk = {};
+    Extra_GPairs = containers.Map();
     for gi=1:HotNet_n_gene
         HotNet_DiGraph = HotNet_Graph.shortestpathtree(HotNet_Gene_lst{gi}, HotNet_Gene_lst);
         if isempty(HotNet_DiGraph.Edges)
@@ -55,15 +59,20 @@ for si=1:numel(Opt_Subnet_List)
             for gj=1:numel(HotNet_OtherGenes)
                 [hop_lst, n_hop] = SyNet_Graph.shortestpath(HotNet_Gene_lst{gi}, HotNet_OtherGenes{gj});
                 if n_hop <= MAX_N_HOPS
-                    for hi=1:n_hop-1
-                        Extra_lnk = [Extra_lnk; sort(hop_lst(li:li+1))];
+                    for hi=1:n_hop
+                        new_lnk = sort(hop_lst(hi:hi+1));
+                        new_id = sprintf('%s;%s', new_lnk{1}, new_lnk{2});
+                        if ~Extra_GPairs.isKey(new_id)
+                            Extra_lnk = [Extra_lnk; new_lnk];
+                            Extra_GPairs(new_id) = 1;
+                        end
                     end
                 end
             end
         end
     end
-    Extra_lnk = unique(Extra_lnk, 'rows');
     
+    %% Append links to Cyto file
     edge_fname = ['./Cyto_Input/' sn_name '_Edge.tsv'];
     fid = fopen(edge_fname, 'a');
     for li=1:size(Extra_lnk,1)

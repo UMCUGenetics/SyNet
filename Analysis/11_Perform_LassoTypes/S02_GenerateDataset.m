@@ -133,7 +133,8 @@ switch net_info.net_name
 			Net_Adj(g_ind, g_ind) = rand(numel(g_ind));
 		end
 		clear GSet_lst
-	case {'STRING','STRINGnShuff','HPRD','I2D','HBBone','HBBrain','HBColon','HBIntestine','HBLung','HBLympNode','HBEpith','HBGland','HBOvary','IntAct','HumanInt','BioPlex','BioGRID'}
+	case {'STRING','STRINGnShuff','HPRD','I2D''IntAct','HumanInt','BioPlex','BioGRID',...
+            'HBBone','HBBrain','HBColon','HBIntestine','HBLung','HBLympNode', 'HBEpith','HBGland','HBOvary','HBLiver'}
 		net_info.net_path = getPath(net_info.net_name);
 		fid = fopen(net_info.net_path, 'r');
 		Header_lst = regexp(fgetl(fid), '\t', 'split');

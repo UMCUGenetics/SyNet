@@ -19,21 +19,12 @@ switch Method_Name
     case 'HBGland'
         Method_Color = [0.00 1.00 0.50];
         Preferred_Name = 'Gland';
-    case 'HBOvary'
-        Method_Color = [0.10 0.50 0.70];
-        Preferred_Name = 'Ovary';
-    case 'HBBone'
-        Method_Color = [0.70 0.50 0.10];
-        Preferred_Name = 'Bone';
-    case 'HBBrain'
-        Method_Color = [0.30 0.70 0.10];
-        Preferred_Name = 'Brain';
-    case 'HBLympNode'
+    case 'HBLiver'
         Method_Color = [0.00 1.00 1.00];
-        Preferred_Name = 'LympNode';
-    case 'HBEpith'
+        Preferred_Name = 'Liver';
+    case 'HBBrain'
         Method_Color = [0.00 0.50 1.00];
-        Preferred_Name = 'Epith';
+        Preferred_Name = 'Brain';
     case {'AbsCorr' 'ACr'}
         Method_Color = [0.00 0.00 1.00];
         Preferred_Name = 'AbsCorr';
@@ -50,6 +41,7 @@ switch Method_Name
     case {'All networks'}
         Method_Color = [0.00 0.00 0.00];
     otherwise
-        error('Unknown method: [%s]', Method_Name);
+        warning('Random color is made for method: [%s]', Method_Name);
+        Method_Color = rand(1,3);
 end
 end
