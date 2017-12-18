@@ -7,7 +7,7 @@ if isfield(net_opt, 'MAX_N_PAIR')
     net_info.MAX_N_PAIR = net_opt.MAX_N_PAIR;
 end
 switch 1
-    case ismember(net_name, 'AbsCorr')
+    case ismember(net_name, {'AbsCorr'})
         ge_data = load(net_opt.GE_Path, 'Gene_Expression', 'Gene_Name');
         Net_Adj = abs(corr(zscore(ge_data.Gene_Expression), 'Type', 'Spearman'));
         Net_Adj(Net_Adj<0.5) = 0;

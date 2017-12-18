@@ -87,15 +87,23 @@ if strcmp(net_info.param_type, 'P')
 else
 	MAX_N_PAIR = inf;
 end
+if strcmp(net_info.net_name(end-5:end), 'NShuff')
+    Net_Name = net_info.net_name(1:end-6);
+    SHUFFLE_NODES = 1;
+else
+    Net_Name = net_info.net_name;
+    SHUFFLE_NODES = 0;
+end
+
 switch 1
-	case ismember(net_info.net_name, {'None'})
+	case ismember(Net_Name, {'None'})
         fprintf('No network is chosen. Ignoring network preparation...\n');
 		net_info.Gene_Name = tr_info.Gene_Name;
 		net_info.Net_Adj = zeros(numel(net_info.Gene_Name), 'single');
         net_info.net_path = '';
         return;
-	case ismember(net_info.net_name, {'KEGG', 'MSigDB'})
-		net_info.net_path = getPath(net_info.net_name);
+	case ismember(Net_Name, {'KEGG', 'MSigDB'})
+		net_info.net_path = getPath(Net_Name);
 		GSet_lst = regexp(fileread(net_info.net_path), '\n', 'split')';
 		if strcmp(GSet_lst{end},''), GSet_lst(end)=[]; end
 		n_gset = numel(GSet_lst);
@@ -124,17 +132,17 @@ switch 1
 			Net_Adj(g_ind, g_ind) = rand(numel(g_ind));
 		end
 		clear GSet_lst
-    case any(~cellfun('isempty', regexp(net_info.net_name, {'HB.*' 'STRING','STRINGnShuff','HPRD','I2D','IntAct','HumanInt','BioPlex','BioGRID'})))
-		net_info.net_path = getPath(net_info.net_name);
+    case any(~cellfun('isempty', regexp(Net_Name, {'HB.*' 'STRING','HPRD','I2D','IntAct','HumanInt','BioPlex','BioGRID'})))
+		net_info.net_path = getPath(Net_Name);
 		fid = fopen(net_info.net_path, 'r');
 		Header_lst = regexp(fgetl(fid), '\t', 'split');
 		if numel(Header_lst)==2
-			fprintf('No weight exists. Random selection of [%d] links.\n', MAX_N_PAIR);
-			net_cell = textscan(fid, '%s%s', 'Delimiter', '\t', 'ReturnOnError', 0);
+			fprintf('No weight exists. Selection of [%d] links from the first lines.\n', MAX_N_PAIR);
+			net_cell = textscan(fid, '%s%s', MAX_N_PAIR, 'Delimiter', '\t', 'ReturnOnError', 0);
 			if ~feof(fid), error(); end
-			n_lnk = numel(net_cell{1});
-			rind = randperm(n_lnk, min([n_lnk MAX_N_PAIR]));
-			net_cell = {net_cell{1}(rind) net_cell{2}(rind)};
+			%n_lnk = numel(net_cell{1});
+			%rind = randperm(n_lnk, min([n_lnk MAX_N_PAIR]));
+			%net_cell = {net_cell{1}(rind) net_cell{2}(rind)};
 		else
 			fprintf('Selecting of [%d] links from top weighted interactions.\n', MAX_N_PAIR);
 			net_cell = textscan(fid, '%s%s%f', MAX_N_PAIR, 'Delimiter', '\t', 'ReturnOnError', 0);
@@ -145,12 +153,7 @@ switch 1
 		Gene_Name = intersect(intersect(Gene_Name, tr_info.Gene_Name), te_info.Gene_Name); %% Filter extra genes
 		fprintf('[i] Network contains [%d] genes after filtering.\n', numel(Gene_Name));
 		n_gene = numel(Gene_Name);
-        if strcmp(net_info.net_name(end-5:end), 'nShuff')
-            fprintf('[w] Warning: Shuffled network is selected, nodes will be shuffled ...\n');
-            GMap = containers.Map(Gene_Name, randperm(n_gene));
-        else
-            GMap = containers.Map(Gene_Name, 1:n_gene);
-        end
+        GMap = containers.Map(Gene_Name, 1:n_gene);
 		Net_Adj = zeros(n_gene, 'single');
 		n_int = numel(net_cell{1});
 		fprintf('Forming the Adj matrix from [%d] genes and [%d] links: ', n_gene, n_int);
@@ -170,14 +173,10 @@ switch 1
 		n_gene = size(Pair_AUC,1);
 		ind_auc = Pair_AUC(1:n_gene+1:end)';
 		Pair_Dist = zeros(n_gene);
-		for ni=1:3:numel(net_info.net_name)
-			nn_part = net_info.net_name(ni:ni+2);
+		for ni=1:3:numel(Net_Name)
+			nn_part = Net_Name(ni:ni+2);
 			fprintf('Computing [%s] ... \n', nn_part);
 			switch nn_part
-				case 'Min'
-					ax_min = bsxfun(@min, ind_auc, ind_auc');
-					Pair_Dist = Pair_Dist + (1-oscore(ax_min)).^2;
-					clear ax_min
 				case 'Avg'
 					ax_avg = bsxfun(@(x,y) (x+y)/2, ind_auc, ind_auc');
 					Pair_Dist = Pair_Dist + (1-oscore(ax_avg)).^2;
@@ -192,48 +191,25 @@ switch 1
 					pair_max = bsxfun(@max, ind_auc, ind_auc');
 					Pair_Dist = Pair_Dist + (1-oscore(Pair_AUC./pair_max)).^2;
 					clear pair_max
-				case 'Std'
-					load(net_info.net_path, 'Pair_Std');
-					Pair_Dist = Pair_Dist + oscore(Pair_Std).^2;
-					clear Pair_Std
-				case 'SRm'
-					load(net_info.net_path, 'Pair_Std');
-					Pair_Dist(Pair_Std(:)>0.03) = max(Pair_Dist(:));
-					clear Pair_Std
-				case 'ARm'
-					pair_max = bsxfun(@max, ind_auc, ind_auc');
-					pair_syn = Pair_AUC./pair_max;
-					Pair_Dist(pair_syn(:)<1.07) = max(Pair_Dist(:));
-				case 'CRm'
-					ge_data = load(tr_info.GEPath, 'Gene_Expression');
-					ax_crr = abs(corr(ge_data.Gene_Expression(tr_info.CVInd,:), 'Type', 'Spearman'));
-					ax_crr(1:size(ax_crr,1)+1:end) = 0;
-					Pair_Dist(ax_crr(:)>0.3) = max(Pair_Dist(:));
-					clear ge_data ax_crr
-				case 'SOC'
-					ge_data = load(tr_info.GEPath, 'Gene_Expression');
-					ax_crr = abs(corr(ge_data.Gene_Expression(tr_info.CVInd,:), 'Type', 'Spearman'));
-					ax_crr(1:size(ax_crr,1)+1:end) = 0;
-					ax_avg = bsxfun(@(x,y) (x+y)/2, ind_auc, ind_auc');
-					pair_max = bsxfun(@max, ind_auc, ind_auc');
-					pair_syn = Pair_AUC./pair_max;
-					Pair_Dist = min((oscore(ax_crr)-1).^2, (oscore(ax_avg)-1).^2+(oscore(pair_syn)-1).^2);
-					clear ge_data ax_crr ax_avg pair_max pair_syn
-				case 'AOC'
-					ge_data = load(tr_info.GEPath, 'Gene_Expression');
-					ax_crr = abs(corr(ge_data.Gene_Expression(tr_info.CVInd,:), 'Type', 'Spearman'));
-					ax_crr(1:size(ax_crr,1)+1:end) = 0;
-					ax_avg = bsxfun(@(x,y) (x+y)/2, ind_auc, ind_auc');
-					Pair_Dist = min((oscore(ax_crr)-1).^2, (oscore(ax_avg)-1).^2);
-					clear ge_data ax_crr ax_avg
-				case 'YOC'
-					ge_data = load(tr_info.GEPath, 'Gene_Expression');
-					ax_crr = abs(corr(ge_data.Gene_Expression(tr_info.CVInd,:), 'Type', 'Spearman'));
-					ax_crr(1:size(ax_crr,1)+1:end) = 0;
-					pair_max = bsxfun(@max, ind_auc, ind_auc');
-					pair_syn = Pair_AUC./pair_max;
-					Pair_Dist = min((oscore(ax_crr)-1).^2, (oscore(pair_syn)-1).^2);
-					clear ge_data ax_crr pair_max pair_syn
+				case 'Qua'
+                    fprintf('Average.\n');
+                    avg_auc = bsxfun(@(x,y) (x+y)/2, ind_auc, ind_auc');
+                    ax_avg = (1-oscore(avg_auc)).^2;
+                    clear avg_auc
+                    fprintf('AbsCorrelation.\n');
+                    ge_data = load(tr_info.GEPath, 'Gene_Expression');
+					acr_mat = abs(corr(ge_data.Gene_Expression(tr_info.CVInd,:), 'Type', 'Spearman'));
+					acr_mat(1:n_gene+1:end) = 0;
+                    ax_acr = (1-oscore(acr_mat)).^2;
+                    clear acr_mat ge_data
+                    pair_max = bsxfun(@max, ind_auc, ind_auc');
+                    fprintf('Synergy.\n');
+					ax_syn = (1-oscore(Pair_AUC./pair_max)).^2;
+                    clear pair_max
+                    fprintf('Quantile normalization.\n');
+                    cmb_ax = quantilenorm([ax_avg(:) ax_syn(:) ax_acr(:)]);
+                    Pair_Dist(:) = sum(cmb_ax, 2);
+                    clear cmb_ax
 				otherwise
 					error('Unknown error.');
 			end
@@ -291,6 +267,14 @@ Net_Adj(del_ind, :) = [];
 Net_Adj(:, del_ind) = [];
 Gene_Name(del_ind) = [];
 fprintf('[%d] genes are removed due to having no interactions.\n', sum(del_ind));
+
+%% Node shuffeling
+if SHUFFLE_NODES
+    fprintf('[w] Warning: Shuffled network is selected, nodes will be shuffled ...\n');
+    n_gene = size(Net_Adj, 1);
+    rind = randperm(n_gene);
+    Net_Adj = Net_Adj(rind, rind);
+end
 
 %% Storing
 net_info.Net_Adj = double(Net_Adj);

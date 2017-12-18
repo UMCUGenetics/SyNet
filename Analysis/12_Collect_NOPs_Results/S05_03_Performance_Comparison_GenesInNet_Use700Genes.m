@@ -7,18 +7,22 @@ close all
 addpath('../../../../Useful_Sample_Codes/ErrorbarEx/');
 addpath('../../../../Useful_Sample_Codes/Distribution_Plot/');
 addpath('../../../../Useful_Sample_Codes/Advance_Colormap/');
+addpath('../_Utilities/');
 load('../../Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat', 'Study_Name');
 
 %% Select methods and networks
 res_path = './Collected_Results/';
 res_lst = {
+    'MRK_CVT01_NetLasso_HumanInt-P25000_MSN-500.mat'
     'MRK_CVT01_NetLasso_BioPlex-P25000_MSN-500.mat'
     'MRK_CVT01_NetLasso_BioGRID-P25000_MSN-500.mat'
     'MRK_CVT01_NetLasso_IntAct-P25000_MSN-500.mat'
     'MRK_CVT01_NetLasso_STRING-P25000_MSN-500.mat'
-    'MRK_CVT01_NetLasso_STRINGnShuff-P25000_MSN-500.mat'
     'MRK_CVT01_NetLasso_HBBrain-P25000_MSN-500.mat'
+    'MRK_CVT01_NetLasso_HBKidney-P25000_MSN-500.mat'
+    'MRK_CVT01_NetLasso_HBOvary-P25000_MSN-500.mat'
     'MRK_CVT01_NetLasso_HBGland-P25000_MSN-500.mat'
+    %'MRK_CVT01_NetLasso_HBEpith-P25000_MSN-500.mat'
     'MRK_CVT01_NetLasso_HBLympNode-P25000_MSN-500.mat'
     'MRK_CVT01_NetLasso_ACr-P25000_MSN-500.mat'
     'MRK_CVT01_NetLasso_AvgSynACr-P25000_MSN-500.mat'

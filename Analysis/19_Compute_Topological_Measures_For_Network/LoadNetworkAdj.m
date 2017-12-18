@@ -3,15 +3,15 @@ function net_info = LoadNetworkAdj(net_name, net_opt)
 %% Load network data
 net_info.net_name = net_name;
 net_info.MAX_N_PAIR = net_opt.MAX_N_PAIR;
-switch net_name
-    case 'AbsCorr'
+switch 1
+    case ismember(net_name, {'AbsCorr'})
         ge_data = load(net_opt.GE_Path, 'Gene_Expression', 'Gene_Name');
         Net_Adj = abs(corr(zscore(ge_data.Gene_Expression), 'Type', 'Spearman'));
         Net_Adj(Net_Adj<0.5) = 0;
         Gene_Name = ge_data.Gene_Name;
         net_info.net_path = net_opt.GE_Path;
         clear ge_data
-    case {'KEGG', 'MSigDB'}
+    case ismember(net_name, {'KEGG', 'MSigDB'})
         net_info.net_path = getPath(net_name);
         GSet_lst = regexp(fileread(net_info.net_path), '\n', 'split')';
         if strcmp(GSet_lst{end},''), GSet_lst(end)=[]; end
@@ -41,8 +41,7 @@ switch net_name
         end
         Net_Adj = max(Net_Adj, Net_Adj');
         clear GSet_lst GMap
-    case {'STRING','STRINGnShuff','HPRD','I2D','HBBone','HBBrain','HBColon','HBIntestine','HBLung',...
-            'HBLympNode','HBEpith','HBGland','HBOvary','IntAct','HumanInt','BioPlex','BioGRID'}
+    case any(~cellfun('isempty', regexp(net_name, {'HB.*' 'STRING','STRINGnShuff','HPRD','I2D','IntAct','HumanInt','BioPlex','BioGRID'})))
         net_info.net_path = getPath(net_name);
         fid = fopen(net_info.net_path, 'r');
         Header_lst = regexp(fgetl(fid), '\t', 'split');

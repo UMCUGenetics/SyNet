@@ -28,7 +28,7 @@ switch data_name
 		path_str = '../../Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat';
 
 	%% Biological networks
-	case {'STRING' 'STRINGnShuff'}
+	case 'STRING'
 		path_str = '../../Networks/STRING/STRING_combined_score_GN_WithWeights.txt';
 	case 'STR.CoExpr'
 		path_str = '../../Networks/STRING/STRING_coexpression_GN_WithWeights.txt';

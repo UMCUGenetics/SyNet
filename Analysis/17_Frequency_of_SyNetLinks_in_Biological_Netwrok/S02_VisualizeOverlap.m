@@ -9,9 +9,10 @@ addpath('../_Utilities/');
 
 %% Load nets
 res_path = './SyNet_Overlap/';
-net_lst = {'BioGRID' 'BioPlex' 'IntAct' 'STRING' 'HBBrain' 'HBLiver' 'HBEpith' 'HBLympNode' 'HBGland'};
+% 
+net_lst = {'BioGRID' 'BioPlex' 'IntAct' 'STRING' 'HumanInt'  'HBBrain' 'HBLiver' 'HBKidney' 'HBOvary' 'HBEpith' 'HBLympNode' 'HBGland'};
 n_net = numel(net_lst);
-ref_lst = {'SyNet' 'AvgSynACr' 'ACr' 'Syn' 'Avg' 'AvgSyn'};
+ref_lst = {'SyNet' 'AvgSyn'}; % 'AvgSynACr' 'ACr' 'Syn' 'Avg' 'AvgSyn'
 n_ref = numel(ref_lst);
 max_Y = 2048;
 Y_Scale = 'Log';

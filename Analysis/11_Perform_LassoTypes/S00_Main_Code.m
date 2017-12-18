@@ -17,16 +17,16 @@ if ismac || ispc
     Target_Study = 14;
     Target_Repeat = 2;
     method_lst = {'NetLasso', 'NetGL'};
-    net_lst = {'HBBrain-P25000'};
+    net_lst = {'ACrNShuff-P25000'};
     MAX_N_SUBNET = 500;
 end
 
 %% Initialization
 clc
 addpath(genpath('../../../../Useful_Sample_Codes/ShowProgress'));
-addpath('../_Utilities/');
 addpath(genpath('../../../../Useful_Sample_Codes/SLEP'));
 addpath(genpath('../../../../Useful_Sample_Codes/getAUC'));
+addpath('../_Utilities/');
 dataset_path = './Dataset_Files/';
 result_path = './Results_Files/';
 opt_info.lasso_opt = {'lassoType', 't', 'CV', [], 'relTol', 5e-2, 'n_lC', 20, 'lC_ratio', 1e-2, 'verbose', 0};
@@ -36,21 +36,6 @@ else
     opt_info.MAX_N_SUBNET = MAX_N_SUBNET;
 end
 
-if ~exist('net_lst', 'var') || isempty(net_lst)
-    net_lst = {
-        'ACr-G00500', ...
-        'AbsCorr-G11748', ...
-        'AvgSynACr-P10000','AvgSyn-P10000', ...
-        'AbsCorr-P10000', ...
-        'STRING-P10000','KEGG-P10000','Random-P10000','I2D-P10000','HPRD-P10000','MSigDB-P10000', ...
-        'AvgSynACr-G00500','AvgSyn-G00500', ...
-        'AbsCorr-G00500', ...
-        'STRING-G00500','KEGG-G00500','Random-G00500','I2D-G00500','HPRD-G00500','MSigDB-G00500', ...
-        };
-end
-if ~exist('method_lst', 'var') || isempty(method_lst)
-    method_lst = {'TNMC' 'TNMCAd' 'TLEx' 'Lasso' 'GLasso' 'CFGLasso' 'NetLasso' 'NetGL'}; % 'Regress' 'AS-Feral'
-end
 n_net = numel(net_lst);
 n_meth = numel(method_lst);
 

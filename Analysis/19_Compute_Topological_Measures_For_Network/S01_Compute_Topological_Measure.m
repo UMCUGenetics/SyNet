@@ -2,7 +2,7 @@ function S01_Compute_Topological_Measure(net_name, TM_Name, RemoveGSet)
 % clc;
 %{
 TM_lst = {'ShortestPath' 'Degree' 'PageRank-FB0.65' 'PageRank-FB0.75' 'PageRank-FB0.85' 'PageRank-FB0.95' 'Closeness' 'Betweenness' 'Eigenvector'};
-Net_lst = {'AbsCorr','STRING','IntAct','BioPlex','BioGRID','HBLympNode','HBEpith','HBGland','HBOvary'};
+Net_lst = {'HumanInt' 'HBBrain' 'HBKidney' 'HBOvary' 'HBUterus', 'AbsCorr','STRING','IntAct','BioPlex','BioGRID','HBLympNode','HBEpith','HBGland','HBOvary'};
 for ti=1:numel(TM_lst)
 for ni=1:numel(Net_lst)
 S01_Compute_Topological_Measure(Net_lst{ni}, TM_lst{ti}, {});
@@ -21,7 +21,7 @@ n_pair = 10000;
 % end
 
 %% Load SyNet
-SyNet_info = load('../01_Pairwise_Evaluation_of_Genes/Top_Pairs/TopP_SyNet.mat', 'PP_Info', 'NP_Info', 'Gene_Name');
+SyNet_info = load('../01_Pairwise_Evaluation_of_Genes/Top_Pairs/TopP_SyNet_AvgSynACr.mat', 'PP_Info', 'NP_Info', 'Gene_Name');
 Pair_Info = [
     SyNet_info.PP_Info(1:n_pair,:)  ones(n_pair, 1);
     SyNet_info.NP_Info(1:n_pair,:) -ones(n_pair, 1);

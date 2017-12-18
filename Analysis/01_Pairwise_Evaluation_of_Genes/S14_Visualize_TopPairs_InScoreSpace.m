@@ -13,10 +13,10 @@ n_top = 10000;
 %% Load Top pairs
 net_name = ['./Network_Files/' 'DSN_' ge_name '.mat'];
 dsn_info = load(net_name, 'Pair_AUC', 'Gene_Name');
-% dsn_info.Gene_Name = dsn_info.Gene_Name(1:500); dsn_info.Pair_AUC = dsn_info.Pair_AUC(1:500,1:500); %###
+% dsn_info.Gene_Name = dsn_info.Gene_Name(1:50); dsn_info.Pair_AUC = dsn_info.Pair_AUC(1:50,1:50); %###
 n_gene = numel(dsn_info.Gene_Name);
 n_total = n_gene*(n_gene-1)/2;
-Pair_Info = zeros(n_total, 15, 'single');
+Pair_Info = zeros(n_total, 16, 'single');
 [Pair_Info(:,1), Pair_Info(:,2)] = find(triu(ones(n_gene), 1));
 fprintf('In total [%d] gene pairs exist.\n', n_total);
 
@@ -36,7 +36,7 @@ dsn_info.Pair_AUC = [];
 GE_Path = getPath(ge_name);
 fprintf('Loading [%s] expression data\n', GE_Path);
 ge_info = load(GE_Path, 'Gene_Expression', 'Gene_Name');
-% ge_info.Gene_Name = ge_info.Gene_Name(1:500); ge_info.Gene_Expression = ge_info.Gene_Expression(:,1:500); %###
+% ge_info.Gene_Name = ge_info.Gene_Name(1:50); ge_info.Gene_Expression = ge_info.Gene_Expression(:,1:50); %###
 if ~isequal(ge_info.Gene_Name, dsn_info.Gene_Name), error(); end
 Corr_mat = corr(zscore(ge_info.Gene_Expression), 'Type', 'Spearman');
 Pair_Info(:,9) = Corr_mat(pair_ind);
@@ -50,14 +50,23 @@ Pair_Info(:,11) = oscore(Pair_Info(:,7)); % Synergy
 Pair_Info(:,12) = oscore(Pair_Info(:,8)); % Mean AUC
 Pair_Info(:,13) = oscore(Pair_Info(:,10)); % Absolute spearman correlation
 
-%% Compute final fitness and sorting
-for ai=11:13
-    Pair_Info(:,14) = Pair_Info(:,14) + (1-Pair_Info(:,ai)).^2;
+%% Normalization step
+Tmp_List = quantilenorm(Pair_Info(:,11:13));
+
+%% Compute final fitness
+for ai=1:3
+    Tmp_List(:,ai) = oscore(Tmp_List(:,ai));
+    Tmp_List(isnan(Tmp_List(:,ai)),ai) = 1;
+    Pair_Info(:,14) = Pair_Info(:,14) + (1-Tmp_List(:,ai)).^2;
 end
+clear Tmp_List
 Pair_Info(:,14) = -sqrt(Pair_Info(:,14));
+Pair_Info(:,15) = oscore(Pair_Info(:,14));
+Pair_Info(:,16) = -sqrt(sum((1-Pair_Info(:,11:13)).^2, 2));
+
+%% Sorting
 [~, sid] = sort(Pair_Info(:,14), 'Descend');
 Pair_Info = Pair_Info(sid, :);
-Pair_Info(:,15) = oscore(Pair_Info(:,14));
 
 %% Plotting
 if 0

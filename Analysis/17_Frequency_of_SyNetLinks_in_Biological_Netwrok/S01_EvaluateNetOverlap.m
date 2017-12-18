@@ -1,5 +1,6 @@
 function S01_EvaluateNetOverlap(Ref_Name, net_name, SHUFFLE)
 %% Run: PARAM="'AvgSynACr','STRING',0"; sbatch --job-name=NO-$PARAM --output=Logs/NO-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=5GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S01_EvaluateNetOverlap "$PARAM";
+% for ni in AvgSyn Syn Avg; do for mi in 0 1; do  PARAM=\'$ni\','HBLiver',$mi; echo $PARAM; sbatch --job-name=NO-$PARAM --output=Logs/NO-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=5GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S01_EvaluateNetOverlap "$PARAM"; done; done
 clc;
 
 %% Initialization
