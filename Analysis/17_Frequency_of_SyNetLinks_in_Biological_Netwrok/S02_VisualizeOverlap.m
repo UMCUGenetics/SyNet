@@ -10,9 +10,9 @@ addpath('../_Utilities/');
 %% Load nets
 res_path = './SyNet_Overlap/';
 % 
-net_lst = {'BioGRID' 'BioPlex' 'IntAct' 'STRING' 'HumanInt'  'HBBrain' 'HBLiver' 'HBKidney' 'HBOvary' 'HBEpith' 'HBLympNode' 'HBGland'};
+net_lst = {'HumanInt' 'BioPlex'  'BioGRID' 'IntAct' 'STRING' 'HBBrain' 'HBKidney' 'HBOvary' 'HBLympNode' 'HBGland'};
 n_net = numel(net_lst);
-ref_lst = {'SyNet' 'AvgSyn'}; % 'AvgSynACr' 'ACr' 'Syn' 'Avg' 'AvgSyn'
+ref_lst = {'AvgSyn'}; % 'SyNet' 'AvgSyn' 'AvgSynACr' 'ACr' 'Syn' 'Avg'
 n_ref = numel(ref_lst);
 max_Y = 2048;
 Y_Scale = 'Log';
@@ -52,8 +52,8 @@ for ni=1:n_net
         set(box_h, 'LineWidth', 2);
         
         %net_name = sprintf('%s\n#G%d, #L%d', Method_lbl{si}, numel(res_data.Net_GeneName), res_data.Net_nlnk);
-        %net_name = sprintf('%s', Method_lbl{n_bar});
-        net_name = sprintf('%s\n%s', Method_lbl{n_bar}, ref_lst{ri});
+        net_name = sprintf('%s', Method_lbl{n_bar});
+        %net_name = sprintf('%s\n%s', Method_lbl{n_bar}, ref_lst{ri});
         text(n_bar, y_lim(1), net_name, 'VerticalAlignment', 'Top', 'HorizontalAlignment', 'Center', ...
             'FontSize', 10, 'FontWeight', 'Bold');
     end
@@ -68,9 +68,9 @@ set(gca, 'XTick', 1:n_bar, 'XTickLabel', [], 'XTickLabelRotation', 0, ...
     'Ygrid', 'on', 'GridColor', [0.7 0.7 0.7], 'GridAlpha', 0.15);
 ylabel('# SyNet links', 'FontWeight', 'Bold');
 
-return
+% return
 %% Saving
-output_name = sprintf('./Plots/S02_OverlappingComparison_%s.pdf', Y_Scale);
+output_name = sprintf('./Plots/S02_OverlappingComparison_%s_%s.pdf', ref_lst{1}, Y_Scale);
 set(gcf, 'PaperUnits', 'Inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [10 4], 'PaperPosition', [0 0 10 4]);
 print('-dpdf', '-r300', output_name);
 

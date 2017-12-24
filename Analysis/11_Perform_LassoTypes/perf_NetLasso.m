@@ -10,7 +10,7 @@ lTe = dataset_info.DatasetTe.Patient_Label;
 Net_Adj = dataset_info.DatasetTr.Net_Adj;
 [~, ~, Fold_Index] = unique(dataset_info.DatasetTr.iCvPar, 'Stable');
 n_iFold = max(Fold_Index);
-N_Gene_lst = [100 300 700 1500 2000];
+N_Gene_lst = [50 100 300 500 700 1000 1500 2000];
 n_net = numel(N_Gene_lst);
 
 %% Normalization

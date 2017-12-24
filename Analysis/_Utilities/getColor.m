@@ -3,8 +3,9 @@ function [Method_Color, Preferred_Name] = getColor(Method_Name)
 Preferred_Name = Method_Name;
 
 switch Method_Name
-    case 'Random'
-        Method_Color = [1.00 0.00 0.00];
+    case 'AvgSynACrNShuff'
+        Method_Color = [0.60 0.60 0.60];
+        Preferred_Name = 'SyNet-Shuffled';
     case 'HumanInt'
         Method_Color = [0.63 0.40 0.22];
     case 'BioPlex'
@@ -19,25 +20,26 @@ switch Method_Name
         Method_Color = [0.65 0.75 0.14];
         Preferred_Name = 'Brain';
     case 'HBKidney'
-        Method_Color = [0.00 1.00 0.77];
+        Method_Color = [0.37 0.60 0.70];
         Preferred_Name = 'Kidney';
     case 'HBOvary'
-        Method_Color = [0.40 0.52 0.88];
+        Method_Color = [0.75 0.30 0.72];
         Preferred_Name = 'Ovary';
     case 'HBGland'
-        Method_Color = [0.14 0.51 0.73];
-        Preferred_Name = 'MammaryGland';
+        Method_Color = [1.00 0.20 0.80];
+        Preferred_Name = 'Breast';
     case 'HBLympNode'
         Method_Color = [0.62 0.00 1.00];
-        Preferred_Name = 'LympNode';
+        Preferred_Name = 'LymphNode';
     case {'AbsCorr' 'ACr'}
-        Method_Color = [0.85 0.40 0.82];
-        Preferred_Name = 'AbsCorr';
+        Method_Color = [0.30 0.50 1.00];
+        Preferred_Name = 'Corr';
     case {'SyNet' 'AvgSynACr'}
         Method_Color = [1.00 0.10 0.10];
         Preferred_Name = 'SyNet';
     case {'tTest'}
         Method_Color = [0.70 0.90 0.80];
+        Preferred_Name = 't-test';
     case {'All genes' 'None'}
         Method_Color = [0.40 0.60 0.40];
         Preferred_Name = 'All genes';

@@ -3,7 +3,7 @@ function S00_Main_Code(Target_Study, Target_Repeat, method_lst, net_lst, MAX_N_S
 %{
 for ri in `seq 1 10`; do
 for si in `seq 1 14`; do
-PARAM="$si,$ri,{'NetLasso','NetGL'},{'AvgSynACr-P10000'}"; sbatch --exclude=maxwell --job-name=NE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code "$PARAM";
+PARAM="$si,$ri,{'NetLasso','NetGL'},{'AvgSynACr-P25000'}"; sbatch --exclude=maxwell --job-name=NE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code "$PARAM";
 done;
 read -p "`date`: $PARAM. Press a key" -t 1800
 done
@@ -17,7 +17,7 @@ if ismac || ispc
     Target_Study = 14;
     Target_Repeat = 2;
     method_lst = {'NetLasso', 'NetGL'};
-    net_lst = {'ACrNShuff-P25000'};
+    net_lst = {'ACr-P25000'};
     MAX_N_SUBNET = 500;
 end
 

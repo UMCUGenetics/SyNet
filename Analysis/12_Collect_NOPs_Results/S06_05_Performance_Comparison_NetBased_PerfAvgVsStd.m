@@ -9,13 +9,16 @@ addpath('../../../../Useful_Sample_Codes/SpiderPlot/');
 %% Select methods and networks
 res_path = './Collected_Results/';
 res_lst = {
+    {'MRK_CVT01_NetLasso_HumanInt-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HumanInt-P25000_MSN-500.mat'}
     {'MRK_CVT01_NetLasso_BioPlex-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_BioPlex-P25000_MSN-500.mat'}
     {'MRK_CVT01_NetLasso_BioGRID-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_BioGRID-P25000_MSN-500.mat'}
     {'MRK_CVT01_NetLasso_IntAct-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_IntAct-P25000_MSN-500.mat'}
     {'MRK_CVT01_NetLasso_STRING-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_STRING-P25000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_HBBrain-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBBrain-P25000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_HBKidney-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBKidney-P25000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_HBOvary-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBOvary-P25000_MSN-500.mat'}
     {'MRK_CVT01_NetLasso_HBGland-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBGland-P25000_MSN-500.mat'}
     {'MRK_CVT01_NetLasso_HBLympNode-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBLympNode-P25000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_HBEpith-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBEpith-P25000_MSN-500.mat'}
     {'MRK_CVT01_NetLasso_ACr-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_ACr-P25000_MSN-500.mat'}
     {'MRK_CVT01_NetLasso_AvgSynACr-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_AvgSynACr-P25000_MSN-500.mat'}
     };
@@ -26,7 +29,6 @@ close all
 figure('Position', [100 100 700 400]);
 hold on
 Method_lst = cell(n_res, 1);
-
 for si=1:n_res
     [auc1_mat, ~       ] = LoadData([res_path res_lst{si}{1}]);
     [auc2_mat, res_info] = LoadData([res_path res_lst{si}{2}]);
@@ -45,8 +47,8 @@ xlabel('Average AUC', 'FontSize', 12, 'FontWeight', 'Bold');
 ylabel('Standard deviation', 'FontSize', 12, 'FontWeight', 'Bold');
 
 %% Saving
-output_name = sprintf('./Plots/S06_PerformanceComparison_NetBased_PerfAvgVsStd.pdf');
-set(gcf, 'PaperUnits', 'Inches', 'PaperOrientation', 'Landscape', 'PaperPositionMode','auto', 'PaperSize', [5 4], 'PaperPosition', [0 0 5 4]);
+output_name = sprintf('./Plots/S06_PerformanceComparison_02_NetBased_PerfAvgVsStd.pdf');
+set(gcf, 'PaperUnits', 'Inches', 'PaperOrientation', 'Landscape', 'PaperPositionMode','auto', 'PaperSize', [6 4], 'PaperPosition', [0 0 6 4]);
 print('-dpdf', '-r300', output_name);
 
 %% Function %%%%%%%%%%%%%%%%%%%%

@@ -13,24 +13,20 @@ load('../../Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat', 'Study_Nam
 
 %% Select methods and networks
 res_lst = {
-    {'MRK_CVT01_NetLasso_HumanInt-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HumanInt-P25000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_BioPlex-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_BioPlex-P25000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_BioGRID-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_BioGRID-P25000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_IntAct-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_IntAct-P25000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_STRING-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_STRING-P25000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_HBBrain-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBBrain-P25000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_HBKidney-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBKidney-P25000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_HBOvary-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBOvary-P25000_MSN-500.mat'}
+%     {'MRK_CVT01_NetLasso_HumanInt-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HumanInt-P25000_MSN-500.mat'}
+%     {'MRK_CVT01_NetLasso_BioPlex-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_BioPlex-P25000_MSN-500.mat'}
+%     {'MRK_CVT01_NetLasso_BioGRID-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_BioGRID-P25000_MSN-500.mat'}
+%     {'MRK_CVT01_NetLasso_IntAct-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_IntAct-P25000_MSN-500.mat'}
+%     {'MRK_CVT01_NetLasso_STRING-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_STRING-P25000_MSN-500.mat'}
+%     {'MRK_CVT01_NetLasso_HBBrain-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBBrain-P25000_MSN-500.mat'}
+%     {'MRK_CVT01_NetLasso_HBKidney-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBKidney-P25000_MSN-500.mat'}
+%     {'MRK_CVT01_NetLasso_HBOvary-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBOvary-P25000_MSN-500.mat'}
     {'MRK_CVT01_NetLasso_HBGland-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBGland-P25000_MSN-500.mat'}
     {'MRK_CVT01_NetLasso_HBLympNode-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBLympNode-P25000_MSN-500.mat'}
-%     {'MRK_CVT01_NetLasso_HBUterus-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBUterus-P25000_MSN-500.mat'}
-%     {'MRK_CVT01_NetLasso_AvgSynACrNShuff-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_AvgSynACrNShuff-P25000_MSN-500.mat'}
-%     {'MRK_CVT01_NetLasso_ACrNShuff-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_ACrNShuff-P25000_MSN-500.mat'}
     {'MRK_CVT01_NetLasso_ACr-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_ACr-P25000_MSN-500.mat'}
-%     {'MRK_CVT01_NetLasso_Syn-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_Syn-P25000_MSN-500.mat'}
-%     {'MRK_CVT01_NetLasso_AvgSyn-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_AvgSyn-P25000_MSN-500.mat'}
     {'MRK_CVT01_NetLasso_AvgSynACr-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_AvgSynACr-P25000_MSN-500.mat'}
 %     {'MRK_CVT01_Lasso_AvgSynACr-P10000_MSN-500.mat' 'MRK_CVT01_GLasso_AvgSynACr-P10000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_AvgSynACrNShuff-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_AvgSynACrNShuff-P25000_MSN-500.mat'}
     {'MRK_CVT01_LExAG_None-G11748_MSN-500.mat' 'MRK_CVT01_LExAG_None-G11748_MSN-500.mat'}
     };
 n_res = numel(res_lst);
@@ -65,6 +61,7 @@ for si=1:n_res
     end
     text(si, y_lim(1)-0.002, met_lbl, 'FontSize', 10, 'FontWeight', 'Bold', 'HorizontalAlignment', 'Center', 'VerticalAlignment', 'Top', 'Rotation', 0);
 end
+legend({'Individual genes', 'Network based'});
 
 y_tick = get(gca, 'YTick');
 Y_lbl = arrayfun(@(y) sprintf('%0.0f%%', y*100), y_tick, 'UniformOutput', 0);
@@ -75,7 +72,7 @@ ylabel('AUC', 'FontWeight', 'Bold');
 
 return
 %% Saving
-output_name = sprintf('./Plots/S06_PerformanceComparison_NetBased.pdf');
+output_name = sprintf('./Plots/S06_PerformanceComparison_01_NetBased.pdf');
 set(gcf, 'PaperUnits', 'Inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [5 3], 'PaperPosition', [0 0 5 3]);
 print('-dpdf', '-r300', output_name);
 

@@ -87,7 +87,7 @@ if strcmp(net_info.param_type, 'P')
 else
 	MAX_N_PAIR = inf;
 end
-if strcmp(net_info.net_name(end-5:end), 'NShuff')
+if numel(net_info.net_name)>5 && strcmp(net_info.net_name(end-5:end), 'NShuff')
     Net_Name = net_info.net_name(1:end-6);
     SHUFFLE_NODES = 1;
 else

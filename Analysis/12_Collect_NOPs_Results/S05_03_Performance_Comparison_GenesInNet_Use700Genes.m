@@ -18,6 +18,8 @@ res_lst = {
     'MRK_CVT01_NetLasso_BioGRID-P25000_MSN-500.mat'
     'MRK_CVT01_NetLasso_IntAct-P25000_MSN-500.mat'
     'MRK_CVT01_NetLasso_STRING-P25000_MSN-500.mat'
+    ''
+    ''
     'MRK_CVT01_NetLasso_HBBrain-P25000_MSN-500.mat'
     'MRK_CVT01_NetLasso_HBKidney-P25000_MSN-500.mat'
     'MRK_CVT01_NetLasso_HBOvary-P25000_MSN-500.mat'
@@ -25,17 +27,28 @@ res_lst = {
     %'MRK_CVT01_NetLasso_HBEpith-P25000_MSN-500.mat'
     'MRK_CVT01_NetLasso_HBLympNode-P25000_MSN-500.mat'
     'MRK_CVT01_NetLasso_ACr-P25000_MSN-500.mat'
+    ''
+    ''
     'MRK_CVT01_NetLasso_AvgSynACr-P25000_MSN-500.mat'
-    'MRK_CVT01_TLEx_tTest-G11748_MSN-700.mat'
+    ''
+    ''
+    % 'MRK_CVT01_TLEx_tTest-G11748_MSN-700.mat'
     'MRK_CVT01_LExAG_None-G11748_MSN-500.mat'
     };
 n_res = numel(res_lst);
+y_lim = [0.6 0.66];
 
 %% Plotting performance
 close all
 figure('Position', [100 100 1500 400]);
 hold on
+x_tick = 1:n_res;
 for si=1:n_res
+    if isempty(res_lst{si})
+        x_tick(si) = nan;
+        continue;
+    end
+    
     res_name = [res_path res_lst{si}];
     res_info = regexp(res_lst{si}, '_', 'split');
     fprintf('Reading [%s]\n', res_name);
@@ -48,18 +61,30 @@ for si=1:n_res
     [met_clr, Method_lbl{si,1}] = getColor(X_lbl);
     bar(si, mean(auc_rep), 'FaceColor', met_clr, 'BarWidth', 0.7, 'EdgeColor', met_clr*0.6);
     errorbarEx(si, mean(auc_rep), std(auc_rep), std(auc_rep), 2, 0.1, met_clr*0.5);
+    
+    text(si, y_lim(1)-0.001, Method_lbl{si}, 'FontSize', 10, 'FontWeight', 'Bold', 'Rotation', 15, ...
+        'VerticalAlignment', 'Top', 'HorizontalAlignment', 'Center');
+    
+    if si==n_res
+        n_gene_str = sprintf('%d', res_data.Gene_Map.Count);
+    else
+        n_gene_str = sprintf('%d', mode(res_data.BestNetwork));
+    end
+    text(si, y_lim(1)+0.001, n_gene_str, 'Color', [1 1 1], 'FontSize', 6, 'FontWeight', 'Bold', 'Rotation', 90, ...
+        'VerticalAlignment', 'Middle', 'HorizontalAlignment', 'Left');
 end
+x_tick(isnan(x_tick)) = [];
 
 xlim([0 n_res+1]);
-ylim([0.6 0.66]);
+ylim(y_lim);
 y_tick = get(gca, 'YTick');
 Y_lbl = arrayfun(@(y) sprintf('%0.0f%%', y*100), y_tick, 'UniformOutput', 0);
-set(gca, 'XTick', 1:n_res, 'XTickLabel', Method_lbl, 'XTickLabelRotation', 10, ...
+set(gca, 'XTick', x_tick, 'XTickLabel', [], ...
     'YTick', y_tick, 'YTickLabel', Y_lbl, 'FontWeight', 'Bold', 'FontSize', 10, ...
     'Ygrid', 'on', 'GridColor', [0.7 0.7 0.7], 'GridAlpha', 0.4);
 ylabel('AUC', 'FontWeight', 'Bold');
 
-return
+% return
 %% Saving
 output_name = sprintf('./Plots/S05_PerformanceComparison_GenesInNet_G700.pdf');
 set(gcf, 'PaperUnit', 'inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [13 3], 'PaperPosition', [0 0 13 3]);

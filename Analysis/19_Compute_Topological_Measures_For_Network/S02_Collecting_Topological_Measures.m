@@ -8,7 +8,7 @@ n_pair = 10000;
 n_lnk = 25000;
 
 %% Load labels
-SyNet_info = load('../01_Pairwise_Evaluation_of_Genes/Top_Pairs/TopP_SyNet.mat', 'PP_Info', 'NP_Info', 'Gene_Name');
+SyNet_info = load('../01_Pairwise_Evaluation_of_Genes/Top_Pairs/TopP_SyNet_AvgSynACr.mat', 'PP_Info', 'NP_Info', 'Gene_Name');
 Pair_Info = [
     SyNet_info.PP_Info(1:n_pair,:)  ones(n_pair, 1);
     SyNet_info.NP_Info(1:n_pair,:) -ones(n_pair, 1);
@@ -16,7 +16,7 @@ Pair_Info = [
 TM_Label = double(Pair_Info(:,16));
 
 %% Collect data
-net_lst = {'STRING','IntAct','BioPlex','BioGRID','HBLympNode','HBEpith','HBGland'}; % No 'AbsCorr'! as its used in SyNet
+net_lst = {'HumanInt' 'BioPlex','BioGRID','IntAct','STRING','HBBrain','HBKidney','HBOvary','HBLympNode','HBGland'}; % No 'AbsCorr'! as its used in SyNet
 n_net = numel(net_lst);
 tm_lst = {'ShortestPath' 'PageRank-FB0.95' 'PageRank-FB0.85' 'PageRank-FB0.75' 'PageRank-FB0.65' 'Eigenvector' 'Degree' 'Closeness' 'Betweenness'};
 n_tm = numel(tm_lst);

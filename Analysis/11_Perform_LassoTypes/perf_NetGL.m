@@ -31,7 +31,7 @@ fprintf('Generating neighbor sets and subnetworks: \n');
 Neig_cell = getNeighborsFromAdj(Net_Adj);
 
 %% Select number of neighbor
-NeigSize_lst = [3 7 15 20];
+NeigSize_lst = [2 3 5 7 10];
 n_nei = numel(NeigSize_lst);
 Grid_auc = zeros(n_nei, n_lam, n_fold);
 for ni=1:numel(NeigSize_lst)
