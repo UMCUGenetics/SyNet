@@ -8,7 +8,7 @@ end
 n_gene = size(Net_Adj,1);
 
 %% Add eps to binary networks to avoid selecting the same neighbors according to their indices and not based on interaction strength
-fprintf('[i] Adding eps to non-zero elements to perturb the equal interaction strength.\n');
+% fprintf('[i] Adding eps to non-zero elements to perturb the equal interaction strength.\n');
 is_zero = Net_Adj(:) == 0;
 Net_Adj = Net_Adj + rand(n_gene)*eps;
 Net_Adj(is_zero) = 0;

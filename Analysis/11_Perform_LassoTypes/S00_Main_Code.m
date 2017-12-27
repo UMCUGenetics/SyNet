@@ -3,9 +3,9 @@ function S00_Main_Code(Target_Study, Target_Repeat, method_lst, net_lst, MAX_N_S
 %{
 for ri in `seq 1 10`; do
 for si in `seq 1 14`; do
-PARAM="$si,$ri,{'NetLasso','NetGL'},{'AvgSynACr-P25000'}"; sbatch --exclude=maxwell --job-name=NE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code "$PARAM";
+PARAM="$si,$ri,{'NetLasso','NetGL'},{'AvgSynACr-P25000'}"; sbatch --exclude=maxwell --job-name=NE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code "$PARAM";
 done;
-read -p "`date`: $PARAM. Press a key" -t 1800
+read -p "`date`: $PARAM. Press a key" -t 180
 done
 
 UMC: PARAM="$si,$ri,{'TAgNMC','TNMC','TLEx','TAgLEx'},{'Random-T00010'},10"; qsub -N "NE-$PARAM" -l h_rt=24:00:00 -l h_vmem=5G ~/bulk/env/run_Matlab.sh S00_Main_Code "$PARAM";
@@ -15,9 +15,9 @@ UMC: PARAM="$si,$ri,{'TAgNMC','TNMC','TLEx','TAgLEx'},{'Random-T00010'},10"; qsu
 if ismac || ispc
     fprintf('*** Warning!: Running on debug mode.\n');
     Target_Study = 14;
-    Target_Repeat = 2;
-    method_lst = {'NetLasso', 'NetGL'};
-    net_lst = {'ACr-P25000'};
+    Target_Repeat = 1;
+    method_lst = {'CvGL'};
+    net_lst = {'AvgSynACr-P50000'};
     MAX_N_SUBNET = 500;
 end
 
@@ -101,6 +101,11 @@ for ni=1:n_net
                 opt_ngl.MAX_N_Gene = tmp_info.BestNetwork;
                 clear tmp_info tmp_res_info tmp_res_ptr
                 result = perf_NetGL(dataset_info, opt_ngl);
+            case 'CvGL'
+                opt_cgl = opt_info;
+                opt_cgl.lam_list = [zeros(20,1) logspace(log10(1e-2), 0, 20)'];
+                opt_cgl.UseParallel = 0;
+                result = perf_CvGL(dataset_info, opt_cgl);
             case 'CFGLasso'
                 result = perf_CFGLasso(dataset_info, opt_info);
             case {'FERALAvg' 'FERALAvgStdInt' 'FERALAvgStd' 'FERALInt'}

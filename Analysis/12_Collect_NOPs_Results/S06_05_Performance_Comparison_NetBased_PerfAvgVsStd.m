@@ -9,18 +9,18 @@ addpath('../../../../Useful_Sample_Codes/SpiderPlot/');
 %% Select methods and networks
 res_path = './Collected_Results/';
 res_lst = {
-    {'MRK_CVT01_NetLasso_HumanInt-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HumanInt-P25000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_BioPlex-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_BioPlex-P25000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_BioGRID-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_BioGRID-P25000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_IntAct-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_IntAct-P25000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_STRING-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_STRING-P25000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_HBBrain-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBBrain-P25000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_HBKidney-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBKidney-P25000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_HBOvary-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBOvary-P25000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_HBGland-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBGland-P25000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_HBLympNode-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBLympNode-P25000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_ACr-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_ACr-P25000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_AvgSynACr-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_AvgSynACr-P25000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_HumanInt-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_HumanInt-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_BioPlex-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_BioPlex-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_BioGRID-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_BioGRID-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_IntAct-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_IntAct-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_STRING-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_STRING-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_HBBrain-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_HBBrain-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_HBKidney-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_HBKidney-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_HBOvary-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_HBOvary-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_HBGland-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_HBGland-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_HBLympNode-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_HBLympNode-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_ACr-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_ACr-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_AvgSynACr-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_AvgSynACr-P50000_MSN-500.mat'}
     };
 n_res = numel(res_lst);
 
@@ -46,6 +46,7 @@ set(gca, 'FontWeight', 'Bold', 'FontSize', 8);
 xlabel('Average AUC', 'FontSize', 12, 'FontWeight', 'Bold');
 ylabel('Standard deviation', 'FontSize', 12, 'FontWeight', 'Bold');
 
+return
 %% Saving
 output_name = sprintf('./Plots/S06_PerformanceComparison_02_NetBased_PerfAvgVsStd.pdf');
 set(gcf, 'PaperUnits', 'Inches', 'PaperOrientation', 'Landscape', 'PaperPositionMode','auto', 'PaperSize', [6 4], 'PaperPosition', [0 0 6 4]);

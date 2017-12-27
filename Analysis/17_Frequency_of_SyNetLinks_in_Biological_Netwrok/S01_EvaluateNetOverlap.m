@@ -1,6 +1,12 @@
 function S01_EvaluateNetOverlap(Ref_Name, net_name, SHUFFLE)
-%% Run: PARAM="'AvgSynACr','STRING',0"; sbatch --job-name=NO-$PARAM --output=Logs/NO-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=5GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S01_EvaluateNetOverlap "$PARAM";
-% for ni in AvgSyn Syn Avg; do for mi in 0 1; do  PARAM=\'$ni\','HBLiver',$mi; echo $PARAM; sbatch --job-name=NO-$PARAM --output=Logs/NO-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=5GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S01_EvaluateNetOverlap "$PARAM"; done; done
+%{ 
+for ni in HumanInt BioPlex BioGRID IntAct STRING HBBrain HBKidney HBOvary HBLympNode HBGland; do 
+for mi in 0 1; do  
+PARAM=\'SyNet\',\'$ni\',$mi; 
+echo $PARAM; 
+sbatch --job-name=NO-$PARAM --output=Logs/NO-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=5GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S01_EvaluateNetOverlap "$PARAM"; 
+done; done
+%}
 clc;
 
 %% Initialization
@@ -9,21 +15,22 @@ addpath('../_Utilities/');
 net_opt.GE_Path = getPath('SyNet');
 ge_data = load(net_opt.GE_Path, 'Gene_Name');
 net_opt.PreferredGenes = ge_data.Gene_Name;
-net_opt.MAX_N_PAIR = 25000;
-SampleSize = 10000;
-n_rep = 10000;
+net_opt.MAX_N_PAIR = 50000;
+SampleSize = 5000;
+N_Ref_lnk = 3544;
+n_rep = 1000;
 if ismac
     Ref_Name = 'SyNet';
-    net_name = 'HBBlood';
+    net_name = 'HBEye';
     %net_name = 'AbsCorr';
     SHUFFLE = 0;
 end
 
 %% Load SyNet
 if strcmp(Ref_Name, 'SyNet')
-    SyNet_path = '../01_Pairwise_Evaluation_of_Genes/Top_Pairs/TopP_SyNet.mat';
+    SyNet_path = '../01_Pairwise_Evaluation_of_Genes/Top_Pairs/TopP_SyNet_AvgSynACr.mat';
     SyNet_info = load(SyNet_path, 'PP_Info', 'Gene_Name');
-    SyNet_lnk = SyNet_info.PP_Info(1:10000,1:2);
+    SyNet_lnk = SyNet_info.PP_Info(1:N_Ref_lnk,1:2);
     SyNet_GeneName = SyNet_info.Gene_Name;
 else
     net_info = LoadNetworkAdj(Ref_Name);
@@ -31,13 +38,14 @@ else
     n_gene = numel(SyNet_GeneName);
     Tmp_Adj = triu(net_info.Net_Adj, 1);
     [~, s_ind] = sort(Tmp_Adj(:), 'Descend');
-    [SyNet_lnk(:,1), SyNet_lnk(:,2)] = ind2sub([n_gene n_gene], s_ind(1:10000));
+    [SyNet_lnk(:,1), SyNet_lnk(:,2)] = ind2sub([n_gene n_gene], s_ind(1:N_Ref_lnk));
     clear net_info Tmp_Adj s_ind
 end
 SyNet_Map = [
     strcat(SyNet_GeneName(SyNet_lnk(:,1)), ';', SyNet_GeneName(SyNet_lnk(:,2)));
     strcat(SyNet_GeneName(SyNet_lnk(:,2)), ';', SyNet_GeneName(SyNet_lnk(:,1)))
     ];
+fprintf('Reference network [%s] has [%d] genes and [%d] pairs.\n', Ref_Name, numel(unique(SyNet_lnk)), size(SyNet_lnk,1));
 
 %% Load network
 fprintf('Loading [%s] network.\n', net_name);
@@ -78,7 +86,7 @@ for ri=1:n_rep
 end
 
 %% Save output
-sav_name = sprintf('./SyNet_Overlap/NetOV_%s_%s_NL%d.mat', Ref_Name, net_name, SampleSize);
+sav_name = sprintf('./SyNet_Overlap/NetOV_%s_%s_MP%d_SS%d.mat', Ref_Name, net_name, net_opt.MAX_N_PAIR, SampleSize);
 fprintf('Saving the results in [%s]\n', sav_name);
 save(sav_name, 'OL_Freq', 'net_name', 'Net_GeneName', 'SyNet_GeneName', 'Net_nlnk', 'net_opt', 'SampleSize');
 end

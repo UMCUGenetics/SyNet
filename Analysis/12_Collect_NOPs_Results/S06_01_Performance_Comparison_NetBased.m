@@ -13,20 +13,19 @@ load('../../Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat', 'Study_Nam
 
 %% Select methods and networks
 res_lst = {
-%     {'MRK_CVT01_NetLasso_HumanInt-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HumanInt-P25000_MSN-500.mat'}
-%     {'MRK_CVT01_NetLasso_BioPlex-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_BioPlex-P25000_MSN-500.mat'}
-%     {'MRK_CVT01_NetLasso_BioGRID-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_BioGRID-P25000_MSN-500.mat'}
-%     {'MRK_CVT01_NetLasso_IntAct-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_IntAct-P25000_MSN-500.mat'}
-%     {'MRK_CVT01_NetLasso_STRING-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_STRING-P25000_MSN-500.mat'}
-%     {'MRK_CVT01_NetLasso_HBBrain-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBBrain-P25000_MSN-500.mat'}
-%     {'MRK_CVT01_NetLasso_HBKidney-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBKidney-P25000_MSN-500.mat'}
-%     {'MRK_CVT01_NetLasso_HBOvary-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBOvary-P25000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_HBGland-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBGland-P25000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_HBLympNode-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_HBLympNode-P25000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_ACr-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_ACr-P25000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_AvgSynACr-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_AvgSynACr-P25000_MSN-500.mat'}
-%     {'MRK_CVT01_Lasso_AvgSynACr-P10000_MSN-500.mat' 'MRK_CVT01_GLasso_AvgSynACr-P10000_MSN-500.mat'}
-    {'MRK_CVT01_NetLasso_AvgSynACrNShuff-P25000_MSN-500.mat' 'MRK_CVT01_NetGL_AvgSynACrNShuff-P25000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_HumanInt-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_HumanInt-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_BioPlex-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_BioPlex-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_BioGRID-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_BioGRID-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_IntAct-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_IntAct-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_STRING-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_STRING-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_HBBrain-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_HBBrain-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_HBKidney-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_HBKidney-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_HBOvary-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_HBOvary-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_HBGland-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_HBGland-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_HBLympNode-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_HBLympNode-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_ACr-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_ACr-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_AvgSynACr-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_AvgSynACr-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetLasso_AvgSynACrNShuff-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_AvgSynACrNShuff-P50000_MSN-500.mat'}
     {'MRK_CVT01_LExAG_None-G11748_MSN-500.mat' 'MRK_CVT01_LExAG_None-G11748_MSN-500.mat'}
     };
 n_res = numel(res_lst);
@@ -50,6 +49,7 @@ for si=1:n_res
     bar_pos = si-0.2;
     bar_h = patch(bar_pos+[-1 1 1 -1]*0.18, [0 0 mean(auc1_study) mean(auc1_study)], 'b', 'FaceColor', met_clr);
     errorbarEx(bar_pos, mean(auc1_study), std(auc1_study), std(auc1_study), 1.5, 0.1, [0 0 0]);
+    text(bar_pos, mean(auc1_study), sprintf('%0.2f', std(auc1_study)*100), 'FontSize', 12, 'FontWeight', 'Bold', 'HorizontalAlignment', 'Left', 'VerticalAlignment', 'Bottom');
     
     if si~=n_res
         bar_pos = si+0.2;
@@ -58,6 +58,7 @@ for si=1:n_res
         hatch_h = hatchfill(patch_h, 'single', -45, 10, min(met_clr*1.1, [1 1 1]));
         %set(hatch_h, 'Color', met_clr*0.8, 'LineWidth', 1.5);
         errorbarEx(bar_pos, mean(auc2_study), std(auc2_study), std(auc2_study), 1.5, 0.1, [0 0 0]);
+        text(bar_pos, mean(auc2_study), sprintf('%0.2f', std(auc2_study)*100), 'FontSize', 12, 'FontWeight', 'Bold', 'HorizontalAlignment', 'Left', 'VerticalAlignment', 'Bottom');
     end
     text(si, y_lim(1)-0.002, met_lbl, 'FontSize', 10, 'FontWeight', 'Bold', 'HorizontalAlignment', 'Center', 'VerticalAlignment', 'Top', 'Rotation', 0);
 end

@@ -10,6 +10,8 @@ Net_Adj = dataset_info.DatasetTr.Net_Adj;
 n_fold = max(Fold_Index);
 Lambda_lst = opt_info.lam_list;
 n_lam = size(Lambda_lst, 1);
+NeigSize_lst = [2 3 5 7 10];
+n_nei = numel(NeigSize_lst);
 
 %% Normalization
 fprintf('Normalizing data ...\n');
@@ -31,8 +33,7 @@ fprintf('Generating neighbor sets and subnetworks: \n');
 Neig_cell = getNeighborsFromAdj(Net_Adj);
 
 %% Select number of neighbor
-NeigSize_lst = [2 3 5 7 10];
-n_nei = numel(NeigSize_lst);
+fprintf('[i] Grid search among [%s] neighbor size.\n', num2str(NeigSize_lst, '%d '));
 Grid_auc = zeros(n_nei, n_lam, n_fold);
 for ni=1:numel(NeigSize_lst)
     fprintf('[i] Using neighbor size = %d\n', NeigSize_lst(ni));

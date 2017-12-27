@@ -3,36 +3,32 @@ clear;
 close all
 
 %% Initialization
-% addpath('../../../../Useful_Sample_Codes/BoxplotEx');
 addpath('../../../../Useful_Sample_Codes/ErrorbarEx/');
-addpath('../../../../Useful_Sample_Codes/Distribution_Plot/');
 addpath('../../../../Useful_Sample_Codes/Advance_Colormap/');
 addpath('../_Utilities/');
-load('../../Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat', 'Study_Name');
 
 %% Select methods and networks
 res_path = './Collected_Results/';
 res_lst = {
-    'MRK_CVT01_NetLasso_HumanInt-P25000_MSN-500.mat'
-    'MRK_CVT01_NetLasso_BioPlex-P25000_MSN-500.mat'
-    'MRK_CVT01_NetLasso_BioGRID-P25000_MSN-500.mat'
-    'MRK_CVT01_NetLasso_IntAct-P25000_MSN-500.mat'
-    'MRK_CVT01_NetLasso_STRING-P25000_MSN-500.mat'
+    'MRK_CVT01_NetLasso_HumanInt-P50000_MSN-500.mat'
+    'MRK_CVT01_NetLasso_BioPlex-P50000_MSN-500.mat'
+    'MRK_CVT01_NetLasso_BioGRID-P50000_MSN-500.mat'
+    'MRK_CVT01_NetLasso_IntAct-P50000_MSN-500.mat'
+    'MRK_CVT01_NetLasso_STRING-P50000_MSN-500.mat'
     ''
+    'MRK_CVT01_NetLasso_HBUterus-P50000_MSN-500.mat'
+    'MRK_CVT01_NetLasso_HBStomach-P50000_MSN-500.mat'
+    'MRK_CVT01_NetLasso_HBRetina-P50000_MSN-500.mat'
+    'MRK_CVT01_NetLasso_HBNeuron-P50000_MSN-500.mat'
+    'MRK_CVT01_NetLasso_HBBrain-P50000_MSN-500.mat'
+    'MRK_CVT01_NetLasso_HBKidney-P50000_MSN-500.mat'
+    'MRK_CVT01_NetLasso_HBOvary-P50000_MSN-500.mat'
+    'MRK_CVT01_NetLasso_HBGland-P50000_MSN-500.mat'
+    'MRK_CVT01_NetLasso_HBLympNode-P50000_MSN-500.mat'
+    'MRK_CVT01_NetLasso_ACr-P50000_MSN-500.mat'
     ''
-    'MRK_CVT01_NetLasso_HBBrain-P25000_MSN-500.mat'
-    'MRK_CVT01_NetLasso_HBKidney-P25000_MSN-500.mat'
-    'MRK_CVT01_NetLasso_HBOvary-P25000_MSN-500.mat'
-    'MRK_CVT01_NetLasso_HBGland-P25000_MSN-500.mat'
-    %'MRK_CVT01_NetLasso_HBEpith-P25000_MSN-500.mat'
-    'MRK_CVT01_NetLasso_HBLympNode-P25000_MSN-500.mat'
-    'MRK_CVT01_NetLasso_ACr-P25000_MSN-500.mat'
+    'MRK_CVT01_NetLasso_AvgSynACr-P50000_MSN-500.mat'
     ''
-    ''
-    'MRK_CVT01_NetLasso_AvgSynACr-P25000_MSN-500.mat'
-    ''
-    ''
-    % 'MRK_CVT01_TLEx_tTest-G11748_MSN-700.mat'
     'MRK_CVT01_LExAG_None-G11748_MSN-500.mat'
     };
 n_res = numel(res_lst);
@@ -70,8 +66,10 @@ for si=1:n_res
     else
         n_gene_str = sprintf('%d', mode(res_data.BestNetwork));
     end
-    text(si, y_lim(1)+0.001, n_gene_str, 'Color', [1 1 1], 'FontSize', 6, 'FontWeight', 'Bold', 'Rotation', 90, ...
-        'VerticalAlignment', 'Middle', 'HorizontalAlignment', 'Left');
+    n_gene_str = sprintf('%s\n%0.0f', n_gene_str, median(sum(res_data.Marker_lst~=0,2)));
+    
+    text(si, y_lim(1)+0.001, n_gene_str, 'Color', [0 0 0], 'FontSize', 10, 'FontWeight', 'Bold', ...
+        'VerticalAlignment', 'Middle', 'HorizontalAlignment', 'Left', 'Rotation', 90);
 end
 x_tick(isnan(x_tick)) = [];
 
@@ -84,9 +82,9 @@ set(gca, 'XTick', x_tick, 'XTickLabel', [], ...
     'Ygrid', 'on', 'GridColor', [0.7 0.7 0.7], 'GridAlpha', 0.4);
 ylabel('AUC', 'FontWeight', 'Bold');
 
-% return
+return
 %% Saving
-output_name = sprintf('./Plots/S05_PerformanceComparison_GenesInNet_G700.pdf');
+output_name = sprintf('./Plots/S05_01_PerformanceComparison_GenesInNet.pdf');
 set(gcf, 'PaperUnit', 'inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [13 3], 'PaperPosition', [0 0 13 3]);
 print('-dpdf', '-r300', output_name);
 

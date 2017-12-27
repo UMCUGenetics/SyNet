@@ -17,13 +17,13 @@ switch Method_Name
     case 'STRING'
         Method_Color = [0.15 0.80 0.10];
     case 'HBBrain'
-        Method_Color = [0.65 0.75 0.14];
+        Method_Color = [0.37 0.60 0.70];
         Preferred_Name = 'Brain';
     case 'HBKidney'
-        Method_Color = [0.37 0.60 0.70];
+        Method_Color = [0.65 0.75 0.14];
         Preferred_Name = 'Kidney';
     case 'HBOvary'
-        Method_Color = [0.75 0.30 0.72];
+        Method_Color = [0.98 0.48 0.15];
         Preferred_Name = 'Ovary';
     case 'HBGland'
         Method_Color = [1.00 0.20 0.80];
@@ -37,9 +37,6 @@ switch Method_Name
     case {'SyNet' 'AvgSynACr'}
         Method_Color = [1.00 0.10 0.10];
         Preferred_Name = 'SyNet';
-    case {'tTest'}
-        Method_Color = [0.70 0.90 0.80];
-        Preferred_Name = 't-test';
     case {'All genes' 'None'}
         Method_Color = [0.40 0.60 0.40];
         Preferred_Name = 'All genes';
