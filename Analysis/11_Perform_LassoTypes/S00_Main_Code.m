@@ -104,7 +104,7 @@ for ni=1:n_net
             case 'CvGL'
                 opt_cgl = opt_info;
                 opt_cgl.lam_list = [zeros(20,1) logspace(log10(1e-2), 0, 20)'];
-                opt_cgl.UseParallel = 0;
+                opt_cgl.UseParallel = 4;
                 result = perf_CvGL(dataset_info, opt_cgl);
             case 'CFGLasso'
                 result = perf_CFGLasso(dataset_info, opt_info);

@@ -3,17 +3,19 @@ clear;
 close all
 
 %% Initialization
+addpath('../_Utilities/');
 addpath('../../../../Useful_Sample_Codes/Tight_Subplot/');
 addpath('../../../../Useful_Sample_Codes/Distribution_Plot/');
 addpath('../../../../Useful_Sample_Codes/Advance_Colormap/');
 neg_clr = [0.7 0.7 0.7];
-net_lst = {'HumanInt' 'BioPlex','BioGRID','IntAct','STRING','HBBrain','HBKidney','HBOvary','HBLympNode','HBGland'};
+net_lst = {'HumanInt' 'BioPlex','BioGRID','IntAct','STRING','HBOvary','HBBrain','HBKidney','HBLympNode','HBGland'};
 n_net = numel(net_lst);
+% 'DirectConnection' 'ShortestPath' 'PageRank-FB0.95' 'PageRank-FB0.85' 'PageRank-FB0.75' 'PageRank-FB0.65' 'Eigenvector' 'Degree' 'Closeness' 'Betweenness'
 tm_lst = {'Degree' 'PageRank-FB0.85' 'Betweenness'}; 
 n_tm = numel(tm_lst);
 
 %% Loading TM data
-load('./Topological_Data/TMData_NS20000_NF180.mat');
+load('./Topological_Data/TMData-OneGRND_NS7088_NF180.mat');
 [n_sample, n_feature] = size(TM_Data_filtered);
 
 %% Main loop
@@ -32,11 +34,15 @@ for ti=1:n_tm
         box_h = BoxPlotEx(data_neg, 'Positions', ni-0.17, 'Color', neg_clr, 'Symbol', '', 'Widths', 0.3);
         set(box_h, 'LineWidth', 2);
         
-        data_pos = TM_Data_filtered(TM_Label==1, Feat_Ind);
+        data_pos = TM_Data_filtered(TM_Label==+1, Feat_Ind);
         [met_clr, Method_lst{ni,1}] = getColor(net_lst{ni});
         box_h = BoxPlotEx(data_pos, 'Positions', ni+0.17, 'Color', met_clr, 'Symbol', '', 'Widths', 0.3);
-        set(box_h, 'LineWidth', 2);        
+        set(box_h, 'LineWidth', 2);
+        
+        %[p,h,stats] = ranksum(data_pos, data_neg);
+        %text(ni, prctile(data_pos,80), sprintf('%0.2e', p), 'HorizontalAlignment', 'Center');
     end
+
     switch tm_lst{ti}
         case 'Degree'
             set(gca, 'YLim', [0 250]);
@@ -48,6 +54,8 @@ for ti=1:n_tm
             set(gca, 'YLim', [0 2.3e-5]);
         case 'Betweenness'
             set(gca, 'YLim', [0 4e4]);
+        case 'ShortestPath'
+            set(gca, 'YLim', [0 10]);
     end
     set(gca, 'XTick', 1:n_net, 'XTickLabel', Method_lst, 'XTickLabelRotation', 20, ...
         'XLim', [0.3 n_net+0.7], 'FontWeight', 'Bold');
@@ -58,6 +66,6 @@ end
 % return
 %% Saving
 output_name = sprintf('./Plots/S03_Enrichment_Evaluation_SyNet_Over_TM.pdf');
-set(gcf, 'PaperUnits', 'Inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [15 4], 'PaperPosition', [0 0 15 4]);
+set(gcf, 'PaperUnits', 'Inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [18 4], 'PaperPosition', [0 0 18 4]);
 print('-dpdf', '-r300', output_name);
 

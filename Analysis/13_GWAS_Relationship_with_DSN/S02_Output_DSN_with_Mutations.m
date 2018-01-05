@@ -6,15 +6,16 @@ addpath('../../../../Useful_Sample_Codes/IsOverlapped/');
 addpath('../../../../Useful_Sample_Codes/ShowProgress/');
 
 %% Load Top Pairs
-dsn_info = load('../01_Pairwise_Evaluation_of_Genes/Top_Pairs/TopP_SyNet.mat');
+dsn_info = load('../01_Pairwise_Evaluation_of_Genes/Top_Pairs/TopP_SyNet_AvgSynACr.mat');
 
 %% Load Gene coordinates
 gene_info = load('./Gene_Coordinates/Gene_Info_vGRCh37.75.mat');
 n_gene = numel(gene_info.Gene_Name);
 
 %% Load GWAS hits
-fid = fopen('./iCOGS/iCOGS_SurvData_NullRem_Sorted_OnlyCoordAndPValue.tsv', 'r');
-gwas_cell = textscan(fid, '%f%f%f', 10000, 'HeaderLines', 1, 'Delimiter', '\t', 'CommentStyle', '@', 'ReturnOnError', 0);
+MAX_N_SNP = 504752;
+fid = fopen('./iCOGS_data/iCOGS_SurvData_NullRem_Sorted_OnlyCoordAndPValue.tsv', 'r');
+gwas_cell = textscan(fid, '%f%f%f', MAX_N_SNP, 'HeaderLines', 1, 'Delimiter', '\t', 'CommentStyle', '@', 'ReturnOnError', 0);
 fclose(fid);
 gwas_hit = [gwas_cell{1} gwas_cell{2} gwas_cell{2} -log10(gwas_cell{3}) gwas_cell{3}];
 clear gwas_cell
@@ -43,7 +44,7 @@ end
 % Hit_info = vertcat(Hit_info{:});
 
 %% Output top GWAS hits
-hit_fname = sprintf('./DSN_iCOGS_Hits/iCOGS_Hits_Genes_MD%0.1fk.tsv', MAX_DISTANCE/1e3);
+hit_fname = sprintf('./DSN_iCOGS_Hits/iCOGS_Hits_Genes_NTS%0.0fk_MD%0.1fk.tsv', MAX_N_SNP/1e3, MAX_DISTANCE/1e3);
 fprintf('Writing the GWAS hits in %s\n', hit_fname);
 fid = fopen(hit_fname, 'w');
 fprintf(fid, 'Id\t-Log10(pval)\t#Hit\t#Hit/Size\n');
@@ -65,12 +66,12 @@ end
 fclose(fid);
 
 %% Output pairs
-SyNet_fname = sprintf('./DSN_iCOGS_Hits/DSN_SyNet_PairsWith_iCOGS_Pval_MD%0.1fk.tsv', MAX_DISTANCE/1e3);
+n_SyNet_Pairs = 3544;
+SyNet_fname = sprintf('./DSN_iCOGS_Hits/DSN_SyNet_PairsWith_iCOGS_Pval_NP%05d_MD%0.1fk.tsv', n_SyNet_Pairs, MAX_DISTANCE/1e3);
 fprintf('Writing the pair scores in %s\n', SyNet_fname);
 fid = fopen(SyNet_fname, 'w');
 fprintf(fid, 'Source\tTarget\tType\tWeight\tGWAS_Log10PVal\n');
-n_Top = 10000;
-for pi=1:n_Top
+for pi=1:n_SyNet_Pairs
     Pair_Info = dsn_info.PP_Info(pi,:);
 	gi_name = dsn_info.Gene_Name{Pair_Info(1)};
 	gj_name = dsn_info.Gene_Name{Pair_Info(2)};

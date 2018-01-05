@@ -1,9 +1,10 @@
 function result = perf_CvGL(dataset_info, opt_info)
 
 %% Initialization
+poolobj = gcp('nocreate'); % If no pool, do not create new one.
 if isfield(opt_info, 'UseParallel') && opt_info.UseParallel
+    delete(gcp('nocreate'));
     parpool('local', opt_info.UseParallel);
-    poolobj = gcp('nocreate'); % If no pool, do not create new one.
     fprintf('Parallel pool is loaded with [%d] workers.\n', poolobj.NumWorkers);
 else
     fprintf('Parallel pool is not selected, turning off.');
@@ -21,7 +22,7 @@ Lambda_lst = opt_info.lam_list;
 n_lam = size(Lambda_lst, 1);
 NeigSize_lst = [2 3 5 7 10];
 n_nei = numel(NeigSize_lst);
-NGene_lst = [100 500 1000 1500 2000];
+NGene_lst = [100 300 700 1000 1500 3000];
 n_gene = numel(NGene_lst);
 
 %% Normalization
@@ -69,9 +70,20 @@ for gi=1:n_gene
         afl_auc = squeeze(mean(Total_auc(gi,ni,:,:),4));
         [nei_OAuc, nei_OLam] = max(afl_auc);
         fprintf('Best Train AUC is [%0.1f%%] with [%d]th lambda.\n', nei_OAuc*100, nei_OLam);
+        
+        cmbTe = GenerateGL_Dataset(zTe, NeigIndex_lst);
+        fold_B = lassoEx(cmbTr, lTr, lasso_opt{:});
+        te_pred = cmbTe*fold_B;
+        te_auc = zeros(1, n_lam);
+        for li=1:n_lam
+            te_auc(1,li) = getAUC(lTe, te_pred(:,li), 50);
+        end
+        fprintf('   Index: '); fprintf('%5d  ', 1:n_lam); fprintf('\n');
+        fprintf('  CV AUC: '); fprintf('%0.1f%%, ', afl_auc*100); fprintf('\n');
+        fprintf('Test AUC: '); fprintf('%0.1f%%, ', te_auc*100); fprintf('\n');
     end
 end
-if any(isnan(Total_auc(:))), disp(Total_auc); warning('Found nan values in AUC mat.'); end
+if any(isnan(Total_auc(:))), warning('Found nan values in AUC mat.'); disp(Total_auc); end
 
 %% Display the grid
 Grid_AUC = mean(Total_auc, 4);

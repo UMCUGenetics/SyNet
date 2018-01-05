@@ -3,13 +3,14 @@ clear;
 
 %% Initialization
 addpath('../../../../Useful_Sample_Codes/JSONlab/jsonlab-1.5/');
-viz_file = './HotNet2_results/synet_np010000-icogs_10k/viz-data.json';
+viz_file = './HotNet2_results/SyNet_b0.2-0.9_np10000_hp100000/synet_np003544-icogs_10k/viz-data.json';
+MAX_SyNet_Pairs = 3544;
 
 %% Load SyNet pairs
-dsn_name = '../01_Pairwise_Evaluation_of_Genes/Top_Pairs/TopP_SyNet.mat';
+dsn_name = '../01_Pairwise_Evaluation_of_Genes/Top_Pairs/TopP_SyNet_AvgSynACr.mat';
 fprintf('Loading [%s] network.\n', dsn_name);
-DSN_info = load(dsn_name);
-SyNet_PairIndex = DSN_info.PP_Info(1:10000,1:2);
+DSN_info = load(dsn_name, 'PP_Info', 'Gene_Name');
+SyNet_PairIndex = DSN_info.PP_Info(1:MAX_SyNet_Pairs,1:2);
 SyNet_GeneName = DSN_info.Gene_Name;
 n_gene = numel(SyNet_GeneName);
 ind = sub2ind([n_gene, n_gene], SyNet_PairIndex(:,1), SyNet_PairIndex(:,2));
@@ -20,8 +21,10 @@ SyNet_Graph = graph(SyNet_Adj, SyNet_GeneName);
 clear SyNet_Adj
 
 %% Loading json
+fprintf('Loading JSON file [%s]\n', viz_file);
 viz_data = loadjson(viz_file);
 opt_delta_str = viz_data.params.auto_delta;
+fprintf('Auto detected delta is [%s]\n', opt_delta_str);
 Opt_Subnet_List = viz_data.subnetworks.(sprintf('x0x30__0x2E_%s', opt_delta_str(3:end)));
 
 %% Output subnetworks

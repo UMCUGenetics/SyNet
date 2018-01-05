@@ -1,40 +1,44 @@
 function S01_Compute_Topological_Measure(net_name, TM_Name, RemoveGSet)
 % clc;
 %{
-TM_lst = {'ShortestPath' 'Degree' 'PageRank-FB0.65' 'PageRank-FB0.75' 'PageRank-FB0.85' 'PageRank-FB0.95' 'Closeness' 'Betweenness' 'Eigenvector'};
-Net_lst = {'HumanInt' 'HBBrain' 'HBKidney' 'HBOvary' 'HBUterus', 'AbsCorr','STRING','IntAct','BioPlex','BioGRID','HBLympNode','HBEpith','HBGland','HBOvary'};
-for ti=1:numel(TM_lst)
-for ni=1:numel(Net_lst)
-S01_Compute_Topological_Measure(Net_lst{ni}, TM_lst{ti}, {});
-end
-end
+for ti in DirectConnection ShortestPath Degree PageRank-FB0.65 PageRank-FB0.75 PageRank-FB0.85 PageRank-FB0.95 Closeness Betweenness Eigenvector; do
+for ni in HumanInt HBBrain HBKidney HBOvary HBUterus AbsCorr STRING IntAct BioPlex BioGRID HBLympNode HBEpith HBGland HBOvary; do
+PARAM=\'$ni\',\'$ti\';
+sbatch --job-name=CTM-$PARAM --output=Logs/CTM-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S01_Compute_Topological_Measure "$PARAM"; 
+done; 
+read -p "`date`: $PARAM. Press a key" -t 1800
+done
 %}
 
 %% Inialization
 addpath('../_Utilities/');
 addpath('../../../../Useful_Sample_Codes/ShowProgress');
 if ~exist('RemoveGSet', 'var'), RemoveGSet={}; end
-n_pair = 10000;
-% if ismac
-%     net_name = 'STRING'; % 'I2D' 'STRING' 'HPRD' 'HBEpith','HBGland'
-%     TM_Name = 'PageRank-FB0.75';
-% end
+if ismac
+    net_name = 'STRING'; % 'I2D' 'STRING' 'HPRD' 'HBEpith','HBGland'
+    TM_Name = 'DirectConnection';
+end
+Ref_Name = 'AvgSynACr';
+MAX_SyNet_Pair = 20000;
+Shuff_Method = 'LnkShuff';
 
-%% Load SyNet
-SyNet_info = load('../01_Pairwise_Evaluation_of_Genes/Top_Pairs/TopP_SyNet_AvgSynACr.mat', 'PP_Info', 'NP_Info', 'Gene_Name');
+%% Load Pair index
+PI_Name = sprintf('./Topological_Data/PairInfo-%s_%s_MP%06d.mat', Shuff_Method, Ref_Name, MAX_SyNet_Pair);
+fprintf('Loading pair index info [%s]\n', PI_Name);
+Pair_Data = load(PI_Name);
+Ref_GeneName = Pair_Data.SyNet_info.Gene_Name;
 Pair_Info = [
-    SyNet_info.PP_Info(1:n_pair,:)  ones(n_pair, 1);
-    SyNet_info.NP_Info(1:n_pair,:) -ones(n_pair, 1);
+    Pair_Data.PP_Info(:, 1:2)
+    Pair_Data.NP_Info
     ];
-Ref_GeneName = SyNet_info.Gene_Name;
 n_RefGeneName = numel(Ref_GeneName);
-clear SyNet_info
+clear Pair_Data
 
 %% Load network
-fprintf('Loading [%s] network.\n', net_name);
+fprintf('Loading [%s] as existing network.\n', net_name);
 net_opt.GE_Path = getPath('SyNet');
 net_opt.PreferredGenes = Ref_GeneName;
-net_opt.MAX_N_PAIR = 25000;
+net_opt.MAX_N_PAIR = 50000;
 net_info = LoadNetworkAdj(net_name, net_opt);
 NET_N_PAIR = net_info.N_PAIR;
 if min(net_info.Net_Adj(:))<0, error('Not implemented for negative links'); end
@@ -49,6 +53,7 @@ if ~isempty(RemoveGSet)
 end
 
 %% Reorder Adjacency matrix
+fprintf('Reordering adjacency matrix [%s] according to [%s] genes.\n', net_name, Ref_Name);
 GMap = containers.Map(net_info.Gene_Name, 1:numel(net_info.Gene_Name));
 Ref2Net = zeros(n_RefGeneName, 2);
 for gi=1:n_RefGeneName
@@ -57,9 +62,11 @@ for gi=1:n_RefGeneName
     end
 end
 Ref2Net(Ref2Net(:,1)==0, :) = [];
+if ~isequal(Ref_GeneName(Ref2Net(:,1)), net_info.Gene_Name(Ref2Net(:,2))), error(); end
 Net_Adj = zeros(n_RefGeneName, 'single');
 Net_Adj(Ref2Net(:,1), Ref2Net(:,1)) = net_info.Net_Adj(Ref2Net(:,2), Ref2Net(:,2));
 clear net_info
+fprintf('[%d] genes and [%d] links are left in the network.\n', size(Net_Adj,1), numel(nonzeros(triu(Net_Adj))));
 
 %{
 %%Test example
@@ -80,10 +87,14 @@ Output_results = struct();
 Output_results.Ref_GeneName = Ref_GeneName;
 Output_results.Pair_Info = Pair_Info;
 Output_results.NET_N_PAIR = NET_N_PAIR;
+Output_results.net_opt = net_opt;
 fprintf('Computing [%s] from network [%s] ...\n', TM_Name, net_name);
 Net_Graph = graph(Net_Adj~=0, 'OmitSelfLoops');
 Pair_Index = sub2ind([n_RefGeneName n_RefGeneName], Pair_Info(:,1), Pair_Info(:,2));
 switch TM_Name
+    case 'DirectConnection'
+        Output_results.Pair_AvgScore = double(Net_Adj(Pair_Index)>0);
+        Output_results.Pair_DifScore = Output_results.Pair_AvgScore;
     case 'ShortestPath'
         Dist_Mat = Net_Graph.distances('Method', 'unweighted');
         Output_results.Pair_AvgScore = Dist_Mat(Pair_Index);
@@ -107,7 +118,7 @@ switch TM_Name
 end
 
 %% Save the results
-sav_name = sprintf('./Topological_Results/TM_%s_NP%06d_%s.mat', net_name, net_opt.MAX_N_PAIR, TM_Name);
+sav_name = sprintf('./Topological_Results/TM-%s_%s_%s_NP%06d_MSP%06d_%s.mat', Shuff_Method, Ref_Name, net_name, net_opt.MAX_N_PAIR, MAX_SyNet_Pair, TM_Name);
 fprintf('Saving the results in [%s]\n', sav_name);
 save(sav_name, '-struct', 'Output_results');
 end

@@ -9,8 +9,8 @@ mrk_lst = {'+' 'o'};
 n_mrk = numel(mrk_lst);
 
 %% Load TM data
-load('./Topological_Data/TMData_NS20000_NF90.mat', 'zTM_Data', 'TM_Label', 'TM_Name');
-qTM_Data = quantilenorm(zTM_Data); % , 'Display', true
+load('./Topological_Data/TMData-OneGRND_NS7088_NF180.mat', 'TM_Data_z', 'TM_Label', 'TM_Name');
+qTM_Data = quantilenorm(TM_Data_z); % , 'Display', true
 
 %% Reducing dimension Using PCA
 % [coeff,score,latent,tsquared,explained,mu] = pca(zTM_Data, 'NumComponents', 40);
@@ -21,7 +21,7 @@ for pi=1:numel(Perp_lst)
     fprintf('Perplexity set to: %d\n', perplexity);
     initial_dims = 30;
     no_dims = 2;
-    pData = fast_tsne(qTM_Data, no_dims, initial_dims, perplexity, 0.6, 500);
+    pData = fast_tsne(qTM_Data, no_dims, initial_dims, perplexity, 0.4, 500);
     pLabel = (TM_Label==1)+1;
     % theta = 0 corresponds to standard, slow t-SNE, while theta = 1 makes very crude approximations.
     

@@ -126,17 +126,21 @@ if isfield(net_info, 'MAX_N_PAIR')
     Tmp_Adj = triu(Net_Adj, 1);
     [~, scr_ind] = sort(Tmp_Adj(:), 'Descend');
     clear Tmp_Adj
-    if numel(unique(Net_Adj(scr_ind(1:net_info.MAX_N_PAIR))))<=1
-        error('Identical weights are found. This function is not implemented for that. Shuffle the links before removing');
+    if numel(scr_ind)>net_info.MAX_N_PAIR
+        if numel(unique(Net_Adj(scr_ind(1:net_info.MAX_N_PAIR))))<=1
+            error('Identical weights are found. This function is not implemented for that. Shuffle the links before removing');
+        end
+        scr_ind(1:net_info.MAX_N_PAIR) = [];  %% *2 To take into account the both triangles in Adj matrix
+        net_info.Net_Threshold = Net_Adj(scr_ind(1));
+        Net_Adj(scr_ind) = 0;
+        Net_Adj = max(Net_Adj, Net_Adj');
+        if net_info.Net_Threshold<=0
+            fprintf('Warning: Identified threshhold is [%d]. Fewer pairs are selected than requested [%d]\n', net_info.Net_Threshold, net_info.MAX_N_PAIR);
+        end
+        clear scr_val scr_ind
+    else
+        net_info.Net_Threshold = min(Net_Adj(:));
     end
-    scr_ind(1:net_info.MAX_N_PAIR) = [];  %% *2 To take into account the both triangles in Adj matrix
-    net_info.Net_Threshold = Net_Adj(scr_ind(1));
-    Net_Adj(scr_ind) = 0;
-    Net_Adj = max(Net_Adj, Net_Adj');
-    if net_info.Net_Threshold<=0
-        fprintf('Warning: Identified threshhold is [%d]. Fewer pairs are selected than requested [%d]\n', net_info.Net_Threshold, net_info.MAX_N_PAIR);
-    end
-    clear scr_val scr_ind
     fprintf('[%d] genes and [%d] links are left in the network.\n', numel(Gene_Name), numel(nonzeros(triu(Net_Adj))));
 end
 

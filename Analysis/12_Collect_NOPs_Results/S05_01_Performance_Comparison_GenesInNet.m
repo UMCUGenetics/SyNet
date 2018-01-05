@@ -16,13 +16,9 @@ res_lst = {
     'MRK_CVT01_NetLasso_IntAct-P50000_MSN-500.mat'
     'MRK_CVT01_NetLasso_STRING-P50000_MSN-500.mat'
     ''
-    'MRK_CVT01_NetLasso_HBUterus-P50000_MSN-500.mat'
-    'MRK_CVT01_NetLasso_HBStomach-P50000_MSN-500.mat'
-    'MRK_CVT01_NetLasso_HBRetina-P50000_MSN-500.mat'
-    'MRK_CVT01_NetLasso_HBNeuron-P50000_MSN-500.mat'
+    'MRK_CVT01_NetLasso_HBOvary-P50000_MSN-500.mat'
     'MRK_CVT01_NetLasso_HBBrain-P50000_MSN-500.mat'
     'MRK_CVT01_NetLasso_HBKidney-P50000_MSN-500.mat'
-    'MRK_CVT01_NetLasso_HBOvary-P50000_MSN-500.mat'
     'MRK_CVT01_NetLasso_HBGland-P50000_MSN-500.mat'
     'MRK_CVT01_NetLasso_HBLympNode-P50000_MSN-500.mat'
     'MRK_CVT01_NetLasso_ACr-P50000_MSN-500.mat'
@@ -52,24 +48,18 @@ for si=1:n_res
     if any(isnan(res_data.AUC_mat(:))), error(); end
     auc_rep = mean(res_data.AUC_mat, 1);
     net_info = regexp(res_info{4}, '-', 'Split');
-    X_lbl = sprintf('%s', net_info{1});
     
-    [met_clr, Method_lbl{si,1}] = getColor(X_lbl);
+    [met_clr, Method_lbl{si,1}] = getColor(net_info{1});
     bar(si, mean(auc_rep), 'FaceColor', met_clr, 'BarWidth', 0.7, 'EdgeColor', met_clr*0.6);
     errorbarEx(si, mean(auc_rep), std(auc_rep), std(auc_rep), 2, 0.1, met_clr*0.5);
     
-    text(si, y_lim(1)-0.001, Method_lbl{si}, 'FontSize', 10, 'FontWeight', 'Bold', 'Rotation', 15, ...
-        'VerticalAlignment', 'Top', 'HorizontalAlignment', 'Center');
-    
     if si==n_res
-        n_gene_str = sprintf('%d', res_data.Gene_Map.Count);
+        x_lbl = sprintf('%s\n%d / %0.0f', Method_lbl{si}, res_data.Gene_Map.Count, round(median(sum(res_data.Marker_lst~=0,2))));
     else
-        n_gene_str = sprintf('%d', mode(res_data.BestNetwork));
+        x_lbl = sprintf('%s\n%d / %0.0f', Method_lbl{si}, mode(res_data.BestNetwork), round(median(sum(res_data.Marker_lst~=0,2))));
     end
-    n_gene_str = sprintf('%s\n%0.0f', n_gene_str, median(sum(res_data.Marker_lst~=0,2)));
-    
-    text(si, y_lim(1)+0.001, n_gene_str, 'Color', [0 0 0], 'FontSize', 10, 'FontWeight', 'Bold', ...
-        'VerticalAlignment', 'Middle', 'HorizontalAlignment', 'Left', 'Rotation', 90);
+    text(si, y_lim(1)-0.0005, x_lbl, 'FontSize', 9, 'FontWeight', 'Bold', 'Rotation', 0, ...
+        'VerticalAlignment', 'Top', 'HorizontalAlignment', 'Center');
 end
 x_tick(isnan(x_tick)) = [];
 
@@ -82,9 +72,9 @@ set(gca, 'XTick', x_tick, 'XTickLabel', [], ...
     'Ygrid', 'on', 'GridColor', [0.7 0.7 0.7], 'GridAlpha', 0.4);
 ylabel('AUC', 'FontWeight', 'Bold');
 
-return
+% return
 %% Saving
 output_name = sprintf('./Plots/S05_01_PerformanceComparison_GenesInNet.pdf');
-set(gcf, 'PaperUnit', 'inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [13 3], 'PaperPosition', [0 0 13 3]);
+set(gcf, 'PaperUnit', 'inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [14 3], 'PaperPosition', [0 0 14 3]);
 print('-dpdf', '-r300', output_name);
 

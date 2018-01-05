@@ -9,17 +9,17 @@ addpath(genpath('../../../../Useful_Sample_Codes/SLEP'));
 addpath(genpath('../../../../Useful_Sample_Codes/getAUC'));
 IS_STRICT_CV = 1;
 % CLS_Name = 'Lasso';
-% CLS_Name = 'RandomForest';
-CLS_Name = 'Regress';
+CLS_Name = 'RandomForest';
+% CLS_Name = 'Regress';
 Regex_lst = {
     '^HumanInt'
     '^BioPlex'
     '^BioGRID'
     '^IntAct'
     '^STRING'
+    '^HBOvary'
     '^HBBrain'
     '^HBKidney'
-    '^HBOvary'
     '^HBLympNode'
 %     '^(?!HBGland).'
     '^HBGland'
@@ -27,9 +27,11 @@ Regex_lst = {
     };
 n_regex = numel(Regex_lst);
 n_Fold = 50;
+Shuff_Method = 'LnkShuff';
 
 %% Load TM data
-load('./Topological_Data/TMData_NS20000_NF180.mat', 'TM_Data_z', 'TM_Label', 'TM_Name', 'Pair_Info');
+tmdata_name = sprintf('./Topological_Data/TMData-%s_NS7088_NF180.mat', Shuff_Method);
+load(tmdata_name, 'TM_Data_z', 'TM_Label', 'TM_Name', 'Pair_Info');
 %qTM_Data = quantilenorm(zTM_Data); % , 'Display', true
 
 %% Evaluation of classifier
@@ -51,11 +53,11 @@ for ri=1:n_regex
     if n_feature<1, error(); end
     
     %% Traning the classifier
-    fprintf('Training the [%s] model over [%s] ...\n', CLS_Name, Regex_lst{ri});
+    fprintf('Training [%s] over [%15s]: ', CLS_Name, Regex_lst{ri});
     Fold_Index = crossvalind('KFold', TM_Label, n_Fold);
     Fold_auc = zeros(n_Fold, 1);
-    Feat_Imp = zeros(n_Fold, n_feature);
-    Feat_B = zeros(n_Fold, n_feature);
+    n_Sample = zeros(n_Fold, 2);
+    Feat_Coeff = zeros(n_Fold, n_feature);
     for fi=1:n_Fold
         iTr = Fold_Index~=fi;
         iTe = Fold_Index==fi;
@@ -69,6 +71,7 @@ for ri=1:n_regex
         zTe = zData(iTe, :);
         lTr = TM_Label(iTr);
         lTe = TM_Label(iTe);
+        n_Sample(fi, :) = [sum(iTr) sum(iTe)];
         
         switch CLS_Name
             case 'Regress'
@@ -76,13 +79,13 @@ for ri=1:n_regex
                 B = regress(lTr, zTr);
                 warning on
                 Fold_auc(fi) = getAUC(lTe, zTe*B, 50) * 100;
-                Feat_B(fi,:) = B;
-                Feat_Imp(fi, :) = abs(B);
+                Feat_Coeff(fi, :) = B;
             case 'Lasso'
-                lasso_opt = {'lassoType', 't', 'CV', [], 'relTol', 5e-2, 'n_lC', 20, 'lC_ratio', 1e-2, 'verbose', 0};
+                lasso_opt = {'lassoType', 't', 'CV', 5, 'relTol', 5e-2, 'n_lC', 20, 'lC_ratio', 1e-2, 'verbose', 0};
                 [B, fit] = lassoEx(zTr, lTr, lasso_opt{:});
-                Feat_Imp(fi, :) = B(:, 8);
-                Fold_auc(fi) = getAUC(lTe, zTe*Feat_Imp(fi, :)', 50) * 100;
+                opt_L = fit.IndexMinMSE;
+                Feat_Coeff(fi, :) = B(:, opt_L);
+                Fold_auc(fi) = getAUC(lTe, zTe*B(:,opt_L), 50) * 100;
                 %{
                 n_lam = size(B, 2);
                 tr_auc_lam = zeros(1, n_lam);
@@ -102,11 +105,11 @@ for ri=1:n_regex
                 [~, pred_prob] = predict(RFModel, zTe);
                 [~, pred_lbl] = max(pred_prob, [], 2);
                 Fold_auc(fi) = getAUC(lTe, pred_lbl, 50)*100;
-                Feat_Imp(fi, :) = RFModel.OOBPermutedPredictorDeltaError;
+                Feat_Coeff(fi, :) = RFModel.OOBPermutedPredictorDeltaError;
         end
 %         fprintf('[%d/%d] Test performance is [%0.2f%%] AUC.\n', fi, n_Fold, Fold_auc(fi));
     end
-    fprintf('Mean is: %0.2f\n', mean(Fold_auc));
+    fprintf('[%d] folds, Median #Tr=%3.0f, #Te=%3.0f, Median AUC is: %0.2f\n', n_Fold, median(n_Sample), median(Fold_auc));
     
     Grp_AUC(:, ri) = Fold_auc;
     Grp_Name{ri} = sprintf('%s', Regex_lst{ri}(2:end));
@@ -131,25 +134,35 @@ set(gca, 'XTick', 1:n_regex, 'XTickLabel', Grp_Name, 'XTickLabelRotation', 20, '
 ylabel(sprintf('AUC (across %d folds)', n_Fold));
 title('Prediction of SyNet links', 'FontSize', 12);
 
-%% Saving plot
+return
+%% Saving AUC plot
 if IS_STRICT_CV
-    output_name = sprintf('./Plots/S05_ClassifierPerformance_%s_Over_TM_NF%d_UseStrictCV.pdf', CLS_Name, n_Fold);
+    output_name = sprintf('./Plots/S05_ClassifierPerformance_%s_Over_TM_NF%d_UseStrictCV', CLS_Name, n_Fold);
 else
-    output_name = sprintf('./Plots/S05_ClassifierPerformance_%s_Over_TM_NF%d.pdf', CLS_Name, n_Fold);
+    output_name = sprintf('./Plots/S05_ClassifierPerformance_%s_Over_TM_NF%d', CLS_Name, n_Fold);
 end
 set(gcf, 'PaperUnits', 'Inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [6 4], 'PaperPosition', [0 0 6 4]);
-print('-dpdf', '-r300', output_name);
-
-return
+print('-dpdf', '-r300', [output_name '_AUC.pdf']);
 
 %% Normalizing feature importance
-zFeat_Imp = zscore(Feat_Imp, 0, 2);
-mFeat_Imp = mean(zFeat_Imp);
-[~, sind] = sort(mFeat_Imp, 'Descend');
+zFeat_Imp = zscore(abs(Feat_Coeff), 0, 2);
+% zFeat_Imp = quantilenorm(Feat_Imp', 'Median', 1)';
+% imagesc(zFeat_Imp);
+avg_Imp = mean(zFeat_Imp);
+[~, sind] = sort(avg_Imp, 'Descend');
 
-%% Plotting
+%% Plotting Feature importance matrix
 figure('Position', [100 100 1500 700]);
-imagesc(zFeat_Imp(:, sind));
-set(gca, 'XTick', 1:n_feature, 'XTickLabel', TM_Name(sind), 'XTickLabelRotation', 45);
-disp(table(TM_Name(sind(1:10)), mFeat_Imp(sind(1:10))', 'VariableNames', {'FeatureName' 'AvgScore'}));
+% imagesc(Feat_Coeff(:, sind));
+imagesc(zFeat_Imp(:, sind(1:100)));
+set(gca, 'XTick', 1:n_feature, 'XTickLabel', TM_Name(sind), 'XTickLabelRotation', 45, 'TickLength', [0 0]);
+set(gcf, 'PaperUnits', 'Inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [30 4], 'PaperPosition', [0 0 30 4]);
+print('-dpdf', '-r300', [output_name '_FImpMat.pdf']);
+
+%% Save feature importance table
+Feat_Imp_tbl = table(TM_Name(sind), mean(Feat_Coeff(:, sind))', 'VariableNames', {'FeatureName' 'AvgScore'});
+out_str = evalc('disp(Feat_Imp_tbl)');
+fid = fopen([output_name '_FImpTable.txt'], 'w');
+fprintf(fid, out_str);
+fclose(fid);
 

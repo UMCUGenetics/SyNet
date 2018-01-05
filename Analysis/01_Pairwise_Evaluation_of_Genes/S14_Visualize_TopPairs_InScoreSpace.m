@@ -51,13 +51,13 @@ Pair_Info(:,12) = oscore(Pair_Info(:,8)); % Mean AUC
 Pair_Info(:,13) = oscore(Pair_Info(:,10)); % Absolute spearman correlation
 
 %% Normalization step
-Tmp_List = quantilenorm(Pair_Info(:,11:13));
+% Tmp_List = quantilenorm(Pair_Info(:,11:13));
 
 %% Compute final fitness
-for ai=1:3
-    Tmp_List(:,ai) = oscore(Tmp_List(:,ai));
-    Tmp_List(isnan(Tmp_List(:,ai)),ai) = 1;
-    Pair_Info(:,14) = Pair_Info(:,14) + (1-Tmp_List(:,ai)).^2;
+for ai=11:13
+    %Tmp_List(:,ai) = oscore(Tmp_List(:,ai));
+    %Tmp_List(isnan(Tmp_List(:,ai)),ai) = 1;
+    Pair_Info(:,14) = Pair_Info(:,14) + (1-Pair_Info(:,ai)).^2;
 end
 clear Tmp_List
 Pair_Info(:,14) = -sqrt(Pair_Info(:,14));

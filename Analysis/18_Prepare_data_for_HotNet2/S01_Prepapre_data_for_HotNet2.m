@@ -4,47 +4,49 @@ clear
 %% Initialization
 addpath('../17_Frequency_of_SyNetLinks_in_Biological_Netwrok/');
 addpath('../_Utilities/');
+MAX_DISTANCE = 10000;
+MAX_SyNet_Pairs = 3544;
+MAX_N_SNP = 504752;
 
 %% Load SyNet mat file
-dsn_name = ['../01_Pairwise_Evaluation_of_Genes/Top_Pairs/TopP_SyNet.mat'];
+dsn_name = ['../01_Pairwise_Evaluation_of_Genes/Top_Pairs/TopP_SyNet_AvgSynACr.mat'];
 fprintf('Loading [%s] network.\n', dsn_name);
 DSN_info = load(dsn_name);
 n_gene = numel(DSN_info.Gene_Name);
 
 %% Load GWAS hits over Cohort
-MAX_DISTANCE = 10000;
-fid = fopen(sprintf('../13_GWAS_Relationship_with_DSN/DSN_iCOGS_Hits/iCOGS_Hits_Genes_MD%0.1fk.tsv', MAX_DISTANCE/1e3), 'r');
+fid = fopen(sprintf('../13_GWAS_Relationship_with_DSN/DSN_iCOGS_Hits/iCOGS_Hits_Genes_NTS%0.0fk_MD%0.1fk.tsv', MAX_N_SNP/1e3, MAX_DISTANCE/1e3), 'r');
 % Id	-Log10(pval)	#Hit	#Hit/Size
 GWAS_Info = textscan(fid, '%s%f%f%f', 'HeaderLines', 1, 'Delimiter', '\t', 'CommentStyle', '@', 'ReturnOnError', 0);
 fclose(fid);
 if ~isequal(GWAS_Info{1}, DSN_info.Gene_Name), error(); end
 
 %% Output makeHeatFile.py scores --heat_file
-% fid = fopen(sprintf('./HotNet2_Input_Files/iCOGS_MD%0.1fk_heatfile.tsv', MAX_DISTANCE/1e3), 'w');
-% for gi=1:n_gene
-%     fprintf(fid, '%s\t%0.2f\n', GWAS_Info{1}{gi}, GWAS_Info{2}(gi));
-% end
-% fclose(fid);
+fid = fopen(sprintf('./HotNet2_Input_Files/iCOGS_MD%0.1fk_heatfile.tsv', MAX_DISTANCE/1e3), 'w');
+for gi=1:n_gene
+    fprintf(fid, '%s\t%0.2f\n', GWAS_Info{1}{gi}, GWAS_Info{2}(gi));
+end
+fclose(fid);
 
 %% Output SyNet
-% OutputHotNetwork('SyNet', DSN_info.PP_Info( 1:10000,1:2), DSN_info.Gene_Name);
+% OutputHotNetwork('SyNet', DSN_info.PP_Info(1:MAX_SyNet_Pairs,1:2), DSN_info.Gene_Name);
 % OutputHotNetwork('SyNet', DSN_info.PP_Info( 1:20000,1:2), DSN_info.Gene_Name);
-% OutputHotNetwork('SyNet', DSN_info.PP_Info( 1:50000,1:2), DSN_info.Gene_Name);
+OutputHotNetwork('SyNet', DSN_info.PP_Info( 1:50000,1:2), DSN_info.Gene_Name);
 % OutputHotNetwork('SyNet', DSN_info.PP_Info(1:100000,1:2), DSN_info.Gene_Name);
 
 %% Output Shuffled SyNet
 rind = randperm(n_gene);
-OutputHotNetwork('SyNet-Shuff', DSN_info.PP_Info( 1:10000,1:2), DSN_info.Gene_Name(rind));
-OutputHotNetwork('SyNet-Shuff', DSN_info.PP_Info( 1:20000,1:2), DSN_info.Gene_Name(rind));
+% OutputHotNetwork('SyNet-Shuff', DSN_info.PP_Info(1:MAX_SyNet_Pairs,1:2), DSN_info.Gene_Name(rind));
+% OutputHotNetwork('SyNet-Shuff', DSN_info.PP_Info( 1:20000,1:2), DSN_info.Gene_Name(rind));
 OutputHotNetwork('SyNet-Shuff', DSN_info.PP_Info( 1:50000,1:2), DSN_info.Gene_Name(rind));
-OutputHotNetwork('SyNet-Shuff', DSN_info.PP_Info(1:100000,1:2), DSN_info.Gene_Name(rind));
+% OutputHotNetwork('SyNet-Shuff', DSN_info.PP_Info(1:100000,1:2), DSN_info.Gene_Name(rind));
 
 %% Output STRING
-net_opt.GE_Path = getPath('SyNet');
-ge_data = load(net_opt.GE_Path, 'Gene_Name');
-net_opt.PreferredGenes = ge_data.Gene_Name;
-net_opt.MAX_N_PAIR = 150000;
-net_info = LoadNetworkPairs('STRING', net_opt);
+% net_opt.GE_Path = getPath('SyNet');
+% ge_data = load(net_opt.GE_Path, 'Gene_Name');
+% net_opt.PreferredGenes = ge_data.Gene_Name;
+% net_opt.MAX_N_PAIR = 150000;
+% net_info = LoadNetworkPairs('STRING', net_opt);
 % OutputHotNetwork('STRING', net_info.Pair_Index( 1:10000,1:2), net_info.Gene_Name);
 % OutputHotNetwork('STRING', net_info.Pair_Index( 1:20000,1:2), net_info.Gene_Name);
 % OutputHotNetwork('STRING', net_info.Pair_Index( 1:50000,1:2), net_info.Gene_Name);

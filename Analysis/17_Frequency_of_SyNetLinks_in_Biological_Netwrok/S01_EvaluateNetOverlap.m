@@ -4,7 +4,7 @@ for ni in HumanInt BioPlex BioGRID IntAct STRING HBBrain HBKidney HBOvary HBLymp
 for mi in 0 1; do  
 PARAM=\'SyNet\',\'$ni\',$mi; 
 echo $PARAM; 
-sbatch --job-name=NO-$PARAM --output=Logs/NO-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=5GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S01_EvaluateNetOverlap "$PARAM"; 
+sbatch --job-name=NO-$PARAM --output=Logs/NO-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S01_EvaluateNetOverlap "$PARAM"; 
 done; done
 %}
 clc;
@@ -16,12 +16,12 @@ net_opt.GE_Path = getPath('SyNet');
 ge_data = load(net_opt.GE_Path, 'Gene_Name');
 net_opt.PreferredGenes = ge_data.Gene_Name;
 net_opt.MAX_N_PAIR = 50000;
-SampleSize = 5000;
+SampleSize = 3544;
 N_Ref_lnk = 3544;
 n_rep = 1000;
 if ismac
-    Ref_Name = 'SyNet';
-    net_name = 'HBEye';
+    Ref_Name = 'SyNet'; %'AvgSyn'
+    net_name = 'HBGland';
     %net_name = 'AbsCorr';
     SHUFFLE = 0;
 end
@@ -49,6 +49,7 @@ fprintf('Reference network [%s] has [%d] genes and [%d] pairs.\n', Ref_Name, num
 
 %% Load network
 fprintf('Loading [%s] network.\n', net_name);
+% net_opt.PreferredGenes = SyNet_GeneName(unique(SyNet_lnk(:)));
 net_info = LoadNetworkAdj(net_name, net_opt);
 Net_Adj = net_info.Net_Adj;
 Net_GeneName = net_info.Gene_Name;
