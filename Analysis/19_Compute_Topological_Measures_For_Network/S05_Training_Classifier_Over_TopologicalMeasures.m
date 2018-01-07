@@ -26,18 +26,19 @@ Regex_lst = {
     '.'
     };
 n_regex = numel(Regex_lst);
-n_Fold = 50;
+n_Fold = 100;
 Shuff_Method = 'LnkShuff';
+n_Sample = 40000;
 
 %% Load TM data
-tmdata_name = sprintf('./Topological_Data/TMData-%s_NS7088_NF180.mat', Shuff_Method);
+tmdata_name = sprintf('./Topological_Data/TMData-%s_NS%d_NF180.mat', Shuff_Method, n_Sample);
 load(tmdata_name, 'TM_Data_z', 'TM_Label', 'TM_Name', 'Pair_Info');
 %qTM_Data = quantilenorm(zTM_Data); % , 'Display', true
 
 %% Evaluation of classifier
 Grp_AUC = zeros(n_Fold, n_regex);
 Grp_Name = cell(n_regex,1);
-for ri=1:n_regex
+for ri=n_regex:-1:1
     In_Grp = cellfun('length', regexp(TM_Name, Regex_lst{ri}, 'once'))==1;
     zData = TM_Data_z(:, In_Grp);
     %zData = qTM_Data(:, In_Grp);
@@ -106,6 +107,8 @@ for ri=1:n_regex
                 [~, pred_lbl] = max(pred_prob, [], 2);
                 Fold_auc(fi) = getAUC(lTe, pred_lbl, 50)*100;
                 Feat_Coeff(fi, :) = RFModel.OOBPermutedPredictorDeltaError;
+            otherwise
+                error();
         end
 %         fprintf('[%d/%d] Test performance is [%0.2f%%] AUC.\n', fi, n_Fold, Fold_auc(fi));
     end

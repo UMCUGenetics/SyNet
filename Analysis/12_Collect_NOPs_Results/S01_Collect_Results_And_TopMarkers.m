@@ -18,7 +18,7 @@ sav_path = './Collected_Results/';
 %    'HumanInt-P50000' 'BioPlex-P50000' 'BioGRID-P50000' 'IntAct-P50000' 'STRING-P50000' ...
 %     };
 method_lst = {'NetLasso' 'NetGL' 'CvGL'}; %  'NetGL'
-net_lst = {'AvgSynACr-P50000'};
+net_lst = {'AvgSynACr-P50000' 'AvgSyn-P50000'};
 feat_lst = [20 50 100 500 700 1000];
 n_net = numel(net_lst);
 n_met = numel(method_lst);

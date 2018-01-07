@@ -4,7 +4,7 @@ clear;
 %% Initialization
 addpath('../_Utilities/');
 addpath('../../../../Useful_Sample_Codes/ShowProgress');
-MAX_SyNet_Pair = 3544;
+MAX_SyNet_Pair = 20000;
 n_lnk = 50000;
 Ref_Name = 'AvgSynACr';
 Shuff_Method = 'LnkShuff';
@@ -33,7 +33,7 @@ TM_Name = cell(n_net*n_tm*2, 1);
 step = 1;
 for ti=1:n_tm
     for ni=1:n_net
-        data_name = sprintf('./Topological_Results/TM-%s_%s_%s_NP%06d_%s.mat', Shuff_Method, Ref_Name, net_lst{ni}, n_lnk, tm_lst{ti});
+        data_name = sprintf('./Topological_Results/TM-%s_%s_%s_NP%06d_MSP%06d_%s.mat', Shuff_Method, Ref_Name, net_lst{ni}, n_lnk, MAX_SyNet_Pair, tm_lst{ti});
         fprintf('Loading feature from [%s].\n', data_name);
         Data_Info = load(data_name);
         if ~isequal(Pair_Data.SyNet_info.Gene_Name, Data_Info.Ref_GeneName), error(); end
