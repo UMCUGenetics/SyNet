@@ -49,11 +49,11 @@ switch 1
         fid = fopen(net_info.net_path, 'r');
         Header_lst = regexp(fgetl(fid), '\t', 'split');
         if numel(Header_lst)==2
-            fprintf('No link weight exists. Selection of [%d] links from begining of file.\n', net_info.MAX_N_PAIR*5);
-            net_cell = textscan(fid,   '%s%s', net_info.MAX_N_PAIR*5, 'Delimiter', '\t', 'ReturnOnError', 0);
+            fprintf('No link weight exists. Selection of [%d] links from begining of file.\n', net_info.MAX_N_PAIR*20);
+            net_cell = textscan(fid,   '%s%s', net_info.MAX_N_PAIR*20, 'Delimiter', '\t', 'ReturnOnError', 0);
         else
-            fprintf('Link weights are found. Selecting of [%d] links from top weighted interactions.\n', net_info.MAX_N_PAIR*5);
-            net_cell = textscan(fid, '%s%s%f', net_info.MAX_N_PAIR*5, 'Delimiter', '\t', 'ReturnOnError', 0);
+            fprintf('Link weights are found. Selecting of [%d] links from top weighted interactions.\n', net_info.MAX_N_PAIR*20);
+            net_cell = textscan(fid, '%s%s%f', net_info.MAX_N_PAIR*20, 'Delimiter', '\t', 'ReturnOnError', 0);
             if ~issorted(net_cell{3}, 'Descend'), error('Given network file is not sorted.'); end
         end
         fclose(fid);

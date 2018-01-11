@@ -1,4 +1,4 @@
-function S01_EvaluateNetOverlap(Ref_Name, net_name, SHUFFLE)
+function S01_EvaluateNetOverlap(Ref_Name, net_name, SHUFFLE, LIMIT_GENES)
 %{ 
 for ni in HumanInt BioPlex BioGRID IntAct STRING HBBrain HBKidney HBOvary HBLympNode HBGland; do 
 for mi in 0 1; do  
@@ -24,6 +24,7 @@ if ismac
     net_name = 'HBGland';
     %net_name = 'AbsCorr';
     SHUFFLE = 0;
+    LIMIT_GENES = 1;
 end
 
 %% Load SyNet
@@ -49,7 +50,12 @@ fprintf('Reference network [%s] has [%d] genes and [%d] pairs.\n', Ref_Name, num
 
 %% Load network
 fprintf('Loading [%s] network.\n', net_name);
-% net_opt.PreferredGenes = SyNet_GeneName(unique(SyNet_lnk(:)));
+if LIMIT_GENES
+    net_opt.PreferredGenes = SyNet_GeneName(unique(SyNet_lnk(:)));
+    limit_method = 'LimitedToRef';
+else
+    limit_method = 'All';
+end
 net_info = LoadNetworkAdj(net_name, net_opt);
 Net_Adj = net_info.Net_Adj;
 Net_GeneName = net_info.Gene_Name;
@@ -87,7 +93,7 @@ for ri=1:n_rep
 end
 
 %% Save output
-sav_name = sprintf('./SyNet_Overlap/NetOV_%s_%s_MP%d_SS%d.mat', Ref_Name, net_name, net_opt.MAX_N_PAIR, SampleSize);
+sav_name = sprintf('./SyNet_Overlap/NetOV_%s_%s_MP%d_%s_SS%d.mat', Ref_Name, net_name, net_opt.MAX_N_PAIR, limit_method, SampleSize);
 fprintf('Saving the results in [%s]\n', sav_name);
 save(sav_name, 'OL_Freq', 'net_name', 'Net_GeneName', 'SyNet_GeneName', 'Net_nlnk', 'net_opt', 'SampleSize');
 end

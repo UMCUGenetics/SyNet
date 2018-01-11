@@ -21,9 +21,10 @@ res_lst = {
     'MRK_CVT01_NetLasso_HBKidney-P50000_MSN-500.mat'
     'MRK_CVT01_NetLasso_HBGland-P50000_MSN-500.mat'
     'MRK_CVT01_NetLasso_HBLympNode-P50000_MSN-500.mat'
-    'MRK_CVT01_NetLasso_ACr-P50000_MSN-500.mat'
     ''
+    'MRK_CVT01_NetLasso_ACr-P50000_MSN-500.mat'
     'MRK_CVT01_NetLasso_AvgSynACr-P50000_MSN-500.mat'
+    'MRK_CVT01_NetLasso_AvgSynACrNShuff-P50000_MSN-500.mat'
     ''
     'MRK_CVT01_LExAG_None-G11748_MSN-500.mat'
     };
@@ -68,11 +69,11 @@ ylim(y_lim);
 y_tick = get(gca, 'YTick');
 Y_lbl = arrayfun(@(y) sprintf('%0.0f%%', y*100), y_tick, 'UniformOutput', 0);
 set(gca, 'XTick', x_tick, 'XTickLabel', [], ...
-    'YTick', y_tick, 'YTickLabel', Y_lbl, 'FontWeight', 'Bold', 'FontSize', 10, ...
+    'YTick', y_tick, 'YTickLabel', Y_lbl, 'FontWeight', 'Bold', 'FontSize', 9, ...
     'Ygrid', 'on', 'GridColor', [0.7 0.7 0.7], 'GridAlpha', 0.4);
 ylabel('AUC', 'FontWeight', 'Bold');
 
-return
+% return
 %% Saving
 output_name = sprintf('./Plots/S05_01_PerformanceComparison_GenesInNet.pdf');
 set(gcf, 'PaperUnit', 'inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [14 3], 'PaperPosition', [0 0 14 3]);

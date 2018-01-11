@@ -3,7 +3,7 @@ function S00_Main_Code(Target_Study, Target_Repeat, method_lst, net_lst, MAX_N_S
 %{
 for ri in `seq 1 10`; do
 for si in `seq 1 14`; do
-PARAM="$si,$ri,{'NetLasso','NetGL'},{'AvgSynACr-P25000'}"; sbatch --exclude=maxwell --job-name=NE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code "$PARAM";
+PARAM="$si,$ri,{'NetLasso','NetGL'},{'AvgSynACr-P50000'}"; sbatch --exclude=maxwell --job-name=NE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code "$PARAM";
 done;
 read -p "`date`: $PARAM. Press a key" -t 180
 done
@@ -16,7 +16,7 @@ if ismac || ispc
     fprintf('*** Warning!: Running on debug mode.\n');
     Target_Study = 14;
     Target_Repeat = 1;
-    method_lst = {'CvGL'};
+    method_lst = {'NetSFGL'};
     net_lst = {'AvgSynACr-P50000'};
     MAX_N_SUBNET = 500;
 end
@@ -90,7 +90,13 @@ for ni=1:n_net
                 opt_gls.lam_list = [zeros(20,1) logspace(log10(1e-2), 0, 20)'];
                 opt_gls.MAX_SUBNET_SIZE = str2double(method_lst{mi}(7:end));
                 result = perf_GLasso(dataset_info, opt_gls);
-            case 'NetGL'
+            case {'NetGL' 'NetSFGL'}
+                if strcmp(method_lst{mi}, 'NetSFGL')
+                    n_gene = size(dataset_info.DatasetTr.Net_Adj, 1);
+                    fprintf('[w] Warning: Shuffled network is selected, [%d] nodes will be shuffled ...\n', n_gene);
+                    rind = randperm(n_gene);
+                    dataset_info.DatasetTr.Net_Adj = dataset_info.DatasetTr.Net_Adj(rind, rind);
+                end
                 opt_ngl = opt_info;
                 opt_ngl.lam_list = [zeros(20,1) logspace(log10(1e-2), 0, 20)'];
                 tmp_res_ptr = sprintf('./Results_Files/DID_%s_*_MSN-500_MTN-NetLasso.mat', ds_id);

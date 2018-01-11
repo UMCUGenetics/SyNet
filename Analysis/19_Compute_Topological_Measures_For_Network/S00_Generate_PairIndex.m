@@ -3,7 +3,7 @@ clear;
 
 %% Inialization
 Ref_Name = 'AvgSynACr';
-MAX_SyNet_Pair = 20000;
+MAX_SyNet_Pair = 50000;
 Shuff_Method = 'LnkShuff';
 
 %% Load SyNet pairs

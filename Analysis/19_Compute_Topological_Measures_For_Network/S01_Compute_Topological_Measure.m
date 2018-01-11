@@ -1,7 +1,7 @@
 function S01_Compute_Topological_Measure(net_name, TM_Name, RemoveGSet)
 % clc;
 %{
-for ti in DirectConnection ShortestPath Degree PageRank-FB0.65 PageRank-FB0.75 PageRank-FB0.85 PageRank-FB0.95 Closeness Betweenness Eigenvector; do
+for ti in DirectConnection Jaccard ClusteringCoefficient ShortestPath Degree PageRank-FB0.65 PageRank-FB0.75 PageRank-FB0.85 PageRank-FB0.95 Closeness Betweenness Eigenvector; do
 for ni in HumanInt HBBrain HBKidney HBOvary HBUterus AbsCorr STRING IntAct BioPlex BioGRID HBLympNode HBEpith HBGland HBOvary; do
 PARAM=\'$ni\',\'$ti\';
 sbatch --job-name=CTM-$PARAM --output=Logs/CTM-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S01_Compute_Topological_Measure "$PARAM"; 
@@ -12,15 +12,18 @@ done
 
 %% Inialization
 addpath('../_Utilities/');
+addpath('../11_Perform_LassoTypes');
 addpath('../../../../Useful_Sample_Codes/ShowProgress');
 if ~exist('RemoveGSet', 'var'), RemoveGSet={}; end
 if ismac
     net_name = 'STRING'; % 'I2D' 'STRING' 'HPRD' 'HBEpith','HBGland'
-    TM_Name = 'DirectConnection';
+    TM_Name = 'ClusteringCoefficient';
 end
 Ref_Name = 'AvgSynACr';
-MAX_SyNet_Pair = 20000;
+% MAX_SyNet_Pair = 3544;
+MAX_SyNet_Pair = 50000;
 Shuff_Method = 'LnkShuff';
+% Shuff_Method = 'OneGRND';
 
 %% Load Pair index
 PI_Name = sprintf('./Topological_Data/PairInfo-%s_%s_MP%06d.mat', Shuff_Method, Ref_Name, MAX_SyNet_Pair);
@@ -82,7 +85,7 @@ r = [3 1 6];
 Ref_Adj(r,r) = Net_Adj(i,i);
 %}
 
-%% Compute topological measiure
+%% Preparing data structure
 Output_results = struct();
 Output_results.Ref_GeneName = Ref_GeneName;
 Output_results.Pair_Info = Pair_Info;
@@ -91,6 +94,17 @@ Output_results.net_opt = net_opt;
 fprintf('Computing [%s] from network [%s] ...\n', TM_Name, net_name);
 Net_Graph = graph(Net_Adj~=0, 'OmitSelfLoops');
 Pair_Index = sub2ind([n_RefGeneName n_RefGeneName], Pair_Info(:,1), Pair_Info(:,2));
+n_pair = size(Pair_Index, 1);
+
+%% Generate Neighbor Sets
+if ismember(TM_Name, {'Jaccard', 'ClusteringCoefficient'})
+    fprintf('Generating neighbor sets: \n');
+    Neig_cell = getNeighborsFromAdj(Net_Adj, inf);
+    Output_results.Pair_AvgScore = zeros(n_pair, 1);
+    Output_results.Pair_DifScore = zeros(n_pair, 1);
+end
+
+%% Compute topological measiure
 switch TM_Name
     case 'DirectConnection'
         Output_results.Pair_AvgScore = double(Net_Adj(Pair_Index)>0);
@@ -115,6 +129,31 @@ switch TM_Name
     case 'Eigenvector'
         Output_results.Gene_Eigenvector = centrality(Net_Graph, 'eigenvector');
         [Output_results.Pair_AvgScore, Output_results.Pair_DifScore] = ConvertGeneToPairs(Output_results.Gene_Eigenvector, Pair_Info(:,1:2));
+    case 'Jaccard'
+        % intersect N(n_i) and N(n_j) / their union
+        for pi=1:n_pair
+            uni_set = union(Neig_cell{Pair_Info(pi,1)}, Neig_cell{Pair_Info(pi,2)});
+            int_set = intersect(Neig_cell{Pair_Info(pi,1)}, Neig_cell{Pair_Info(pi,2)});
+            Output_results.Pair_AvgScore(pi) = numel(int_set) / numel(uni_set);
+            Output_results.Pair_DifScore(pi) = numel(int_set) / numel(uni_set);
+        end
+    case 'ClusteringCoefficient'
+        % (#links between direct neighbors of node I)/(total #link possible between direct neighbors of node I)
+        pair_cc = zeros(1, 2);
+        for pi=1:n_pair
+            for gi=1:2
+                nei_set = Neig_cell{Pair_Info(pi,gi)}(2:end);
+                n_nei = numel(nei_set);
+                if n_nei<2
+                    pair_cc(gi) = 0;
+                else
+                    nei_adj = Net_Adj(nei_set, nei_set);
+                    pair_cc(gi) = sum(nei_adj(:)~=0) / (n_nei^2 - n_nei);
+                end
+            end
+            Output_results.Pair_AvgScore(pi) = mean(pair_cc);
+            Output_results.Pair_DifScore(pi) = abs(pair_cc(1) - pair_cc(2));
+        end
 end
 
 %% Save the results
@@ -125,8 +164,8 @@ end
 
 %% Functions %%%%%%%%%%%%%%%%%%%%%%
 function [Avg_Score, Diff_Score] = ConvertGeneToPairs(Gene_Score, Pair_Indices)
-Pair_Score = sort([Gene_Score(Pair_Indices(:,1)) Gene_Score(Pair_Indices(:,2))], 2, 'Descend');
+Pair_Score = [Gene_Score(Pair_Indices(:,1)) Gene_Score(Pair_Indices(:,2))];
 Avg_Score = mean(Pair_Score, 2);
-Diff_Score = Pair_Score(:,1) - Pair_Score(:,2);
+Diff_Score = abs(Pair_Score(:,1) - Pair_Score(:,2));
 end
 

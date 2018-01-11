@@ -12,11 +12,12 @@ net_lst = {'HumanInt' 'BioPlex','BioGRID','IntAct','STRING','HBOvary','HBBrain',
 n_net = numel(net_lst);
 % 'DirectConnection' 'ShortestPath' 'PageRank-FB0.95' 'PageRank-FB0.85' 'PageRank-FB0.75' 'PageRank-FB0.65' 'Eigenvector' 'Degree' 'Closeness' 'Betweenness'
 tm_lst = {'Degree' 'PageRank-FB0.85' 'Betweenness'}; 
+tm_lst = {'ShortestPath' 'PageRank-FB0.85' 'Betweenness'}; 
 n_tm = numel(tm_lst);
 
 %% Loading TM data
-load('./Topological_Data/TMData-OneGRND_NS7088_NF180.mat');
-[n_sample, n_feature] = size(TM_Data_filtered);
+load('./Topological_Data/TMData-OneGRND_NS7088_NF180.mat', 'TM_Data', 'TM_Name', 'TM_Label');
+[n_sample, n_feature] = size(TM_Data);
 
 %% Main loop
 figure('Position', [100 100 1600 500]);
@@ -30,11 +31,13 @@ for ti=1:n_tm
         Feat_Ind = cellfun('length', strfind(TM_Name, sprintf('%s-%s-A', net_lst{ni}, tm_lst{ti})))==1;
         if sum(Feat_Ind)~=1, error(); end
         
-        data_neg = TM_Data_filtered(TM_Label==-1, Feat_Ind);
+        data_neg = TM_Data(TM_Label==-1, Feat_Ind);
+        data_neg(data_neg==inf) = [];
         box_h = BoxPlotEx(data_neg, 'Positions', ni-0.17, 'Color', neg_clr, 'Symbol', '', 'Widths', 0.3);
         set(box_h, 'LineWidth', 2);
         
-        data_pos = TM_Data_filtered(TM_Label==+1, Feat_Ind);
+        data_pos = TM_Data(TM_Label==+1, Feat_Ind);
+        data_pos(data_pos==inf) = [];
         [met_clr, Method_lst{ni,1}] = getColor(net_lst{ni});
         box_h = BoxPlotEx(data_pos, 'Positions', ni+0.17, 'Color', met_clr, 'Symbol', '', 'Widths', 0.3);
         set(box_h, 'LineWidth', 2);

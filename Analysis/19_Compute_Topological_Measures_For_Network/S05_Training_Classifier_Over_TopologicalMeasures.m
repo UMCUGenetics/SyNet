@@ -11,6 +11,11 @@ IS_STRICT_CV = 1;
 % CLS_Name = 'Lasso';
 CLS_Name = 'RandomForest';
 % CLS_Name = 'Regress';
+n_Fold = 200;
+Shuff_Method = 'LnkShuff';
+% Shuff_Method = 'OneGRND';
+% n_Sample = 7088;
+n_Sample = 100000;
 Regex_lst = {
     '^HumanInt'
     '^BioPlex'
@@ -24,14 +29,12 @@ Regex_lst = {
 %     '^(?!HBGland).'
     '^HBGland'
     '.'
+    %'DirectConnection|ShortestPath|Jaccard'
     };
 n_regex = numel(Regex_lst);
-n_Fold = 100;
-Shuff_Method = 'LnkShuff';
-n_Sample = 40000;
 
 %% Load TM data
-tmdata_name = sprintf('./Topological_Data/TMData-%s_NS%d_NF180.mat', Shuff_Method, n_Sample);
+tmdata_name = sprintf('./Topological_Data/TMData-%s_NS%d_NF210.mat', Shuff_Method, n_Sample);
 load(tmdata_name, 'TM_Data_z', 'TM_Label', 'TM_Name', 'Pair_Info');
 %qTM_Data = quantilenorm(zTM_Data); % , 'Display', true
 

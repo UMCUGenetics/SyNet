@@ -17,7 +17,7 @@ sav_path = './Collected_Results/';
 %     'AvgSynACrNShuff-P50000' 'HBGland-P50000' 'HBLympNode-P50000' 'ACr-P50000' 'HBOvary-P50000' 'HBBrain-P50000' 'HBKidney-P50000' ...
 %    'HumanInt-P50000' 'BioPlex-P50000' 'BioGRID-P50000' 'IntAct-P50000' 'STRING-P50000' ...
 %     };
-method_lst = {'NetLasso' 'NetGL' 'CvGL'}; %  'NetGL'
+method_lst = {'NetLasso' 'NetGL' 'CvGL' 'NetSFGL'}; %  'NetGL'
 net_lst = {'AvgSynACr-P50000' 'AvgSyn-P50000'};
 feat_lst = [20 50 100 500 700 1000];
 n_net = numel(net_lst);
@@ -109,7 +109,7 @@ for mi=1:n_met
                                     set_ind = Group_Index(1,gi):Group_Index(2,gi);
                                     SubNet_Score(gi) = max(abs(res_data.B(set_ind, res_data.fit.IndexMinMSE)));
                                 end
-                            case {'NetGL' 'CvGL'}
+                            case {'NetGL' 'CvGL' 'NetSFGL'}
                                 Group_Index = res_data.fit.Options.ind;
                                 n_snet = size(Group_Index,2);
                                 SubNet_Score = zeros(n_snet, 1);

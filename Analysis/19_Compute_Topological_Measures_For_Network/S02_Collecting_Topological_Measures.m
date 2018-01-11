@@ -4,10 +4,12 @@ clear;
 %% Initialization
 addpath('../_Utilities/');
 addpath('../../../../Useful_Sample_Codes/ShowProgress');
-MAX_SyNet_Pair = 20000;
+% MAX_SyNet_Pair = 3544;
+MAX_SyNet_Pair = 50000;
 n_lnk = 50000;
 Ref_Name = 'AvgSynACr';
 Shuff_Method = 'LnkShuff';
+% Shuff_Method = 'OneGRND';
 
 %% Load labels
 PI_Name = sprintf('./Topological_Data/PairInfo-%s_%s_MP%06d.mat', Shuff_Method, Ref_Name, MAX_SyNet_Pair);
@@ -26,7 +28,7 @@ n_Sample = size(Pair_Info, 1);
 %% Collect data
 net_lst = {'HumanInt' 'BioPlex','BioGRID','IntAct','STRING','HBBrain','HBKidney','HBOvary','HBLympNode','HBGland'}; % No 'AbsCorr'! as its used in SyNet
 n_net = numel(net_lst);
-tm_lst = {'DirectConnection' 'ShortestPath' 'PageRank-FB0.95' 'PageRank-FB0.85' 'PageRank-FB0.75' 'PageRank-FB0.65' 'Eigenvector' 'Degree' 'Closeness' 'Betweenness'};
+tm_lst = {'DirectConnection' 'Jaccard' 'ClusteringCoefficient' 'ShortestPath' 'PageRank-FB0.95' 'PageRank-FB0.85' 'PageRank-FB0.75' 'PageRank-FB0.65' 'Eigenvector' 'Degree' 'Closeness' 'Betweenness'};
 n_tm = numel(tm_lst);
 TM_Data = zeros(MAX_SyNet_Pair*2, n_net*n_tm*2);
 TM_Name = cell(n_net*n_tm*2, 1);
@@ -43,7 +45,7 @@ for ti=1:n_tm
         TM_Data(:,step)   = Data_Info.Pair_AvgScore;
         step = step + 1;
         
-        if ismember(tm_lst{ti}, {'DirectConnection' 'ShortestPath'})
+        if ismember(tm_lst{ti}, {'DirectConnection' 'ShortestPath' 'Jaccard'})
             if ~isequal(TM_Data(:,step-1), Data_Info.Pair_DifScore)
                 error();
             end

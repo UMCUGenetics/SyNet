@@ -24,9 +24,12 @@ res_lst = {
     {'MRK_CVT01_NetLasso_HBGland-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_HBGland-P50000_MSN-500.mat'}
     {'MRK_CVT01_NetLasso_HBLympNode-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_HBLympNode-P50000_MSN-500.mat'}
     {'MRK_CVT01_NetLasso_ACr-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_ACr-P50000_MSN-500.mat'}
-    {'MRK_CVT01_CvGL_AvgSynACr-P50000_MSN-500.mat' 'MRK_CVT01_CvGL_AvgSynACr-P50000_MSN-500.mat'}
+%     {'MRK_CVT01_CvGL_AvgSyn-P50000_MSN-500.mat' 'MRK_CVT01_CvGL_AvgSyn-P50000_MSN-500.mat'}
+%     {'MRK_CVT01_CvGL_AvgSynACr-P50000_MSN-500.mat' 'MRK_CVT01_CvGL_AvgSynACr-P50000_MSN-500.mat'}
+%     {'MRK_CVT01_NetLasso_AvgSynACr-P10000_MSN-500.mat' 'MRK_CVT01_NetGL_AvgSynACr-P10000_MSN-500.mat'}
     {'MRK_CVT01_NetLasso_AvgSynACr-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_AvgSynACr-P50000_MSN-500.mat'}
     {'MRK_CVT01_NetLasso_AvgSynACrNShuff-P50000_MSN-500.mat' 'MRK_CVT01_NetGL_AvgSynACrNShuff-P50000_MSN-500.mat'}
+    {'MRK_CVT01_NetSFGL_AvgSynACr-P50000_MSN-500.mat' 'MRK_CVT01_NetSFGL_AvgSynACr-P50000_MSN-500.mat'}
     {'MRK_CVT01_LExAG_None-G11748_MSN-500.mat' 'MRK_CVT01_LExAG_None-G11748_MSN-500.mat'}
     };
 n_res = numel(res_lst);
