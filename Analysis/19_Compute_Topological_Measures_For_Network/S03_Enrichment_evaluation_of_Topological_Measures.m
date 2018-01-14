@@ -11,17 +11,17 @@ neg_clr = [0.7 0.7 0.7];
 net_lst = {'HumanInt' 'BioPlex','BioGRID','IntAct','STRING','HBOvary','HBBrain','HBKidney','HBLympNode','HBGland'};
 n_net = numel(net_lst);
 % 'DirectConnection' 'ShortestPath' 'PageRank-FB0.95' 'PageRank-FB0.85' 'PageRank-FB0.75' 'PageRank-FB0.65' 'Eigenvector' 'Degree' 'Closeness' 'Betweenness'
-tm_lst = {'Degree' 'PageRank-FB0.85' 'Betweenness'}; 
-tm_lst = {'ShortestPath' 'PageRank-FB0.85' 'Betweenness'}; 
+% tm_lst = {'Degree' 'PageRank-FB0.85' 'Betweenness'}; 
+tm_lst = {'Degree' 'ShortestPath' 'Jaccard'}; 
 n_tm = numel(tm_lst);
 
 %% Loading TM data
-load('./Topological_Data/TMData-OneGRND_NS7088_NF180.mat', 'TM_Data', 'TM_Name', 'TM_Label');
+load('./Topological_Data/TMData-OneGRND_NS7088_NF210.mat', 'TM_Data', 'TM_Name', 'TM_Label');
 [n_sample, n_feature] = size(TM_Data);
 
 %% Main loop
 figure('Position', [100 100 1600 500]);
-sp_h = tight_subplot(1, 3, 0.03, 0.1, 0.02);
+sp_h = tight_subplot(1, 3, 0.04, 0.1, 0.03);
 step = 1;
 for ti=1:n_tm
     set(gcf, 'CurrentAxes', sp_h(step));
@@ -62,7 +62,7 @@ for ti=1:n_tm
     end
     set(gca, 'XTick', 1:n_net, 'XTickLabel', Method_lst, 'XTickLabelRotation', 20, ...
         'XLim', [0.3 n_net+0.7], 'FontWeight', 'Bold');
-    title(tm_lst{ti}, 'FontSize', 14);
+    ylabel(tm_lst{ti}, 'FontSize', 14);
     step = step + 1;
 end
 

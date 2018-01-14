@@ -1,8 +1,8 @@
-function S04_Overlap_SyNet_vs_Net_PerThresholded_Links(Ref_Name, net_name, LIMIT_GENES)
+function S04_Overlap_SyNet_vs_Net_PerThresholded_Links(Ref_Name, net_name, LIMIT_GENES, SHUFFLE_NODES)
 %{
 for mi in 0 1; do
 for ni in HumanInt BioPlex BioGRID IntAct STRING HBBrain HBKidney HBOvary HBLympNode HBGland; do
-PARAM=\'SyNet\',\'$ni\',$mi;
+PARAM=\'SyNet\',\'$ni\',$mi,0;
 echo $PARAM;
 sbatch --job-name=LnkOL-$PARAM --output=Logs/LnkOL-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S04_Overlap_SyNet_vs_Net_PerThresholded_Links "$PARAM";
 done; 
@@ -14,10 +14,12 @@ clc;
 %% Initialization
 addpath('../../../../Useful_Sample_Codes/ShowProgress');
 addpath('../_Utilities/');
+if ~exist('SHUFFLE_NODES', 'var'), SHUFFLE_NODES = 0; end
 net_opt.GE_Path = getPath('SyNet');
 ge_data = load(net_opt.GE_Path, 'Gene_Name');
 net_opt.PreferredGenes = ge_data.Gene_Name;
 net_opt.MAX_N_PAIR = 50000;
+net_opt.Shuffle_Nodes = SHUFFLE_NODES;
 N_Ref_lnk = 3544;
 n_rep = 1000;
 Ratio_lst = 0.05:0.05:1;
@@ -61,6 +63,9 @@ end
 net_info = LoadNetworkAdj(net_name, net_opt);
 Net_Adj = net_info.Net_Adj;
 Net_GeneName = net_info.Gene_Name;
+if net_opt.Shuffle_Nodes
+    net_name = [net_name '-SHFL'];
+end
 clear net_info
 if min(Net_Adj(:))<0, error('Not implemented for negative links'); end
 Net_ngene = numel(Net_GeneName);

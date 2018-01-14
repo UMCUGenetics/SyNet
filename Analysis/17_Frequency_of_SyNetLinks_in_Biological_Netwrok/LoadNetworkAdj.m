@@ -152,6 +152,14 @@ Net_Adj(:, del_ind) = [];
 Gene_Name(del_ind) = [];
 fprintf('[i] [%d] genes were filtered.\n', sum(del_ind));
 
+%% Node shuffeling
+if isfield(net_opt, 'Shuffle_Nodes') && net_opt.Shuffle_Nodes == 1
+    n_gene = size(Net_Adj, 1);
+    fprintf('[w] Warning: Shuffled network is selected, [%d] nodes will be shuffled ...\n', n_gene);
+    rind = randperm(n_gene);
+    Net_Adj = Net_Adj(rind, rind);
+end
+
 %% Storing
 if ~issymmetric(Net_Adj), error('Adj Matrix is not symetric.\n'); end
 net_info.Net_Adj = single(Net_Adj);

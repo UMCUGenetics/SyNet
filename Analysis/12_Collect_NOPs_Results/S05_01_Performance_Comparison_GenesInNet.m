@@ -73,7 +73,7 @@ set(gca, 'XTick', x_tick, 'XTickLabel', [], ...
     'Ygrid', 'on', 'GridColor', [0.7 0.7 0.7], 'GridAlpha', 0.4);
 ylabel('AUC', 'FontWeight', 'Bold');
 
-% return
+return
 %% Saving
 output_name = sprintf('./Plots/S05_01_PerformanceComparison_GenesInNet.pdf');
 set(gcf, 'PaperUnit', 'inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [14 3], 'PaperPosition', [0 0 14 3]);

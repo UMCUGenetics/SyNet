@@ -4,17 +4,19 @@ close all
 
 %% Initialization
 addpath('../_Utilities/');
-Ratio_lst = 0.05:0.05:1;
+Ratio_lst = 0.05:0.1:1;
 n_ratio = numel(Ratio_lst);
 MAX_N_PAIR = 50000;
-Ref_Name = 'SyNet'; %'AvgSyn'
-Net_lst = {'HumanInt' 'BioPlex' 'BioGRID' 'IntAct' 'STRING' 'HBBrain' 'HBKidney' 'HBOvary' 'HBLympNode' 'HBGland'};
-n_net = numel(Net_lst);
-Mrk_lst = {'-' 'O' 'x' '>' '<' '^' 'v' '+' 's' 'd' 'p'};
-Limit_method = 'All';
-% Limit_method = 'LimitedToRef';
-Overlap_Check = 'Gene';
-% Overlap_Check = 'Lnk';
+Net_lst = {'HBGland','HBLympNode','HBOvary','HBKidney','HBBrain','STRING','IntAct','BioGRID','BioPlex','HumanInt','HBGland-SHFL'}; %
+n_net = numel(Net_lst); 
+Mrk_lst = {'O' 'x' '>' '<' '^' 'v' '+' 's' 'd' 'p' '-'};
+
+Ref_Name = 'AvgSyn';
+% Ref_Name = 'SyNet'; 
+% Limit_method = 'All';
+Limit_method = 'LimitedToRef';
+% Overlap_Check = 'Gene';
+Overlap_Check = 'Lnk';
 
 %% Collecting data
 zscr_Mat = zeros(n_net, n_ratio);
@@ -47,17 +49,27 @@ figure('Position', [100 100 1400 500]);
 hold on
 for ni=1:n_net
     [clr_map, Method_lst{ni,1}] = getColor(Net_lst{ni});
-    plot(1:n_ratio, zscr_Mat(ni,:), [Mrk_lst{ni} '-'], 'Color', clr_map, 'MarkerSize', 10, 'MarkerFaceColor', clr_map);
+    plot(1:n_ratio, zscr_Mat(ni,:), [Mrk_lst{ni} '-'], 'Color', clr_map, ...
+        'MarkerSize', 5, 'MarkerFaceColor', clr_map, 'LineWidth', 2);
     
     [~, best_ind] = max(zscr_Mat(ni,:));
-    text(best_ind, zscr_Mat(ni, best_ind), param_str{ni, best_ind}, ...
-        'VerticalAlignment', 'Bottom', 'HorizontalAlignment', 'Center', 'FontWeight', 'Bold');
+%     text(best_ind, zscr_Mat(ni, best_ind), param_str{ni, best_ind}, ...
+%         'VerticalAlignment', 'Bottom', 'HorizontalAlignment', 'Center', 'FontWeight', 'Bold');
 end
-set(gca, 'XTick', 1:n_ratio, 'XTickLabel', Ratio_lst*100);
-xlim([0 n_ratio+1]);
-xlabel('Ratio of links');
-ylabel('Z-score');
+x_tick_label = arrayfun(@(x) sprintf('%0.0f%%', x), Ratio_lst*100, 'UniformOutput', false);
+set(gca, 'XTick', 1:n_ratio, 'XTickLabel', x_tick_label, 'FontWeight', 'Bold');
+xlim([1 n_ratio]);
+xlabel(sprintf('Percentage of top [%s] used', Overlap_Check));
+ylabel('z-score');
 title(sprintf('Overlap of [%s] and biological networks [Over %s, Method = %s]', Ref_Name, Overlap_Check, Limit_method));
-legend(Method_lst);
+% if strcmp(Overlap_Check, 'Gene')
+    legend(Method_lst);
+% end
+
+% return
+%% Save
+output_name = sprintf('./Plots/S05_NetOL_RF-%s_OV-%s_LM-%s_MP%06d.pdf', Ref_Name, Overlap_Check, Limit_method, MAX_N_PAIR);
+set(gcf, 'PaperUnits', 'Inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [7 5], 'PaperPosition', [0 0 7 5]);
+print('-dpdf', '-r300', output_name);
 
 

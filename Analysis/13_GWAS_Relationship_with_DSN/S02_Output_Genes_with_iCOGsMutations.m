@@ -13,7 +13,12 @@ gene_info = load('./Gene_Coordinates/Gene_Info_vGRCh37.75.mat');
 n_gene = numel(gene_info.Gene_Name);
 
 %% Load GWAS hits
-MAX_N_SNP = 504752;
+% MAX_N_SNP = 504752;
+% MAX_N_SNP = 53837; % pval = 0.00499986
+% MAX_N_SNP = 10962; % pval = 0.000999939
+MAX_N_SNP = 10000; % pval = 0.0000999498
+% MAX_N_SNP = 1104; % pval = 0.0000999498
+% MAX_N_SNP = 1000; % pval = 0.0000999498
 fid = fopen('./iCOGS_data/iCOGS_SurvData_NullRem_Sorted_OnlyCoordAndPValue.tsv', 'r');
 gwas_cell = textscan(fid, '%f%f%f', MAX_N_SNP, 'HeaderLines', 1, 'Delimiter', '\t', 'CommentStyle', '@', 'ReturnOnError', 0);
 fclose(fid);
@@ -44,7 +49,7 @@ end
 % Hit_info = vertcat(Hit_info{:});
 
 %% Output top GWAS hits
-hit_fname = sprintf('./DSN_iCOGS_Hits/iCOGS_Hits_Genes_NTS%0.0fk_MD%0.1fk.tsv', MAX_N_SNP/1e3, MAX_DISTANCE/1e3);
+hit_fname = sprintf('./iCOGS_Hits/iCOGS_Hits_Genes_NTS%0.1fk_MD%0.1fk.tsv', MAX_N_SNP/1e3, MAX_DISTANCE/1e3);
 fprintf('Writing the GWAS hits in %s\n', hit_fname);
 fid = fopen(hit_fname, 'w');
 fprintf(fid, 'Id\t-Log10(pval)\t#Hit\t#Hit/Size\n');
@@ -61,13 +66,14 @@ for gi=1:numel(dsn_info.Gene_Name)
         n_hit = 0;
         n_hit_norm = 0;
     end
-    fprintf(fid, '%s\t%0.1f\t%d\t%0.2f\n', gi_name, gene_score, n_hit, n_hit_norm);
+    fprintf(fid, '%s\t%0.5f\t%d\t%0.5f\n', gi_name, gene_score, n_hit, n_hit_norm);
 end
 fclose(fid);
 
+return
 %% Output pairs
 n_SyNet_Pairs = 3544;
-SyNet_fname = sprintf('./DSN_iCOGS_Hits/DSN_SyNet_PairsWith_iCOGS_Pval_NP%05d_MD%0.1fk.tsv', n_SyNet_Pairs, MAX_DISTANCE/1e3);
+SyNet_fname = sprintf('./iCOGS_Hits/DSN_SyNet_PairsWith_iCOGS_Pval_NP%05d_MD%0.1fk.tsv', n_SyNet_Pairs, MAX_DISTANCE/1e3);
 fprintf('Writing the pair scores in %s\n', SyNet_fname);
 fid = fopen(SyNet_fname, 'w');
 fprintf(fid, 'Source\tTarget\tType\tWeight\tGWAS_Log10PVal\n');

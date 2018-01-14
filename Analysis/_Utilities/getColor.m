@@ -3,6 +3,8 @@ function [Method_Color, Preferred_Name] = getColor(Method_Name)
 Preferred_Name = Method_Name;
 
 switch Method_Name
+    case 'HBGland-SHFL'
+        Method_Color = [0.60 0.60 0.60];
     case 'AvgSynACrNShuff'
         Method_Color = [0.60 0.60 0.60];
         Preferred_Name = 'SyNet-Shuffled';
@@ -39,7 +41,7 @@ switch Method_Name
         Preferred_Name = 'SyNet';
     case {'All genes' 'None'}
         Method_Color = [0.40 0.60 0.40];
-        Preferred_Name = 'All genes';
+        Preferred_Name = 'Baseline';
     case 'STRINGNShuff'
         Method_Color = [0.80 0.80 0.80];
         Preferred_Name = 'STRING-Shuff';
