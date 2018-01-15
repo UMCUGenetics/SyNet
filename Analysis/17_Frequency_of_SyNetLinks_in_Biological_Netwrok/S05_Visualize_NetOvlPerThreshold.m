@@ -7,14 +7,14 @@ addpath('../_Utilities/');
 Ratio_lst = 0.05:0.1:1;
 n_ratio = numel(Ratio_lst);
 MAX_N_PAIR = 50000;
-Net_lst = {'HBGland','HBLympNode','HBOvary','HBKidney','HBBrain','STRING','IntAct','BioGRID','BioPlex','HumanInt','HBGland-SHFL'}; %
+Net_lst = {'HBGland','HBLympNode','HBOvary','HBKidney','HBBrain','STRING','IntAct','BioGRID','BioPlex','HumanInt'}; % ,'HBGland-SHFL'
 n_net = numel(Net_lst); 
 Mrk_lst = {'O' 'x' '>' '<' '^' 'v' '+' 's' 'd' 'p' '-'};
 
-Ref_Name = 'AvgSyn';
-% Ref_Name = 'SyNet'; 
-% Limit_method = 'All';
-Limit_method = 'LimitedToRef';
+% Ref_Name = 'AvgSyn';
+Ref_Name = 'SyNet'; 
+Limit_method = 'All';
+% Limit_method = 'LimitedToRef';
 % Overlap_Check = 'Gene';
 Overlap_Check = 'Lnk';
 
@@ -53,18 +53,18 @@ for ni=1:n_net
         'MarkerSize', 5, 'MarkerFaceColor', clr_map, 'LineWidth', 2);
     
     [~, best_ind] = max(zscr_Mat(ni,:));
-%     text(best_ind, zscr_Mat(ni, best_ind), param_str{ni, best_ind}, ...
-%         'VerticalAlignment', 'Bottom', 'HorizontalAlignment', 'Center', 'FontWeight', 'Bold');
+    text(best_ind, zscr_Mat(ni, best_ind), param_str{ni, best_ind}, ...
+        'VerticalAlignment', 'Bottom', 'HorizontalAlignment', 'Center', 'FontWeight', 'Bold');
 end
 x_tick_label = arrayfun(@(x) sprintf('%0.0f%%', x), Ratio_lst*100, 'UniformOutput', false);
-set(gca, 'XTick', 1:n_ratio, 'XTickLabel', x_tick_label, 'FontWeight', 'Bold');
+set(gca, 'XTick', 1:n_ratio, 'XTickLabel', x_tick_label, 'FontWeight', 'Bold', 'FontSize', 12);
 xlim([1 n_ratio]);
 xlabel(sprintf('Percentage of top [%s] used', Overlap_Check));
 ylabel('z-score');
 title(sprintf('Overlap of [%s] and biological networks [Over %s, Method = %s]', Ref_Name, Overlap_Check, Limit_method));
-% if strcmp(Overlap_Check, 'Gene')
+if strcmp(Overlap_Check, 'Gene')
     legend(Method_lst);
-% end
+end
 
 % return
 %% Save

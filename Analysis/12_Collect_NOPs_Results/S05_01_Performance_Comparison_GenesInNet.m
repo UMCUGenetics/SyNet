@@ -33,7 +33,7 @@ y_lim = [0.6 0.66];
 
 %% Plotting performance
 close all
-figure('Position', [100 100 1500 400]);
+figure('Position', [100 100 700 400]);
 hold on
 x_tick = 1:n_res;
 for si=1:n_res
@@ -52,15 +52,18 @@ for si=1:n_res
     
     [met_clr, Method_lbl{si,1}] = getColor(net_info{1});
     bar(si, mean(auc_rep), 'FaceColor', met_clr, 'BarWidth', 0.7, 'EdgeColor', met_clr*0.6);
-    errorbarEx(si, mean(auc_rep), std(auc_rep), std(auc_rep), 2, 0.1, met_clr*0.5);
+    err_h = errorbarEx(si, mean(auc_rep), std(auc_rep), 0, 2, 0.1, met_clr*0.8);
+    delete(err_h(3));
     
     if si==n_res
-        x_lbl = sprintf('%s\n%d / %0.0f', Method_lbl{si}, res_data.Gene_Map.Count, round(median(sum(res_data.Marker_lst~=0,2))));
+        x_lbl = sprintf('%d\n%0.0f', res_data.Gene_Map.Count, round(median(sum(res_data.Marker_lst~=0,2))));
     else
-        x_lbl = sprintf('%s\n%d / %0.0f', Method_lbl{si}, mode(res_data.BestNetwork), round(median(sum(res_data.Marker_lst~=0,2))));
+        x_lbl = sprintf('%d\n%0.0f', mode(res_data.BestNetwork), round(median(sum(res_data.Marker_lst~=0,2))));
     end
-    text(si, y_lim(1)-0.0005, x_lbl, 'FontSize', 9, 'FontWeight', 'Bold', 'Rotation', 0, ...
-        'VerticalAlignment', 'Top', 'HorizontalAlignment', 'Center');
+    text(si, y_lim(1), x_lbl, 'FontSize', 7, 'FontWeight', 'Bold', 'Color', [0 0 0], ...
+        'VerticalAlignment', 'Bottom', 'HorizontalAlignment', 'Center');
+    text(si, y_lim(1), Method_lbl{si}, 'FontSize', 7, 'FontWeight', 'Bold', 'Rotation', 25, ...
+        'VerticalAlignment', 'Top', 'HorizontalAlignment', 'Right');
 end
 x_tick(isnan(x_tick)) = [];
 
@@ -69,13 +72,13 @@ ylim(y_lim);
 y_tick = get(gca, 'YTick');
 Y_lbl = arrayfun(@(y) sprintf('%0.0f%%', y*100), y_tick, 'UniformOutput', 0);
 set(gca, 'XTick', x_tick, 'XTickLabel', [], ...
-    'YTick', y_tick, 'YTickLabel', Y_lbl, 'FontWeight', 'Bold', 'FontSize', 9, ...
+    'YTick', y_tick, 'YTickLabel', Y_lbl, 'FontWeight', 'Bold', 'FontSize', 7, ...
     'Ygrid', 'on', 'GridColor', [0.7 0.7 0.7], 'GridAlpha', 0.4);
 ylabel('AUC', 'FontWeight', 'Bold');
 
-return
+% return
 %% Saving
 output_name = sprintf('./Plots/S05_01_PerformanceComparison_GenesInNet.pdf');
-set(gcf, 'PaperUnit', 'inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [14 3], 'PaperPosition', [0 0 14 3]);
+set(gcf, 'PaperUnit', 'inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [7 3], 'PaperPosition', [0 0 7 3]);
 print('-dpdf', '-r300', output_name);
 

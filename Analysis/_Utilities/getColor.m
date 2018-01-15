@@ -9,7 +9,8 @@ switch Method_Name
         Method_Color = [0.60 0.60 0.60];
         Preferred_Name = 'SyNet-Shuffled';
     case 'HumanInt'
-        Method_Color = [0.63 0.40 0.22];
+        %Method_Color = [0.63 0.40 0.22]; %old
+        Method_Color = [0.62 0.45 0.33];
     case 'BioPlex'
         Method_Color = [0.85 0.60 0.00];
     case 'BioGRID'
@@ -31,7 +32,8 @@ switch Method_Name
         Method_Color = [1.00 0.20 0.80];
         Preferred_Name = 'Breast';
     case 'HBLympNode'
-        Method_Color = [0.62 0.00 1.00];
+        %Method_Color = [0.62 0.00 1.00]; % old
+        Method_Color = [0.70 0.30 0.96];
         Preferred_Name = 'LymphNode';
     case {'AbsCorr' 'ACr'}
         Method_Color = [0.30 0.50 1.00];
