@@ -8,11 +8,12 @@ MAX_DISTANCE = 10000;
 MAX_SyNet_Pairs = 03544;
 %MAX_SyNet_Pairs = 50000;
 % MAX_N_SNP = 504752;
-MAX_N_SNP = 53837; % pval = 0.00499986
+% MAX_N_SNP = 53837; % pval = 0.00499986
 % MAX_N_SNP = 10962; % pval = 0.000999939
 % MAX_N_SNP = 10000; % pval = 0.000999939
-% MAX_N_SNP = 1104; % pval = 0.0000999498
+MAX_N_SNP = 1104; % pval = 0.0000999498
 % MAX_N_SNP = 1000; % pval = 0.0000910276
+% MAX_N_SNP = 500; % pval = 0.0000501868
 Ref_Name = 'AvgSynACr';
 
 %% Load SyNet mat file

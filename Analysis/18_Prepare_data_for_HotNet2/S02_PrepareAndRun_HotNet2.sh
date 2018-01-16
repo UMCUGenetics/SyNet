@@ -17,7 +17,7 @@ rm -rf ./${src_dir}/TMP_DIR/ ${src_dir}/Output_DIR/
 mkdir -p ./${src_dir}/TMP_DIR/ ${src_dir}/Output_DIR/
 
 # Create network data.
-for beta in 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7; do
+for beta in 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8; do
 echo "Creating network data for [$src_dir] with [$beta] beta on `date`"
 python $hotnet2/makeNetworkFiles.py \
      -e  ${src_dir}/Input_DIR/EdgeList.tsv \
@@ -46,7 +46,9 @@ python $hotnet2/makeHeatFile.py \
 
 echo "Running HotNet2 on `date`"
 python $hotnet2/HotNet2.py \
-    -nf  ${src_dir}/TMP_DIR/Network-0.3/Network_ppr_0.3.h5 \
+    -nf  ${src_dir}/TMP_DIR/Network-0.2/Network_ppr_0.2.h5 \
+         ${src_dir}/TMP_DIR/Network-0.25/Network_ppr_0.25.h5 \
+         ${src_dir}/TMP_DIR/Network-0.3/Network_ppr_0.3.h5 \
          ${src_dir}/TMP_DIR/Network-0.35/Network_ppr_0.35.h5 \
          ${src_dir}/TMP_DIR/Network-0.4/Network_ppr_0.4.h5 \
          ${src_dir}/TMP_DIR/Network-0.45/Network_ppr_0.45.h5 \
@@ -55,7 +57,11 @@ python $hotnet2/HotNet2.py \
          ${src_dir}/TMP_DIR/Network-0.6/Network_ppr_0.6.h5 \
          ${src_dir}/TMP_DIR/Network-0.65/Network_ppr_0.65.h5 \
          ${src_dir}/TMP_DIR/Network-0.7/Network_ppr_0.7.h5 \
-    -pnp ${src_dir}/TMP_DIR/Network-0.3/permuted/Network_ppr_0.3_##NUM##.h5 \
+         ${src_dir}/TMP_DIR/Network-0.75/Network_ppr_0.75.h5 \
+         ${src_dir}/TMP_DIR/Network-0.8/Network_ppr_0.8.h5 \
+    -pnp ${src_dir}/TMP_DIR/Network-0.2/permuted/Network_ppr_0.2_##NUM##.h5 \
+         ${src_dir}/TMP_DIR/Network-0.25/permuted/Network_ppr_0.25_##NUM##.h5 \
+         ${src_dir}/TMP_DIR/Network-0.3/permuted/Network_ppr_0.3_##NUM##.h5 \
          ${src_dir}/TMP_DIR/Network-0.35/permuted/Network_ppr_0.35_##NUM##.h5 \
          ${src_dir}/TMP_DIR/Network-0.4/permuted/Network_ppr_0.4_##NUM##.h5 \
          ${src_dir}/TMP_DIR/Network-0.45/permuted/Network_ppr_0.45_##NUM##.h5 \
@@ -64,6 +70,8 @@ python $hotnet2/HotNet2.py \
          ${src_dir}/TMP_DIR/Network-0.6/permuted/Network_ppr_0.6_##NUM##.h5 \
          ${src_dir}/TMP_DIR/Network-0.65/permuted/Network_ppr_0.65_##NUM##.h5 \
          ${src_dir}/TMP_DIR/Network-0.7/permuted/Network_ppr_0.7_##NUM##.h5 \
+         ${src_dir}/TMP_DIR/Network-0.75/permuted/Network_ppr_0.75_##NUM##.h5 \
+         ${src_dir}/TMP_DIR/Network-0.8/permuted/Network_ppr_0.8_##NUM##.h5 \
     -hf  ${src_dir}/Input_DIR/iCOGS_LogPval_Normalized.json \
          ${src_dir}/Input_DIR/iCOGS_NHitSize_Normalized.json \
     -np  $num_network_permutations \
