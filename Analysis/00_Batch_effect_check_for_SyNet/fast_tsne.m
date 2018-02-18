@@ -1,4 +1,4 @@
-function mappedX = fast_tsne(X, no_dims, initial_dims, perplexity, theta, max_iter)
+function mappedX = fast_tsne(X, no_dims, initial_dims, perplexity, theta, max_iter, USE_MATLAB_PCA)
 %FAST_TSNE Runs the C++ implementation of Barnes-Hut t-SNE
 %
 %   mappedX = fast_tsne(X, no_dims, initial_dims, perplexity, theta)
@@ -64,13 +64,17 @@ function mappedX = fast_tsne(X, no_dims, initial_dims, perplexity, theta, max_it
     % Perform the initial dimensionality reduction using PCA
     X = double(X);
     X = bsxfun(@minus, X, mean(X, 1));
-    covX = X' * X;
-    [M, lambda] = eig(covX);
-    [~, ind] = sort(diag(lambda), 'descend');
-    if initial_dims > size(M, 2)
-        initial_dims = size(M, 2);
+    if initial_dims > size(X, 2)
+        initial_dims = size(X, 2);
     end
-	M = M(:,ind(1:initial_dims));
+    if USE_MATLAB_PCA
+        M = pca(X, 'NumComponents', initial_dims);
+    else
+        covX = X' * X;
+        [M, lambda] = eig(covX);
+        [~, ind] = sort(diag(lambda), 'descend');
+        M = M(:,ind(1:initial_dims));
+    end
     X = X * M;
     clear covX M lambda
     

@@ -11,7 +11,9 @@ MAX_SyNet_Pairs = 03544;
 % MAX_N_SNP = 53837; % pval = 0.00499986
 % MAX_N_SNP = 10962; % pval = 0.000999939
 % MAX_N_SNP = 10000; % pval = 0.000999939
-MAX_N_SNP = 1104; % pval = 0.0000999498
+% MAX_N_SNP = 5000;
+% MAX_N_SNP = 3000;
+% MAX_N_SNP = 1104; % pval = 0.0000999498
 % MAX_N_SNP = 1000; % pval = 0.0000910276
 % MAX_N_SNP = 500; % pval = 0.0000501868
 Ref_Name = 'AvgSynACr';
@@ -42,18 +44,16 @@ for ri=1:2
         Pair_GName = DSN_info.Gene_Name(rind);
         Ref_Name = [Ref_Name '-SF'];
     end
-    Src_dir = sprintf('./HotNet2_Files/RF-%s_MNP-%06d_MNS-%06d_MD-%0.0fk/', Ref_Name, MAX_SyNet_Pairs, MAX_N_SNP, MAX_DISTANCE/1e3);
+    Src_dir = sprintf('./Input_DIR/RF-%s_MNP-%06d_MNS-%06d_MD-%0.0fk/', Ref_Name, MAX_SyNet_Pairs, MAX_N_SNP, MAX_DISTANCE/1e3);
     if exist(Src_dir, 'dir')
         rmdir(Src_dir, 's');
     end
     fprintf('Saving input files in [%s]\n', Src_dir);
-    mkdir([Src_dir 'TMP_DIR']);
-    mkdir([Src_dir 'Input_DIR']);
-    mkdir([Src_dir 'Output_DIR']);
+    mkdir(Src_dir);
     
     %% Output makeHeatFile.py pvalues --heat_file
     GWAS_Info{2} = GWAS_Info{2} / max(GWAS_Info{2});
-    fid = fopen([Src_dir 'Input_DIR/iCOGS_LogPval_Normalized.tsv'], 'w');
+    fid = fopen([Src_dir 'iCOGS_LogPval_Normalized.tsv'], 'w');
     for gi=1:n_gene
         fprintf(fid, '%s\t%0.5f\n', GWAS_Info{1}{gi}, GWAS_Info{2}(gi));
     end
@@ -61,7 +61,7 @@ for ri=1:2
     
     %% Output makeHeatFile.py # Hits notmalized by size --heat_file
     GWAS_Info{4} = GWAS_Info{4} / max(GWAS_Info{4});
-    fid = fopen([Src_dir 'Input_DIR/iCOGS_NHitSize_Normalized.tsv'], 'w');
+    fid = fopen([Src_dir 'iCOGS_NHitSize_Normalized.tsv'], 'w');
     for gi=1:n_gene
         fprintf(fid, '%s\t%0.5f\n', GWAS_Info{1}{gi}, GWAS_Info{4}(gi));
     end
@@ -69,14 +69,14 @@ for ri=1:2
     
     %% Output edge list: makeNetworkFiles.py --edgelist_file
     Pair_List = DSN_info.PP_Info(1:MAX_SyNet_Pairs,1:2);
-    fid = fopen([Src_dir 'Input_DIR/EdgeList.tsv'], 'w');
+    fid = fopen([Src_dir 'EdgeList.tsv'], 'w');
     for pi=1:MAX_SyNet_Pairs
         fprintf(fid, '%d\t%d\n', Pair_List(pi,1:2));
     end
     fclose(fid);
     
     %% Output Index to Gene: makeNetworkFiles.py --gene_index_file
-    fid = fopen([Src_dir 'Input_DIR/GeneIndex.tsv'], 'w');
+    fid = fopen([Src_dir 'GeneIndex.tsv'], 'w');
     for gi=1:n_gene
         fprintf(fid, '%d\t%s\n', gi, Pair_GName{gi});
     end

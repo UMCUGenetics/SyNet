@@ -66,7 +66,7 @@ if strcmp(Overlap_Check, 'Gene')
     legend(Method_lst);
 end
 
-% return
+return
 %% Save
 output_name = sprintf('./Plots/S05_NetOL_RF-%s_OV-%s_LM-%s_MP%06d.pdf', Ref_Name, Overlap_Check, Limit_method, MAX_N_PAIR);
 set(gcf, 'PaperUnits', 'Inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [7 5], 'PaperPosition', [0 0 7 5]);

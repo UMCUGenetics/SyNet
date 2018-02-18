@@ -1,4 +1,4 @@
-function result = perf_NetGL(dataset_info, opt_info)
+function result = perf_TMGL(dataset_info, opt_info)
 
 %% Initialization
 xTr = dataset_info.DatasetTr.Gene_Expression;
@@ -7,11 +7,10 @@ lTr = dataset_info.DatasetTr.Patient_Label;
 lTe = dataset_info.DatasetTe.Patient_Label;
 Net_Adj = dataset_info.DatasetTr.Net_Adj;
 [~, ~, Fold_Index] = unique(dataset_info.DatasetTr.iCvPar, 'Stable');
-n_fold = max(Fold_Index);
 Lambda_lst = opt_info.lam_list;
 n_lam = size(Lambda_lst, 1);
-NeigSize_lst = [2 3 5 7 10];
-n_nei = numel(NeigSize_lst);
+NeigSize_lst = opt_info.NeigSize_lst;
+IndexBestNei = 1;
 
 %% Normalization
 fprintf('Normalizing data ...\n');
@@ -28,81 +27,86 @@ zTr(:, del_ind) = [];
 zTe(:, del_ind) = [];
 Gene_Name = dataset_info.DatasetTr.Gene_Name(~del_ind);
 
+%% Adjast the network
+if isfield(opt_info, 'AdjustNet') && opt_info.AdjustNet==1
+    fprintf('\n[i] Adjusting network according to TM features.\n');
+    n_pair = 7088;
+    SyNet_Info = load('../01_Pairwise_Evaluation_of_Genes/Top_Pairs/TopP_SyNet_AvgSynACr.mat', 'Gene_Name');
+    res_path = '../19_Compute_Topological_Measures_For_Network/Saved_Pred/';
+    res_ptr = sprintf('PredTM_CL-Lasso_SM-OneGRND_NS-%d_NF-50_ID-*.mat', n_pair);
+    res_lst = dir([res_path res_ptr]);
+    n_res = numel(res_lst);
+    fprintf('[%d] TM prediction results are found.\n', n_res);
+    TM_PMat = zeros(n_pair, n_res);
+    for ri=1:n_res
+        res_name = [res_path res_lst(ri).name];
+        %fprintf('Loading TM prediction [%s]\n', res_name);
+        res_info = load(res_name);
+        if ri==1
+            TM_PInfo = res_info.Pair_Info;
+        else
+            if ~isequal(TM_PInfo, res_info.Pair_Info), error(); end
+        end
+        TM_PMat(:, ri) = res_info.TM_PLabel;
+    end
+    TM_PMat = TM_PMat ./ size(TM_PMat,2);
+    
+    Net_GMap = containers.Map(Gene_Name, 1:numel(Gene_Name));
+    MAX_NET_WEIGHT = max(Net_Adj(:));
+    TM_N_Added = 0;
+    TM_N_Removed = 0;
+    for pi=1:n_pair
+        if Net_GMap.isKey(SyNet_Info.Gene_Name{TM_PInfo(pi,1)}) && Net_GMap.isKey(SyNet_Info.Gene_Name{TM_PInfo(pi,2)})
+            src_ind = Net_GMap(SyNet_Info.Gene_Name{TM_PInfo(pi,1)});
+            tar_ind = Net_GMap(SyNet_Info.Gene_Name{TM_PInfo(pi,2)});
+            if Net_Adj(src_ind, tar_ind)==0 && sum(TM_PMat(pi, :))>=0.75
+                Net_Adj(src_ind, tar_ind) = MAX_NET_WEIGHT;
+                TM_N_Added = TM_N_Added + 1;
+            elseif Net_Adj(src_ind, tar_ind)~=0 && sum(TM_PMat(pi, :))<=-0.75
+                Net_Adj(src_ind, tar_ind) = 0;
+                TM_N_Removed = TM_N_Removed + 1;
+            end
+            Net_Adj(tar_ind, src_ind) = Net_Adj(src_ind, tar_ind);
+        end
+    end
+    fprintf('Adjustment finished. Modifications: [%d] added, [%d] removed.\n\n', TM_N_Added, TM_N_Removed);
+end
+
 %% Generate Neighbor Sets
 fprintf('Generating neighbor sets and subnetworks: \n');
 Neig_cell = getNeighborsFromAdj(Net_Adj);
-
-%% Select number of neighbor
-fprintf('[i] Grid search among [%s] neighbor size.\n', num2str(NeigSize_lst, '%d '));
-Grid_auc = zeros(n_nei, n_lam, n_fold);
-for ni=1:numel(NeigSize_lst)
-    fprintf('[i] Using neighbor size = %d\n', NeigSize_lst(ni));
-
-    %% Generate Group Lasso dataset
-    NeigIndex_lst = GenerateNeighborSets(Neig_cell, NeigSize_lst(ni));
-    [cmbTr, Group_Index] = GenerateGL_Dataset(zTr, NeigIndex_lst);
-    lasso_opt = {'lassoType', 'sgt', 'CV', [], 'relTol', 5e-2, 'lam_list', Lambda_lst, 'n_lC', 15, 'lC_ratio', 1e-2, ...
-        'n_lG', 15, 'lG_ratio', 1e-2, 'group_ind', Group_Index, 'lambdaType', 'no-grid', 'paroptions', statset('UseParallel',false), 'verbose', 0};
-
-    for fi=1:n_fold
-        %% Train over folds
-        fTr = Fold_Index~=fi;
-        fTe = Fold_Index==fi;
-        
-        fprintf('Fold [%02d/%02d]: Training over [#Tr=%4d, #Te=%3d] and [%d] features, ', fi, n_fold, sum(fTr), sum(fTe), size(cmbTr,2));
-        [fold_B] = lassoEx(cmbTr(fTr,:), lTr(fTr), lasso_opt{:});
-        fold_pred = cmbTr(fTe,:)*fold_B;
-        for li=1:n_lam
-            Grid_auc(ni,li,fi) = getAUC(lTr(fTe), fold_pred(:,li), 50);
-        end
-        fprintf('Max AUC is: %0.1f%%\n', max(Grid_auc(ni,:,fi))*100);
-    end
-    [nei_OAuc, nei_OLam] = max(mean(Grid_auc(ni,:,:),3));
-    fprintf('Best AUC is [%0.1f%%] with [%d]th lambda.\n\n', nei_OAuc*100, nei_OLam);
-end
-
-%% Display the grid
-iCV_AUC = mean(Grid_auc, 3);
-fprintf('        %s\n', sprintf('[%0.2d],  ',1:n_lam));
-for ni=1:n_nei
-    fprintf('%5d: ', NeigSize_lst(ni));
-    fprintf('%4.1f%%, ', iCV_AUC(ni,:)*100);
-    fprintf('\n');
-end
-[IndexBestNei, IndexBestLamb] = find(iCV_AUC==max(iCV_AUC(:)),1);
-fprintf('Best dataset has [%d] neighbors using [%d]th lambda.\n', NeigSize_lst(IndexBestNei), IndexBestLamb);
 
 %% Prepare final dataset
 NeigIndex_lst = GenerateNeighborSets(Neig_cell, NeigSize_lst(IndexBestNei));
 [cmbTr, Group_IndexTr] = GenerateGL_Dataset(zTr, NeigIndex_lst);
 [cmbTe,             ~] = GenerateGL_Dataset(zTe, NeigIndex_lst);
-    
+
 %% Train Group lasso
 fprintf('Training group lasso over [%d] groups and [%d] features ...\n', numel(NeigIndex_lst), size(cmbTr,2));
 lasso_opt = {'lassoType', 'sgt', 'CV', 5, 'iCvPar', Fold_Index, 'relTol', 5e-2, 'lam_list', Lambda_lst, 'n_lC', 15, 'lC_ratio', 1e-2, ...
-	'n_lG', 15, 'lG_ratio', 1e-2, 'group_ind', Group_IndexTr, 'lambdaType', 'no-grid', 'paroptions', statset('UseParallel',false), 'verbose', 0};
+    'n_lG', 15, 'lG_ratio', 1e-2, 'group_ind', Group_IndexTr, 'lambdaType', 'no-grid', 'paroptions', statset('UseParallel',false), 'verbose', 0};
 [opt_B, opt_fit] = lassoEx(cmbTr, lTr, lasso_opt{:});
 
 %% Collect Subnet scores
 n_snet = size(Group_IndexTr, 2);
 SubNet_Score = zeros(n_snet, 1);
+IndexBestLamb = opt_fit.IndexMinMSE;
 for si=1:n_snet
-	SubNet_Score(si) = mean(abs(opt_B(Group_IndexTr(1:2,si), IndexBestLamb))); %% To Do: This is a bug, 1:2 does not use all features 
+    feat_index = Group_IndexTr(1,si):Group_IndexTr(2,si);
+    SubNet_Score(si) = mean(abs(opt_B(feat_index, IndexBestLamb)));
 end
 
 %% Showing results
-n_lam = size(opt_B, 2);
 tr_auc_lam = zeros(1, n_lam);
 te_auc_lam = zeros(1, n_lam);
 for i=1:n_lam
-	tr_auc_lam(i) = getAUC(lTr, cmbTr*opt_B(:,i), 50);
-	te_auc_lam(i) = getAUC(lTe, cmbTe*opt_B(:,i), 50);
+    tr_auc_lam(i) = getAUC(lTr, cmbTr*opt_B(:,i), 50);
+    te_auc_lam(i) = getAUC(lTe, cmbTe*opt_B(:,i), 50);
 end
 fprintf('    Index: '); fprintf('%5d  ', 1:n_lam); fprintf('\n');
 fprintf('Train AUC: '); fprintf('%0.3f, ', 1-opt_fit.MSE); fprintf('\n');
 fprintf(' Test AUC: '); fprintf('%0.3f, ', te_auc_lam); fprintf('\n');
-fprintf('Optimal lam is: [%d]\n', opt_fit.IndexMinMSE);
-fprintf('Utilized lam is: [%d]\n', IndexBestLamb);
+fprintf('Optimal lam is: [%d]\n', IndexBestLamb);
 
 %% Plot results
 %{
@@ -133,8 +137,8 @@ n_gene = numel(Neig_cell);
 %% Generate Subnetworks
 SubNet_Full = cell(n_gene, 1);
 for gi=1:n_gene
-	showprogress(gi, n_gene);
-	SubNet_Full{gi} = getNetNeighborsBreadthFirst(Neig_cell, Neig_cell{gi}, MAX_N_Neighbor, 1);
+    showprogress(gi, n_gene);
+    SubNet_Full{gi} = getNetNeighborsBreadthFirst(Neig_cell, Neig_cell{gi}, MAX_N_Neighbor, 1);
 end
 fprintf('[%d] Subnetworks are collected in breath first manner.\n', numel(SubNet_Full));
 
@@ -144,7 +148,7 @@ SubNet_Trimmed = SubNet_Full(SubNet_size>0);
 n_snet = numel(SubNet_Trimmed);
 SubNet_Str = cell(n_snet, 1);
 for si=1:n_snet
-	SubNet_Str{si,1} = sprintf('%d,', sort(SubNet_Trimmed{si}));
+    SubNet_Str{si,1} = sprintf('%d,', sort(SubNet_Trimmed{si}));
 end
 [~, SubNet_UID] = unique(SubNet_Str, 'Stable');
 SubNet_Trimmed = SubNet_Trimmed(SubNet_UID);
@@ -162,12 +166,13 @@ CmbData = zeros(n_sample, n_snet*MAX_N_Neighbor);
 Group_Index = ones(3, n_snet);
 step = 1;
 for si=1:n_snet
-	Group_Index(1, si) = step;
-	for gi=1:numel(NeigIndex_lst{si})
-		CmbData(:, step) = GE_Data(:, NeigIndex_lst{si}(gi));
-		step = step + 1;
-	end
-	Group_Index(2, si) = step - 1;
+    Group_Index(1, si) = step;
+    for gi=1:numel(NeigIndex_lst{si})
+        CmbData(:, step) = GE_Data(:, NeigIndex_lst{si}(gi));
+        step = step + 1;
+    end
+    Group_Index(2, si) = step - 1;
 end
 CmbData(:, step:end) = [];
 end
+

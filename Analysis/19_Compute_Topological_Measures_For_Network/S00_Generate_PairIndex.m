@@ -3,8 +3,9 @@ clear;
 
 %% Inialization
 Ref_Name = 'AvgSynACr';
-MAX_SyNet_Pair = 50000;
-Shuff_Method = 'LnkShuff';
+MAX_SyNet_Pair = 100000;
+% Shuff_Method = 'LnkShuff';
+Shuff_Method = 'OneGRND';
 
 %% Load SyNet pairs
 SyNet_name = sprintf('../01_Pairwise_Evaluation_of_Genes/Top_Pairs/TopP_SyNet_%s.mat', Ref_Name);

@@ -24,15 +24,16 @@ Study_Name = Study_Name(sid);
 close all
 figure('Position', [100 100 1500 400]);
 hold on
-clr_map = jet(n_study);
+clr_map = jet(n_study) * 0.8;
 X_Label = cell(n_study,1);
 for si=1:n_study
     val = AUC_mat(si,:)';
     if any(isnan(val)), error(); end
     Point_Param.Colormap = clr_map(si,:);
     Point_Param.ColorCAxis = [min(val) max(val)];
-    box_h = boxplotEx(val, si, {}, Point_Param);
-    set(box_h, 'Color', clr_map(si,:), 'Marker', 'none');
+    [box_h, point_h] = boxplotEx(val, si, {'Width', 0.7}, Point_Param);
+    set(box_h, 'Color', clr_map(si,:), 'Marker', 'none', 'LineWidth', 1);
+    set(point_h, 'MarkerSize', 5);
     X_Label{si} = sprintf('%s', Study_Name{si});
 end
 X_Label = regexprep(X_Label, 'ACES;', '');

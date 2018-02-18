@@ -10,18 +10,18 @@ load('../../Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat', 'Study_Nam
 
 vio_lst = {
 %     {'CMB_Rnd_STRING-Shf_NN20_CVT50.mat' 'CMB_Rnd_STRING_NN20_CVT50.mat'}
-%     {'CMB_Avg_STRING-Shf_NN20_CVT50.mat' 'CMB_Avg_STRING_NN20_CVT50.mat'}
-%     {'CMB_Std_STRING-Shf_NN20_CVT50.mat' 'CMB_Std_STRING_NN20_CVT50.mat'}
-%     {'CMB_PCA1_STRING-Shf_NN20_CVT50.mat' 'CMB_PCA1_STRING_NN20_CVT50.mat'}
-%     {'CMB_DA2_STRING-Shf_NN20_CVT50.mat' 'CMB_DA2_STRING_NN20_CVT50.mat'}
-%     {'CMB_Reg_STRING-Shf_NN20_CVT50.mat' 'CMB_Reg_STRING_NN20_CVT50.mat'}
-    {'CMB_Reg_STRING-Shf_NN01_CVT51.mat' 'CMB_Reg_STRING_NN01_CVT51.mat'}
-    {'CMB_Reg_STRING-Shf_NN02_CVT51.mat' 'CMB_Reg_STRING_NN02_CVT51.mat'}
-    {'CMB_Reg_STRING-Shf_NN05_CVT51.mat' 'CMB_Reg_STRING_NN05_CVT51.mat'}
-    {'CMB_Reg_STRING-Shf_NN07_CVT51.mat' 'CMB_Reg_STRING_NN07_CVT51.mat'}
-    {'CMB_Reg_STRING-Shf_NN10_CVT51.mat' 'CMB_Reg_STRING_NN10_CVT51.mat'}
-    {'CMB_Reg_STRING-Shf_NN20_CVT51.mat' 'CMB_Reg_STRING_NN20_CVT51.mat'}
-    {'CMB_Reg_STRING-Shf_NN50_CVT51.mat' 'CMB_Reg_STRING_NN50_CVT51.mat'}
+    {'CMB_Avg_STRING-Shf_NN20_CVT50.mat' 'CMB_Avg_STRING_NN20_CVT50.mat'}
+    {'CMB_Std_STRING-Shf_NN20_CVT50.mat' 'CMB_Std_STRING_NN20_CVT50.mat'}
+    {'CMB_PCA1_STRING-Shf_NN20_CVT50.mat' 'CMB_PCA1_STRING_NN20_CVT50.mat'}
+    {'CMB_DA2_STRING-Shf_NN20_CVT50.mat' 'CMB_DA2_STRING_NN20_CVT50.mat'}
+    {'CMB_Reg_STRING-Shf_NN20_CVT50.mat' 'CMB_Reg_STRING_NN20_CVT50.mat'}
+%     {'CMB_Reg_STRING-Shf_NN01_CVT51.mat' 'CMB_Reg_STRING_NN01_CVT51.mat'}
+%     {'CMB_Reg_STRING-Shf_NN02_CVT51.mat' 'CMB_Reg_STRING_NN02_CVT51.mat'}
+%     {'CMB_Reg_STRING-Shf_NN05_CVT51.mat' 'CMB_Reg_STRING_NN05_CVT51.mat'}
+%     {'CMB_Reg_STRING-Shf_NN07_CVT51.mat' 'CMB_Reg_STRING_NN07_CVT51.mat'}
+%     {'CMB_Reg_STRING-Shf_NN10_CVT51.mat' 'CMB_Reg_STRING_NN10_CVT51.mat'}
+%     {'CMB_Reg_STRING-Shf_NN20_CVT51.mat' 'CMB_Reg_STRING_NN20_CVT51.mat'}
+%     {'CMB_Reg_STRING-Shf_NN50_CVT51.mat' 'CMB_Reg_STRING_NN50_CVT51.mat'}
 };
 n_vio = numel(vio_lst);
 clr_map = lines(n_vio);

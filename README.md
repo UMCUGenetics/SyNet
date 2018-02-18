@@ -1,2 +1,2 @@
-# SPADE
-Synergistic pair detection
+# SyNet
+Synergistic pair detection for breast cancer outcome prediction

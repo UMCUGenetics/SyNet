@@ -16,14 +16,15 @@ addpath('../11_Perform_LassoTypes');
 addpath('../../../../Useful_Sample_Codes/ShowProgress');
 if ~exist('RemoveGSet', 'var'), RemoveGSet={}; end
 if ismac
-    net_name = 'STRING'; % 'I2D' 'STRING' 'HPRD' 'HBEpith','HBGland'
-    TM_Name = 'ClusteringCoefficient';
+    net_name = 'HBLympNode'; % 'I2D' 'STRING' 'HPRD' 'HBEpith','HBGland'
+    TM_Name = 'Betweenness';
 end
 Ref_Name = 'AvgSynACr';
 % MAX_SyNet_Pair = 3544;
-MAX_SyNet_Pair = 50000;
-Shuff_Method = 'LnkShuff';
-% Shuff_Method = 'OneGRND';
+% MAX_SyNet_Pair = 50000;
+MAX_SyNet_Pair = 100000;
+% Shuff_Method = 'LnkShuff';
+Shuff_Method = 'OneGRND';
 
 %% Load Pair index
 PI_Name = sprintf('./Topological_Data/PairInfo-%s_%s_MP%06d.mat', Shuff_Method, Ref_Name, MAX_SyNet_Pair);

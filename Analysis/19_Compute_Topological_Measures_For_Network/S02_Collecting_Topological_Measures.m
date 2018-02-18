@@ -5,11 +5,11 @@ clear;
 addpath('../_Utilities/');
 addpath('../../../../Useful_Sample_Codes/ShowProgress');
 % MAX_SyNet_Pair = 3544;
-MAX_SyNet_Pair = 50000;
+MAX_SyNet_Pair = 100000;
 n_lnk = 50000;
 Ref_Name = 'AvgSynACr';
-Shuff_Method = 'LnkShuff';
-% Shuff_Method = 'OneGRND';
+% Shuff_Method = 'LnkShuff';
+Shuff_Method = 'OneGRND';
 
 %% Load labels
 PI_Name = sprintf('./Topological_Data/PairInfo-%s_%s_MP%06d.mat', Shuff_Method, Ref_Name, MAX_SyNet_Pair);

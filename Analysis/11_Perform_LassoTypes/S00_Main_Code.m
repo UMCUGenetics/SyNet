@@ -14,9 +14,9 @@ UMC: PARAM="$si,$ri,{'TAgNMC','TNMC','TLEx','TAgLEx'},{'Random-T00010'},10"; qsu
 %% ####
 if ismac || ispc
     fprintf('*** Warning!: Running on debug mode.\n');
-    Target_Study = 14;
+    Target_Study = 1;
     Target_Repeat = 1;
-    method_lst = {'NetSFGL'};
+    method_lst = {'NetGL'};
     net_lst = {'AvgSynACr-P50000'};
     MAX_N_SUBNET = 500;
 end
@@ -107,6 +107,18 @@ for ni=1:n_net
                 opt_ngl.MAX_N_Gene = tmp_info.BestNetwork;
                 clear tmp_info tmp_res_info tmp_res_ptr
                 result = perf_NetGL(dataset_info, opt_ngl);
+            case {'TMGL'}
+                opt_tmgl = opt_info;
+                opt_tmgl.lam_list = [zeros(20,1) logspace(log10(1e-2), 0, 20)'];
+                tmp_res_ptr = sprintf('./Results_Files/DID_%s_*_MSN-500_MTN-NetGL.mat', ds_id);
+                tmp_res_info = dir(tmp_res_ptr);
+                if numel(tmp_res_info)~=1, error(); end
+                fprintf('[i] NetGL result is found in [%s], loading ...\n', tmp_res_info.name);
+                tmp_info = load(sprintf('./Results_Files/%s', tmp_res_info.name));
+                opt_tmgl.MAX_N_Gene = tmp_info.OptNetSize;
+                opt_tmgl.NeigSize_lst = tmp_info.OptNeiSize;
+                opt_tmgl.AdjustNet = 1;
+                result = perf_TMGL(dataset_info, opt_tmgl);
             case 'CvGL'
                 opt_cgl = opt_info;
                 opt_cgl.lam_list = [zeros(20,1) logspace(log10(1e-2), 0, 20)'];

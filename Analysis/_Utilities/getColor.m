@@ -3,7 +3,7 @@ function [Method_Color, Preferred_Name] = getColor(Method_Name)
 Preferred_Name = Method_Name;
 
 switch Method_Name
-    case 'HBGland-SHFL'
+    case {'Random' 'HBGland-SHFL'}
         Method_Color = [0.60 0.60 0.60];
     case 'AvgSynACrNShuff'
         Method_Color = [0.60 0.60 0.60];
