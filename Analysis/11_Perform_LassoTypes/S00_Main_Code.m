@@ -16,8 +16,8 @@ if ismac || ispc
     fprintf('*** Warning!: Running on debug mode.\n');
     Target_Study = 1;
     Target_Repeat = 1;
-    method_lst = {'NetGL'};
-    net_lst = {'AvgSynACr-P50000'};
+    method_lst = {'iPark'};
+    net_lst = {'STRING-P50000'};
     MAX_N_SUBNET = 500;
 end
 

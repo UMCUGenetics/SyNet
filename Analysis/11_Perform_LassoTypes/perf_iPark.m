@@ -41,7 +41,7 @@ for hi=1:n_height
 	for ci=1:n_snet
         ClsInd_cell{hi}{ci} = find(ClsInd_mat(hi,:)==ci);
 	end
-	mTr = IntegGenes(ClsInd_cell{hi}, zTr, lTr, zTr, Fold_Index, Int_Type);
+	[mTr, ~] = IntegGenes(ClsInd_cell{hi}, zTr, lTr, zTr, Fold_Index, Int_Type);
 	
 	%% Normalizing features
 	mTr = zscore(mTr);
