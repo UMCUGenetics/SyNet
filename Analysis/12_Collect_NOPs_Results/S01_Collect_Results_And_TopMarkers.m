@@ -17,8 +17,10 @@ sav_path = './Collected_Results/';
 %     'AvgSynACrNShuff-P50000' 'HBGland-P50000' 'HBLympNode-P50000' 'ACr-P50000' 'HBOvary-P50000' 'HBBrain-P50000' 'HBKidney-P50000' ...
 %    'HumanInt-P50000' 'BioPlex-P50000' 'BioGRID-P50000' 'IntAct-P50000' 'STRING-P50000' ...
 %     };
-method_lst = {'TMGL' 'Lasso' 'GLasso' 'CFGLasso' 'GLasso5'}; %  'NetLasso' 'NetGL' 'CvGL'
-net_lst = {'AvgSynACr-P50000' 'AvgSyn-P50000' 'HBLympNode-P10000' 'HBGland-P10000'};
+method_lst = {'iTaylor' 'iPark' 'iChuang'}; %  'NetLasso' 'NetGL' 'CvGL' 'TMGL' 'Lasso' 'GLasso' 'CFGLasso' 'GLasso5'
+net_lst = {'STRING-P50000' 'HumanInt-P50000' 'BioGRID-P50000' 'AvgSynACr-P10000' 'AvgSynACr-P25000' 'AvgSynACr-P50000' ...
+    'BioPlex-P50000' 'IntAct-P50000' 'HBOvary-P50000' 'HBBrain-P50000' 'HBKidney-P50000' 'HBGland-P50000' 'HBLympNode-P50000' 'ACr-P50000'
+    };
 feat_lst = [20 50 100 500 700 1000];
 n_net = numel(net_lst);
 n_met = numel(method_lst);
@@ -89,6 +91,8 @@ for mi=1:n_met
                                     out_cmb.Opt_K(end+1,1) = res_data.opt_K;
                                 end
                             case {'TLEx' 'TReg' 'DA2Lex'}
+                                SubNet_Score = abs(res_data.B(:,res_data.fit.IndexMinMSE));
+                            case {'iTaylor' 'iPark' 'iChuang'}
                                 SubNet_Score = abs(res_data.B(:,res_data.fit.IndexMinMSE));
                             case 'Lasso'
                                 SubNet_Score = abs(res_data.B(:,res_data.fit.IndexMinMSE));

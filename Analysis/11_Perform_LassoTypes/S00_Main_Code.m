@@ -16,7 +16,7 @@ if ismac || ispc
     fprintf('*** Warning!: Running on debug mode.\n');
     Target_Study = 1;
     Target_Repeat = 1;
-    method_lst = {'iPark'};
+    method_lst = {'iTaylor'};
     net_lst = {'STRING-P50000'};
     MAX_N_SUBNET = 500;
 end
@@ -81,6 +81,10 @@ for ni=1:n_net
                 result = perf_iPark(dataset_info, opt_info, 'Mean');
             case 'RI-iPark'
                 result = perf_iPark(dataset_info, opt_info, 'RI');
+            case 'iChuang'
+                result = perf_iChuang(dataset_info, opt_info);
+            case 'iTaylor'
+                result = perf_iTaylor(dataset_info, opt_info);
             case 'DA2Lex'
                 InfSN_info = opt_info;
                 InfSN_info.MAX_N_SUBNET = inf;
