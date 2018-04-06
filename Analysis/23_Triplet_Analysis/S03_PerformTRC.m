@@ -1,4 +1,4 @@
-function S03_PerformPWR(batch_be, step_size)
+function S03_PerformTRC(batch_be, step_size)
 %{
 for bi in `seq 1 10 325`; do
 PARAM="$bi,10"; 
@@ -101,7 +101,7 @@ Triplet_AUC = Triplet_AUC(sind, :);
 
 %% Saving
 sav_name = sprintf('%sTC_%s_%06d-%06d.mat', trc_path, ge_name, batch_be, batch_en);
-fprintf('Saving result in [%s]', sav_name);
+fprintf('Saving result in [%s]\n', sav_name);
 save(sav_name, 'Triplet_AUC', 'cv_name', 'Cmb_List', 'CV_Info', 'Data_Info', 'Ref_GeneIndex', 'Ref_GeneName');
 fprintf('Process finished at: %s\n', datetime);
 end

@@ -114,6 +114,7 @@ set(gca, 'XTick', [], 'XTickLabel', [], 'XTickLabelRotation', 10, ...
     'Ygrid', 'on', 'GridColor', [0.7 0.7 0.7], 'GridAlpha', 0.4);
 ylabel('AUC', 'FontWeight', 'Bold');
 
+return
 %% Saving
 output_name = sprintf('./Plots/S06_PerformanceComparison_05_OtherNOPs.pdf');
 set(gcf, 'PaperUnits', 'Inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [15 4], 'PaperPosition', [0 0 15 4]);

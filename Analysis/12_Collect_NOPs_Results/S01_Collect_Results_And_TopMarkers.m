@@ -17,7 +17,7 @@ sav_path = './Collected_Results/';
 %     'AvgSynACrNShuff-P50000' 'HBGland-P50000' 'HBLympNode-P50000' 'ACr-P50000' 'HBOvary-P50000' 'HBBrain-P50000' 'HBKidney-P50000' ...
 %    'HumanInt-P50000' 'BioPlex-P50000' 'BioGRID-P50000' 'IntAct-P50000' 'STRING-P50000' ...
 %     };
-method_lst = {'iTaylor' 'iPark' 'iChuang'}; %  'NetLasso' 'NetGL' 'CvGL' 'TMGL' 'Lasso' 'GLasso' 'CFGLasso' 'GLasso5'
+method_lst = {'iTaylor' 'iPark' 'iChuang' 'SFiPark','SFiChuang','SFiTaylor','NetSFGL'}; %  'NetLasso' 'NetGL' 'CvGL' 'TMGL' 'Lasso' 'GLasso' 'CFGLasso' 'GLasso5'
 net_lst = {'STRING-P50000' 'HumanInt-P50000' 'BioGRID-P50000' 'AvgSynACr-P10000' 'AvgSynACr-P25000' 'AvgSynACr-P50000' ...
     'BioPlex-P50000' 'IntAct-P50000' 'HBOvary-P50000' 'HBBrain-P50000' 'HBKidney-P50000' 'HBGland-P50000' 'HBLympNode-P50000' 'ACr-P50000'
     };
@@ -92,7 +92,7 @@ for mi=1:n_met
                                 end
                             case {'TLEx' 'TReg' 'DA2Lex'}
                                 SubNet_Score = abs(res_data.B(:,res_data.fit.IndexMinMSE));
-                            case {'iTaylor' 'iPark' 'iChuang'}
+                            case {'iTaylor' 'iPark' 'iChuang' 'SFiPark','SFiChuang','SFiTaylor','NetSFGL'}
                                 SubNet_Score = abs(res_data.B(:,res_data.fit.IndexMinMSE));
                             case 'Lasso'
                                 SubNet_Score = abs(res_data.B(:,res_data.fit.IndexMinMSE));
