@@ -1,8 +1,8 @@
 function S03_PerformPWR(batch_be, step_size)
 %{
-for bi in `seq 1 20 320`; do
-PARAM="$bi,20"; 
-echo sbatch --exclude=maxwell --job-name=TRC-$PARAM --output=Logs/TRC-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=5GB --time=04:00:00 --ntasks=1 --cpus=1 --cpus-per-task=1 run_Matlab.sh S03_PerformPWR "$PARAM";
+for bi in `seq 1 10 325`; do
+PARAM="$bi,10"; 
+sbatch --exclude=maxwell --job-name=TRC-$PARAM --output=Logs/TRC-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=3GB --time=04:00:00 --ntasks=1 --cpus=1 --cpus-per-task=1 run_Matlab.sh S03_PerformPWR "$PARAM";
 done
 %}
 if ismac
@@ -22,18 +22,16 @@ Cmb_List = {1 2 3 [1,2] [1,3] [2,3] [1,2,3]};
 n_cmb = numel(Cmb_List);
 n_candid = 314;
 batch_en = batch_be + step_size;
+if batch_en > n_candid, batch_en = n_candid; end
 fprintf('/// Running triplet evaluation for [%s], we will test [%d-%d] pairs.\n', ge_name, batch_be, batch_en);
 
-%% Load triplets according to reference gene set
-if batch_en > n_candid, batch_en = n_candid; end
-load('./Gene_List/Reference_GList.mat', 'Ref_GeneIndex', 'Ref_GeneName');
-
 %% Candid selection
+load('./Gene_List/Reference_GList.mat', 'Ref_GeneIndex', 'Ref_GeneName');
 % if ~isequal(data.Gene_Name(Ref_GeneIndex), Ref_GeneName), error(); end
 pair_lst = combnk(batch_be:batch_en, 2);
 Triplets_Index = [repmat(pair_lst, n_candid, 1) repelem(1:n_candid, size(pair_lst,1))'];
 n_triplet = size(Triplets_Index, 1);
-fprintf('In total [%d] gene triplets exist.\n', n_triplet);
+fprintf('In total [%d] gene triplets is selected for comparison.\n', n_triplet);
 clear pair_lst
 
 %% Load data
