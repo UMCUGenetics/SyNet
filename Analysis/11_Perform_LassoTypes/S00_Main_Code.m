@@ -75,7 +75,7 @@ for ni=1:n_net
         end
         
         %% Shuffle the network if its needed
-        if ismember(method_lst{mi}, {'NetSFGL', 'SFiPark', 'SFiChuang', 'SFiTaylor'})
+        if ismember(method_lst{mi}, {'SFNetGL', 'SFiPark', 'SFiChuang', 'SFiTaylor'})
             n_gene = size(dataset_info.DatasetTr.Net_Adj, 1);
             fprintf('[w] Warning: Shuffled network is selected, [%d] nodes will be shuffled ...\n', n_gene);
             rind = randperm(n_gene);
@@ -102,7 +102,7 @@ for ni=1:n_net
                 opt_gls.lam_list = [zeros(20,1) logspace(log10(1e-2), 0, 20)'];
                 opt_gls.MAX_SUBNET_SIZE = str2double(method_lst{mi}(7:end));
                 result = perf_GLasso(dataset_info, opt_gls);
-            case {'NetGL' 'NetSFGL'}
+            case {'NetGL' 'SFNetGL'}
                 opt_ngl = opt_info;
                 opt_ngl.lam_list = [zeros(20,1) logspace(log10(1e-2), 0, 20)'];
                 tmp_res_ptr = sprintf('./Results_Files/DID_%s_*_MSN-500_MTN-NetLasso.mat', ds_id);

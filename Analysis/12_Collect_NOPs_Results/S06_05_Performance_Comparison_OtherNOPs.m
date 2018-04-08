@@ -37,7 +37,7 @@ grp_lst = {
     'MRK_CVT01_iChuang_HBGland-P50000_MSN-500.mat'
     'MRK_CVT01_iChuang_HBLympNode-P50000_MSN-500.mat'
     'MRK_CVT01_iChuang_ACr-P50000_MSN-500.mat'
-    'MRK_CVT01_iChuang_AvgSynACr-P10000_MSN-500.mat'}
+    'MRK_CVT01_iChuang_AvgSynACr-P50000_MSN-500.mat'}
     {
     'MRK_CVT01_iTaylor_HumanInt-P50000_MSN-500.mat'
     'MRK_CVT01_iTaylor_BioPlex-P50000_MSN-500.mat'
@@ -50,20 +50,21 @@ grp_lst = {
     'MRK_CVT01_iTaylor_HBGland-P50000_MSN-500.mat'
     'MRK_CVT01_iTaylor_HBLympNode-P50000_MSN-500.mat'
     'MRK_CVT01_iTaylor_ACr-P50000_MSN-500.mat'
-    'MRK_CVT01_iTaylor_AvgSynACr-P10000_MSN-500.mat'}
-%     {
-%     'MRK_CVT01_NetLasso_HumanInt-P50000_MSN-500.mat'
-%     'MRK_CVT01_NetLasso_BioPlex-P50000_MSN-500.mat'
-%     'MRK_CVT01_NetLasso_BioGRID-P50000_MSN-500.mat'
-%     'MRK_CVT01_NetLasso_IntAct-P50000_MSN-500.mat'
-%     'MRK_CVT01_NetLasso_STRING-P50000_MSN-500.mat'
-%     'MRK_CVT01_NetLasso_HBOvary-P50000_MSN-500.mat'
-%     'MRK_CVT01_NetLasso_HBBrain-P50000_MSN-500.mat'
-%     'MRK_CVT01_NetLasso_HBKidney-P50000_MSN-500.mat'
-%     'MRK_CVT01_NetLasso_HBGland-P50000_MSN-500.mat'
-%     'MRK_CVT01_NetLasso_HBLympNode-P50000_MSN-500.mat'
-%     'MRK_CVT01_NetLasso_ACr-P50000_MSN-500.mat'
-%     'MRK_CVT01_NetLasso_AvgSynACr-P10000_MSN-500.mat'}
+    'MRK_CVT01_iTaylor_AvgSynACr-P50000_MSN-500.mat'}
+    {
+    'MRK_CVT01_NetGL_HumanInt-P50000_MSN-500.mat'
+    'MRK_CVT01_NetGL_BioPlex-P50000_MSN-500.mat'
+    'MRK_CVT01_NetGL_BioGRID-P50000_MSN-500.mat'
+    'MRK_CVT01_NetGL_IntAct-P50000_MSN-500.mat'
+    'MRK_CVT01_NetGL_STRING-P50000_MSN-500.mat'
+    'MRK_CVT01_NetGL_HBOvary-P50000_MSN-500.mat'
+    'MRK_CVT01_NetGL_HBBrain-P50000_MSN-500.mat'
+    'MRK_CVT01_NetGL_HBKidney-P50000_MSN-500.mat'
+    'MRK_CVT01_NetGL_HBGland-P50000_MSN-500.mat'
+    'MRK_CVT01_NetGL_HBLympNode-P50000_MSN-500.mat'
+    'MRK_CVT01_NetGL_ACr-P50000_MSN-500.mat'
+    'MRK_CVT01_NetGL_AvgSynACr-P50000_MSN-500.mat'
+    }
     {
     'MRK_CVT01_LExAG_None-G11748_MSN-500.mat'}
 %     {
@@ -114,7 +115,7 @@ set(gca, 'XTick', [], 'XTickLabel', [], 'XTickLabelRotation', 10, ...
     'Ygrid', 'on', 'GridColor', [0.7 0.7 0.7], 'GridAlpha', 0.4);
 ylabel('AUC', 'FontWeight', 'Bold');
 
-return
+% return
 %% Saving
 output_name = sprintf('./Plots/S06_PerformanceComparison_05_OtherNOPs.pdf');
 set(gcf, 'PaperUnits', 'Inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [15 4], 'PaperPosition', [0 0 15 4]);
