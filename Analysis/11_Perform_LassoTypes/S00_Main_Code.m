@@ -16,8 +16,8 @@ if ismac || ispc
     fprintf('*** Warning!: Running on debug mode.\n');
     Target_Study = 1;
     Target_Repeat = 1;
-    method_lst = {'iTaylor'};
-    net_lst = {'STRING-P50000'};
+    method_lst = {'NetLasso', 'NetGL'};
+    net_lst = {'AvgSynACr-P50000'};
     MAX_N_SUBNET = 500;
 end
 
@@ -75,7 +75,7 @@ for ni=1:n_net
         end
         
         %% Shuffle the network if its needed
-        if ismember(method_lst{mi}, {'SFNetGL', 'SFiPark', 'SFiChuang', 'SFiTaylor'})
+        if ismember(method_lst{mi}, {'NetSFGL', 'SFNetGL', 'SFiPark', 'SFiChuang', 'SFiTaylor'})
             n_gene = size(dataset_info.DatasetTr.Net_Adj, 1);
             fprintf('[w] Warning: Shuffled network is selected, [%d] nodes will be shuffled ...\n', n_gene);
             rind = randperm(n_gene);
@@ -102,25 +102,26 @@ for ni=1:n_net
                 opt_gls.lam_list = [zeros(20,1) logspace(log10(1e-2), 0, 20)'];
                 opt_gls.MAX_SUBNET_SIZE = str2double(method_lst{mi}(7:end));
                 result = perf_GLasso(dataset_info, opt_gls);
-            case {'NetGL' 'SFNetGL'}
+            case {'NetGL' 'SFNetGL' 'NetSFGL'}
                 opt_ngl = opt_info;
                 opt_ngl.lam_list = [zeros(20,1) logspace(log10(1e-2), 0, 20)'];
-                tmp_res_ptr = sprintf('./Results_Files/DID_%s_*_MSN-500_MTN-NetLasso.mat', ds_id);
-                tmp_res_info = dir(tmp_res_ptr);
-                if numel(tmp_res_info)~=1, error(); end
-                fprintf('[i] Net lasso result is found in [%s], loading ...\n', tmp_res_info.name);
-                tmp_info = load(sprintf('./Results_Files/%s', tmp_res_info.name));
+                ls_res_ptr = sprintf('./Results_Files/DID_%s_*_MSN-500_MTN-NetLasso.mat', ds_id);
+                fprintf('Looking for Lasso results in: %s\n', ls_res_ptr);
+                ls_res_info = dir(ls_res_ptr);
+                if numel(ls_res_info)~=1, error(); end
+                fprintf('[i] Net lasso result is found in [%s], loading ...\n', ls_res_info.name);
+                tmp_info = load(sprintf('./Results_Files/%s', ls_res_info.name));
                 opt_ngl.MAX_N_Gene = tmp_info.BestNetwork;
-                clear tmp_info tmp_res_info tmp_res_ptr
+                clear tmp_info ls_res_info ls_res_ptr
                 result = perf_NetGL(dataset_info, opt_ngl);
             case {'TMGL'}
                 opt_tmgl = opt_info;
                 opt_tmgl.lam_list = [zeros(20,1) logspace(log10(1e-2), 0, 20)'];
-                tmp_res_ptr = sprintf('./Results_Files/DID_%s_*_MSN-500_MTN-NetGL.mat', ds_id);
-                tmp_res_info = dir(tmp_res_ptr);
-                if numel(tmp_res_info)~=1, error(); end
-                fprintf('[i] NetGL result is found in [%s], loading ...\n', tmp_res_info.name);
-                tmp_info = load(sprintf('./Results_Files/%s', tmp_res_info.name));
+                ls_res_ptr = sprintf('./Results_Files/DID_%s_*_MSN-500_MTN-NetGL.mat', ds_id);
+                ls_res_info = dir(ls_res_ptr);
+                if numel(ls_res_info)~=1, error(); end
+                fprintf('[i] NetGL result is found in [%s], loading ...\n', ls_res_info.name);
+                tmp_info = load(sprintf('./Results_Files/%s', ls_res_info.name));
                 opt_tmgl.MAX_N_Gene = tmp_info.OptNetSize;
                 opt_tmgl.NeigSize_lst = tmp_info.OptNeiSize;
                 opt_tmgl.AdjustNet = 1;
