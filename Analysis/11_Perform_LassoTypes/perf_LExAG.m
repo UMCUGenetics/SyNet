@@ -30,6 +30,8 @@ fprintf('Training the final model over [%d] features...\n', n_gene);
 result = LassoWithCV(@lassoEx, zTr, lTr, zTe, lTe, dataset_info.DatasetTr.iCvPar, opt_info.lasso_opt);
 
 %% Saving results
+result.UsedTrSamples = dataset_info.DatasetTr.UsedSample;
+result.UsedTeSamples = dataset_info.DatasetTe.UsedSample;
 result.SubNet_Score = abs(result.B(:, result.fit.IndexMinMSE));
 result.SubNet_List = num2cell(1:n_gene)';
 result.Gene_Name = Gene_Name;
