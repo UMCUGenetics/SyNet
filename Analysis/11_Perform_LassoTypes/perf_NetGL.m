@@ -112,6 +112,12 @@ legend({'Train' 'Test' 'CV err'});
 %}
 
 %% Storing results
+result.TrLbl = lTr;
+result.TeLbl = lTe;
+result.predTrLbl = cmbTr*opt_B(:, IndexBestLamb);
+result.predTeLbl = cmbTe*opt_B(:, IndexBestLamb);
+result.UsedTrSamples = dataset_info.DatasetTr.UsedSample;
+result.UsedTeSamples = dataset_info.DatasetTe.UsedSample;
 result.B = opt_B;
 result.fit = opt_fit;
 result.OptLambda = Lambda_lst(IndexBestLamb, :);
