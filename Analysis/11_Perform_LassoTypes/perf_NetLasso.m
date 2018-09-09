@@ -75,6 +75,8 @@ result = LassoWithCV(@lassoEx, Tr_Data, lTr, Te_Data, lTe, dataset_info.DatasetT
 fprintf('@@@@@ Final test performance for this dataset is [%0.2f%%] AUC.\n', result.te_auc*100);
 
 %% Saving the output
+result.UsedTrSamples = dataset_info.DatasetTr.UsedSample;
+result.UsedTeSamples = dataset_info.DatasetTe.UsedSample;
 result.Net_Threshold = Net_Threshold;
 result.BestLambIndex = IndexBestLamb;
 result.BestNetwork = N_Gene_lst(IndexBestNet);
