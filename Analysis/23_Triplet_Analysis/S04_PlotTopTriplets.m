@@ -5,6 +5,10 @@ clear;
 addpath('../_Utilities/', '-end');
 Triplet_AUC = zeros(0, 11);
 
+%% Load GE information
+GeneExpression_Path = getPath('SyNet');
+GE_Info = load(GeneExpression_Path, 'Gene_Name');
+
 %% Get top results
 res_ptr = sprintf('./TRC_Files/SyNet/TC_SyNet_*.mat');
 res_lst = dir(res_ptr);
@@ -42,7 +46,14 @@ xlim([0.5 3.5]);
 ylim([0.53 0.65]);
 title('Performance comparison of single/pair/triple wise genes');
 
+%% Printing top genes
+Ref_GN = GE_Info.Gene_Name;
+for ti=1:50
+    fprintf('%s\t%s\t%s\n', Ref_GN{Triplet_AUC(ti,1)}, Ref_GN{Triplet_AUC(ti,2)}, Ref_GN{Triplet_AUC(ti,3)});
+end
+
 %% Saving
+return
 output_name = sprintf('./Plots/S04_PerformanceOfTriplets_nTop%d.pdf', n_top);
 set(gcf, 'PaperUnits', 'Inches', 'PaperOrientation', 'landscape', 'PaperPositionMode','auto', 'PaperSize', [12 5], 'PaperPosition', [0 0 12 5]);
 print('-dpdf', '-r300', output_name);

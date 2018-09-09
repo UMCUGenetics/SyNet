@@ -62,6 +62,10 @@ fprintf('Best Lambda is determined as [%d].\n', opt_fit.IndexMinMSE);
 fprintf('Number of non-zero elements is: [%d]\n', sum(abs(opt_B(:,opt_fit.IndexMinMSE))>0));
 
 %% Saving
+result.TrLbl = lTr;
+result.TeLbl = lTe;
+result.predTrLbl = xTr * opt_B(:, opt_fit.IndexMinMSE);
+result.predTeLbl = xTe * opt_B(:, opt_fit.IndexMinMSE);
 result.B = opt_B;
 result.fit = opt_fit;
 result.tr_auc_lam = tr_auc_lam;

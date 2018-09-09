@@ -92,7 +92,7 @@ for mi=1:n_met
                                 end
                             case {'TLEx' 'TReg' 'DA2Lex'}
                                 SubNet_Score = abs(res_data.B(:,res_data.fit.IndexMinMSE));
-                            case {'iTaylor' 'iPark' 'iChuang' 'SFiPark','SFiChuang','SFiTaylor','NetSFGL'}
+                            case {'iTaylor' 'iPark' 'iChuang' 'SFiPark','SFiChuang','SFiTaylor'}
                                 SubNet_Score = abs(res_data.B(:,res_data.fit.IndexMinMSE));
                             case 'Lasso'
                                 SubNet_Score = abs(res_data.B(:,res_data.fit.IndexMinMSE));
