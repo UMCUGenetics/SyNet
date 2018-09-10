@@ -1,10 +1,12 @@
 % clc;
 clear;
+addpath(genpath('../../../../Useful_Sample_Codes/getAUC'));
 
 %% Initialization
 result_path = '../11_Perform_LassoTypes/Results_Files/';
 sav_fname = './Predicted_PatientLabels.xlsx';
 method_lst = {'LExAG', 'NetGL'}; % , 'NetLasso'
+method_name_lst = {'Lasso', 'GrpLasso'};
 net_lst = {'AvgSynACr-P50000'};
 n_net = numel(net_lst);
 n_met = numel(method_lst);
@@ -15,7 +17,7 @@ auc_mat = nan(n_met, n_rep, n_study);
 GEPath = '../../Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat';
 
 %% Load Expression data
-fprintf('Loading train expression data from [%s] ...\n', GEPath);
+fprintf('Loading training expression data from [%s] ...\n', GEPath);
 expr_info = load(GEPath, 'Patient_Label', 'Patient_Info');
 assert(isequal(expr_info.Patient_Info(:, 'Prognostic_Status').Variables, expr_info.Patient_Label));
 n_pat = length(expr_info.Patient_Label);
@@ -25,8 +27,9 @@ Pred_tbl = expr_info.Patient_Info(:, {'PatientID', 'Subtype', 'SurvivalTime', 'P
 for mi=1:n_met
     for ni=1:n_net
         for ri=1:n_rep
-%             col_sid = strrep(sprintf('%s_%s_Rep%02d', method_lst{mi}, net_lst{ni}, ri), '-', '_');
-            col_sid = strrep(sprintf('%s_Rep%02d', method_lst{mi}, ri), '-', '_');
+            % col_sid = strrep(sprintf('%s_%s_Rep%02d', method_lst{mi}, net_lst{ni}, ri), '-', '_');
+            col_sid = sprintf('%s_R%02d', method_name_lst{mi}, ri);
+            col_sid = strrep(col_sid, '-', '_');
             Pred_tbl = addvars(Pred_tbl, nan(n_pat, 1), 'NewVariableNames', col_sid);
             for si=1:n_study
                 res_ptr = sprintf('%sDID_CVT%02d_Si%02d-Ri%03d_%s_*_MSN-500_MTN-%s.mat', ...
@@ -52,5 +55,6 @@ end
 
 %% Export collected information
 writetable(Pred_tbl, sav_fname);
+disp(mean(auc_mat, 3))
 
 
