@@ -26,6 +26,14 @@ switch data_name
 % 		path_str = '../108_Evaluation_of_NOPS_On_Networks/CMB_ACES-META-HAIBE.mat';
 	case 'SyNet'
 		path_str = '../../Gene_Expression_Datasets/SyNet/SyNet_BatchCorrected.mat';
+    case 'SyN100'
+		path_str = '../../Gene_Expression_Datasets/SyNet/SyN100.mat';
+    case 'SyN50'
+		path_str = '../../Gene_Expression_Datasets/SyNet/SyN50.mat';
+    case 'SyN25'
+		path_str = '../../Gene_Expression_Datasets/SyNet/SyN25.mat';
+    case 'SyN10'
+		path_str = '../../Gene_Expression_Datasets/SyNet/SyN10.mat';
 
 	%% Biological networks
 	case 'STRING'
