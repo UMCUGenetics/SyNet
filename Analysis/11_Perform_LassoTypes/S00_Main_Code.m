@@ -12,12 +12,13 @@ UMC: PARAM="$si,$ri,{'TAgNMC','TNMC','TLEx','TAgLEx'},{'Random-T00010'},10"; qsu
 %}
 
 %% ####
+Source_CV = 'SyN100-SyN100';
 if ismac || ispc
     fprintf('*** Warning!: Running on debug mode.\n');
     Target_Study = 5;
     Target_Repeat = 1;
-    method_lst = {'NetGL', 'LExAG', 'NetLasso'};
-    net_lst = {'SyNet-AvgSynACr-P50000'};
+    method_lst = {'NetLasso', 'NetGL', 'LExAG'};
+    net_lst = {'SyHub-P00500', 'SyNet-AvgSynACr-P50000'};
     MAX_N_SUBNET = 500;
 end
 
@@ -41,7 +42,7 @@ n_meth = numel(method_lst);
 
 %% Main Loop
 fprintf([repmat('/',1,20) ' Start of main loop ' repmat('/',1,20) '\n']);
-cv_id = sprintf('CVT01_Si%02d-Ri%03d', Target_Study, Target_Repeat);
+cv_id = sprintf('%s_CVT01_Si%02d-Ri%03d', Source_CV, Target_Study, Target_Repeat);
 fprintf('[i] CV ID is: %s\n', cv_id);
 fprintf('[i] Method list is: %s\n', strjoin(method_lst, ', '));
 fprintf('[i] Network list is: %s\n', strjoin(net_lst, ', '));

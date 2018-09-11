@@ -92,3 +92,4 @@ for si=1:n_study+1
 	fprintf('Saving network in [%s] ... \n', sav_name);
 	save(sav_name, 'Net_Adj', 'Pair_AUC', 'Pair_Std', 'Gene_Name', 'anc_data');
 end
+fprintf('Revome the numbering from last file. e.g. DSN_SyNet.mat');

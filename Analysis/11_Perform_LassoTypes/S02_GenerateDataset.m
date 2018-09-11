@@ -20,7 +20,7 @@ else
 end
 
 %% Load CV info
-cv_list = dir([cv_path '*' cv_id '*.mat']);
+cv_list = dir([cv_path 'CV_' cv_id '*.mat']);
 if numel(cv_list)~=1, error('Missing or duplicated CV info found. [%s]', strjoin({cv_list.name}, ', ')); end
 cv_name = [cv_path cv_list.name];
 fprintf('Loading CV info [%s] ...\n', cv_name);
@@ -136,7 +136,7 @@ switch 1
             Net_Adj(g_ind, g_ind) = rand(numel(g_ind));
         end
         clear GSet_lst
-    case any(~cellfun('isempty', regexp(Net_Name, {'HB.*' 'STRING','HPRD','I2D','IntAct','HumanInt','BioPlex','BioGRID'})))
+    case any(~cellfun('isempty', regexp(Net_Name, {'HB.*' 'STRING','HPRD','I2D','IntAct','HumanInt','BioPlex','BioGRID', 'SyHub'})))
         net_info.net_path = getPath(Net_Name);
         fid = fopen(net_info.net_path, 'r');
         Header_lst = regexp(fgetl(fid), '\t', 'split');
@@ -149,7 +149,7 @@ switch 1
             %net_cell = {net_cell{1}(rind) net_cell{2}(rind)};
         else
             fprintf('Selecting of [%d] links from top weighted interactions.\n', MAX_N_PAIR);
-            net_cell = textscan(fid, '%s%s%f', MAX_N_PAIR, 'Delimiter', '\t', 'ReturnOnError', 0);
+            net_cell = textscan(fid, '%s%s%f%*[^\n]', MAX_N_PAIR, 'Delimiter', '\t', 'ReturnOnError', 0);
         end
         fclose(fid);
         Gene_Name = unique(vertcat(net_cell{1:2}));
