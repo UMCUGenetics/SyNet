@@ -1,5 +1,6 @@
 function S05_Collect_PWR(ge_name)
 % Run: S05_Collect_PWR('SyNet')
+% sinter bigmem --mem=200GB /opt/insy/matlab/R2018a/bin/matlab
 
 %% Initialization
 addpath('../../../../Useful_Sample_Codes/ShowProgress/');
