@@ -31,7 +31,8 @@ Gene_Name = dataset_info.DatasetTr.Gene_Name(~del_ind);
 if isfield(opt_info, 'AdjustNet') && opt_info.AdjustNet==1
     fprintf('\n[i] Adjusting network according to TM features.\n');
     n_pair = 7088;
-    SyNet_Info = load('../01_Pairwise_Evaluation_of_Genes/Top_Pairs/TopP_SyNet_AvgSynACr.mat', 'Gene_Name');
+    dsn_fname = sprintf('../01_Pairwise_Evaluation_of_Genes/Top_Pairs/TopP_%s_AvgSynACr.mat', DatasetTr.Net_info.net_source);
+    DSN_Info = load(dsn_fname, 'Gene_Name');
     res_path = '../19_Compute_Topological_Measures_For_Network/Saved_Pred/';
     res_ptr = sprintf('PredTM_CL-Lasso_SM-OneGRND_NS-%d_NF-50_ID-*.mat', n_pair);
     res_lst = dir([res_path res_ptr]);
@@ -56,9 +57,9 @@ if isfield(opt_info, 'AdjustNet') && opt_info.AdjustNet==1
     TM_N_Added = 0;
     TM_N_Removed = 0;
     for pi=1:n_pair
-        if Net_GMap.isKey(SyNet_Info.Gene_Name{TM_PInfo(pi,1)}) && Net_GMap.isKey(SyNet_Info.Gene_Name{TM_PInfo(pi,2)})
-            src_ind = Net_GMap(SyNet_Info.Gene_Name{TM_PInfo(pi,1)});
-            tar_ind = Net_GMap(SyNet_Info.Gene_Name{TM_PInfo(pi,2)});
+        if Net_GMap.isKey(DSN_Info.Gene_Name{TM_PInfo(pi,1)}) && Net_GMap.isKey(DSN_Info.Gene_Name{TM_PInfo(pi,2)})
+            src_ind = Net_GMap(DSN_Info.Gene_Name{TM_PInfo(pi,1)});
+            tar_ind = Net_GMap(DSN_Info.Gene_Name{TM_PInfo(pi,2)});
             if Net_Adj(src_ind, tar_ind)==0 && sum(TM_PMat(pi, :))>=0.75
                 Net_Adj(src_ind, tar_ind) = MAX_NET_WEIGHT;
                 TM_N_Added = TM_N_Added + 1;

@@ -1,10 +1,12 @@
 function S02_GenerateCV(data_name, cv_type, n_rep)
 % S02_GenerateCV('SyN100', 2, 5)
+
 %% Initialization
 addpath('../_Utilities/');
 
 %% Load expr data
 GeneExpression_Path = getPath(data_name);
+fprintf('Loading: [%s] from %s\n', data_name, GeneExpression_Path);
 load(GeneExpression_Path, 'Patient_Label', 'Study_Index');
 n_sample = numel(Patient_Label);
 n_study = max(Study_Index);

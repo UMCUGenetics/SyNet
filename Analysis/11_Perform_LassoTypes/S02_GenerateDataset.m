@@ -77,12 +77,15 @@ end
 function net_info = LoadNetworkInfo(net_name, tr_info, te_info)
 dsn_path = '../01_Pairwise_Evaluation_of_Genes/Network_Files/';
 name_part = regexp(net_name, '-', 'split');
-net_info.net_source = name_part{1};
-net_info.net_name = name_part{2};
-net_info.full_param = name_part{3};
-net_info.param_type = name_part{3}(1);
+if numel(name_part) > 2
+    net_info.net_source = name_part{1};
+    name_part(1) = [];
+end
+net_info.net_name = name_part{1};
+net_info.full_param = name_part{2};
+net_info.param_type = name_part{2}(1);
 if ~ismember(net_info.param_type, {'P','G'}), error(); end
-net_info.param_val = str2double(name_part{3}(2:end));
+net_info.param_val = str2double(name_part{2}(2:end));
 if strcmp(net_info.param_type, 'P')
     MAX_N_PAIR = net_info.param_val;
 else

@@ -15,9 +15,9 @@ UMC: PARAM="$si,$ri,{'TAgNMC','TNMC','TLEx','TAgLEx'},{'Random-T00010'},10"; qsu
 if ismac || ispc
     fprintf('*** Warning!: Running on debug mode.\n');
     Target_Study = 5;
-    Target_Repeat = 7;
+    Target_Repeat = 1;
     method_lst = {'LExAG', 'NetLasso', 'NetGL'};
-    net_lst = {'SyN100-AvgSynACr-P50000'};
+    net_lst = {'SyNet-AvgSynACr-P50000'};
     MAX_N_SUBNET = 500;
 end
 
