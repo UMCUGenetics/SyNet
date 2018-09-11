@@ -16,7 +16,7 @@ if ismac || ispc
     fprintf('*** Warning!: Running on debug mode.\n');
     Target_Study = 5;
     Target_Repeat = 1;
-    method_lst = {'LExAG', 'NetLasso', 'NetGL'};
+    method_lst = {'NetGL', 'LExAG', 'NetLasso'};
     net_lst = {'SyNet-AvgSynACr-P50000'};
     MAX_N_SUBNET = 500;
 end
