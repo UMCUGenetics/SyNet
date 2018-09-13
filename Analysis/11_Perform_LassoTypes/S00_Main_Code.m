@@ -3,7 +3,7 @@ function S00_Main_Code(Expr_Source, Target_StudyIndex, Target_RepIndex, method_l
 %{
 for ri in `seq 1 10`; do
 for si in `seq 1 14`; do
-PARAM="'SyNet-SyNet',$si,$ri,{'NetLasso','NetGL'},{'AvgSynACr-P50000'}"; sbatch --exclude=maxwell --job-name=NE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code "$PARAM";
+PARAM="'SyNet-SyNet',$si,$ri,{'NetLasso','NetGL','HubGL5'},{'SyNet-AvgSynACr-P50000'}"; sbatch --exclude=maxwell --job-name=NE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code "$PARAM";
 done;
 read -p "`date`: $PARAM. Press a key" -t 180
 done
