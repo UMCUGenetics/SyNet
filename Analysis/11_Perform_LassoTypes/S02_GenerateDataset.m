@@ -173,7 +173,7 @@ switch 1
         clear net_cell GMap
     otherwise
         net_info.net_path = sprintf([dsn_path 'DSN_%sS%02d.mat'], net_info.net_source, te_info.Study_Ind);
-        fprintf('Loading pairwise scores (Pair_AUC) from: %s', net_info.net_path);
+        fprintf('Loading pairwise scores (Pair_AUC) from: %s\n', net_info.net_path);
         load(net_info.net_path, 'Pair_AUC', 'Gene_Name');
         n_gene = size(Pair_AUC,1);
         ind_auc = Pair_AUC(1:n_gene+1:end)';

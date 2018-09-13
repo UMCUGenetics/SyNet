@@ -1,9 +1,9 @@
-function S00_Main_Code(Target_Study, Target_Repeat, method_lst, net_lst, MAX_N_SUBNET)
+function S00_Main_Code(Expr_Source, Target_StudyIndex, Target_RepIndex, method_lst, net_lst, MAX_N_SUBNET)
 %% Run
 %{
 for ri in `seq 1 10`; do
 for si in `seq 1 14`; do
-PARAM="$si,$ri,{'NetLasso','NetGL'},{'AvgSynACr-P50000'}"; sbatch --exclude=maxwell --job-name=NE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code "$PARAM";
+PARAM="'SyNet-SyNet',$si,$ri,{'NetLasso','NetGL'},{'AvgSynACr-P50000'}"; sbatch --exclude=maxwell --job-name=NE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code "$PARAM";
 done;
 read -p "`date`: $PARAM. Press a key" -t 180
 done
@@ -12,13 +12,14 @@ UMC: PARAM="$si,$ri,{'TAgNMC','TNMC','TLEx','TAgLEx'},{'Random-T00010'},10"; qsu
 %}
 
 %% ####
-Source_CV = 'SyN100-SyN100';
+% Source_CV = 'SyN100-SyN100';
 if ismac || ispc
     fprintf('*** Warning!: Running on debug mode.\n');
-    Target_Study = 5;
-    Target_Repeat = 1;
-    method_lst = {'NetLasso', 'NetGL', 'LExAG'};
-    net_lst = {'SyHub-P00500', 'SyNet-AvgSynACr-P50000'};
+    Expr_Source = 'SyNet-SyNet';
+    Target_StudyIndex = 3;
+    Target_RepIndex = 1;
+    method_lst = {'HubGL5', 'NetLasso', 'NetGL', 'LExAG'};
+    net_lst = {'SyNet-AvgSynACr-P50000'}; % 'SyHub-P00500'
     MAX_N_SUBNET = 500;
 end
 
@@ -42,7 +43,7 @@ n_meth = numel(method_lst);
 
 %% Main Loop
 fprintf([repmat('/',1,20) ' Start of main loop ' repmat('/',1,20) '\n']);
-cv_id = sprintf('%s_CVT01_Si%02d-Ri%03d', Source_CV, Target_Study, Target_Repeat);
+cv_id = sprintf('%s_CVT01_Si%02d-Ri%03d', Expr_Source, Target_StudyIndex, Target_RepIndex);
 fprintf('[i] CV ID is: %s\n', cv_id);
 fprintf('[i] Method list is: %s\n', strjoin(method_lst, ', '));
 fprintf('[i] Network list is: %s\n', strjoin(net_lst, ', '));
@@ -103,7 +104,7 @@ for ni=1:n_net
                 opt_gls.lam_list = [zeros(20,1) logspace(log10(1e-2), 0, 20)'];
                 opt_gls.MAX_SUBNET_SIZE = str2double(method_lst{mi}(7:end));
                 result = perf_GLasso(dataset_info, opt_gls);
-            case {'NetGL' 'SFNetGL' 'NetSFGL'}
+            case {'NetGL', 'SFNetGL', 'NetSFGL', 'HubGL5'}
                 opt_ngl = opt_info;
                 opt_ngl.lam_list = [zeros(20,1) logspace(log10(1e-2), 0, 20)'];
                 ls_res_ptr = sprintf('./Results_Files/DID_%s_*_MSN-500_MTN-NetLasso.mat', ds_id);
@@ -114,6 +115,9 @@ for ni=1:n_net
                 tmp_info = load(sprintf('./Results_Files/%s', ls_res_info.name));
                 opt_ngl.MAX_N_Gene = tmp_info.BestNetwork;
                 clear tmp_info ls_res_info ls_res_ptr
+                if strcmp(method_lst{mi}(1:5), 'HubGL') == 1
+                    opt_ngl.Net_MinNEdge = str2double(method_lst{mi}(end));
+                end
                 result = perf_NetGL(dataset_info, opt_ngl);
             case {'TMGL'}
                 opt_tmgl = opt_info;
