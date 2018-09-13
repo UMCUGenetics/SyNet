@@ -68,8 +68,6 @@ switch data_name
         path_str = '../../Networks/BioPlex/BioPlex_GN_Score_Sorted.tsv';
     case 'BioGRID'
         path_str = '../../Networks/BioGRID/BioGRID_GN_Score_Sorted.tsv';
-    case 'SyHub'
-        path_str = '../25_Collect_Frequently_grouped_genes_in_NetGL/Collected_Results/Grp_CVT01_SyNet-AvgSynACr-P50000_NetGL_MSN-500_NT10000.tsv';
 	otherwise
 		error();
 end
