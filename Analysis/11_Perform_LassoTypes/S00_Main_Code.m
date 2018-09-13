@@ -16,9 +16,9 @@ UMC: PARAM="$si,$ri,{'TAgNMC','TNMC','TLEx','TAgLEx'},{'Random-T00010'},10"; qsu
 if ismac || ispc
     fprintf('*** Warning!: Running on debug mode.\n');
     Expr_Source = 'SyNet-SyNet';
-    Target_StudyIndex = 3;
-    Target_RepIndex = 1;
-    method_lst = {'HubGL5', 'NetLasso', 'NetGL', 'LExAG'};
+    Target_StudyIndex = 5;
+    Target_RepIndex = 7;
+    method_lst = {'NetLasso', 'NetGL', 'LExAG', 'HubGL5'};
     net_lst = {'SyNet-AvgSynACr-P50000'}; % 'SyHub-P00500'
     MAX_N_SUBNET = 500;
 end

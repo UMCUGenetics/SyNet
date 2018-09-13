@@ -17,10 +17,10 @@ sav_path = './Collected_Results/';
 %     'AvgSynACrNShuff-P50000' 'HBGland-P50000' 'HBLympNode-P50000' 'ACr-P50000' 'HBOvary-P50000' 'HBBrain-P50000' 'HBKidney-P50000' ...
 %    'HumanInt-P50000' 'BioPlex-P50000' 'BioGRID-P50000' 'IntAct-P50000' 'STRING-P50000' ...
 %     };
-method_lst = {'iTaylor' 'iPark' 'iChuang' 'SFiPark','SFiChuang','SFiTaylor','NetSFGL'}; %  'NetLasso' 'NetGL' 'CvGL' 'TMGL' 'Lasso' 'GLasso' 'CFGLasso' 'GLasso5'
-net_lst = {'STRING-P50000' 'HumanInt-P50000' 'BioGRID-P50000' 'AvgSynACr-P10000' 'AvgSynACr-P25000' 'AvgSynACr-P50000' ...
-    'BioPlex-P50000' 'IntAct-P50000' 'HBOvary-P50000' 'HBBrain-P50000' 'HBKidney-P50000' 'HBGland-P50000' 'HBLympNode-P50000' 'ACr-P50000'
+method_lst = {'HubGL5'}; %  'NetLasso' 'NetGL' 'CvGL' 'TMGL' 'Lasso' 'GLasso' 'CFGLasso' 'GLasso5'
+net_lst = {'SyNet-AvgSynACr-P50000' ...
     };
+expr_src = 'SyNet-SyNet';
 feat_lst = [20 50 100 500 700 1000];
 n_net = numel(net_lst);
 n_met = numel(method_lst);
@@ -46,8 +46,8 @@ for mi=1:n_met
                 fprintf('[i] Results are already collected for [%s], ignoring ... \n', sav_name);
                 continue;
             else
-                res_ptr = sprintf('%sDID_CVT%02d_Si*-Ri*_%s_*_MSN-%03d_MTN-%s.mat', ...
-                            result_path, cv_ind, net_lst{ni}, feat_lst(fi), method_lst{mi});
+                res_ptr = sprintf('%sDID_%s_CVT%02d_Si*-Ri*_%s_*_MSN-%03d_MTN-%s.mat', ...
+                            result_path, expr_src, cv_ind, net_lst{ni}, feat_lst(fi), method_lst{mi});
                 file_info = dir(res_ptr);
                 if numel(file_info)==0
                     %fprintf('[w] No results found for [%s] ...\n', res_ptr);
@@ -62,8 +62,8 @@ for mi=1:n_met
                 out_cmb.Gene_Map = Gene_Map;
                 for si=1:n_study
                     for ri=1:n_rep
-                        res_ptr = sprintf('%sDID_CVT%02d_Si%02d-Ri%03d_%s_*_MSN-%03d_MTN-%s.mat', ...
-                            result_path, cv_ind, si, ri, net_lst{ni}, feat_lst(fi), method_lst{mi});
+                        res_ptr = sprintf('%sDID_%s_CVT%02d_Si%02d-Ri%03d_%s_*_MSN-%03d_MTN-%s.mat', ...
+                            result_path, expr_src, cv_ind, si, ri, net_lst{ni}, feat_lst(fi), method_lst{mi});
                         file_info = dir(res_ptr);
                         if numel(file_info)==0
                             fprintf('--- Missing [%60s]\n', res_ptr);
@@ -113,7 +113,7 @@ for mi=1:n_met
                                     set_ind = Group_Index(1,gi):Group_Index(2,gi);
                                     SubNet_Score(gi) = max(abs(res_data.B(set_ind, res_data.fit.IndexMinMSE)));
                                 end
-                            case {'NetGL' 'CvGL' 'NetSFGL' 'TMGL'}
+                            case {'NetGL' 'CvGL' 'NetSFGL' 'TMGL' 'HubGL5'}
                                 Group_Index = res_data.fit.Options.ind;
                                 n_snet = size(Group_Index,2);
                                 SubNet_Score = zeros(n_snet, 1);
