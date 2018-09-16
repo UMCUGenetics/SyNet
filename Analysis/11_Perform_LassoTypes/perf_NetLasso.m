@@ -17,6 +17,24 @@ n_net = numel(N_Gene_lst);
 fprintf('Normalizing data ...\n');
 zTr = zscore(xTr);
 zTe = zscore(xTe);
+clear xTr xTe
+
+%% Filter network
+degree_lst = sum(Net_Adj>0, 1);
+if isfield(opt_info, 'Net_MinNEdge')
+    fprintf('Minimum edge is requested, filtering network to have at least [%d] edges.\n', opt_info.Net_MinNEdge);
+    del_ind = degree_lst < opt_info.Net_MinNEdge;
+else
+    fprintf('Filtering network to have connected nodes only.\n');
+    del_ind = degree_lst == 0;
+end
+Net_Adj(del_ind, :) = [];
+Net_Adj(:, del_ind) = [];
+zTr(:, del_ind) = [];
+zTe(:, del_ind) = [];
+Gene_Name = dataset_info.DatasetTr.Gene_Name(~del_ind);
+fprintf('#Genes in the network is [%d].\n', size(Net_Adj, 1));
+clear del_ind degree_lst
 
 %% Cross-validation
 fprintf('[i] Grid search among [%s] options.\n', num2str(N_Gene_lst, '%d '));
@@ -66,7 +84,7 @@ fprintf('[i] Best net has [%d] genes and best lambda is [%d].\n\n', N_Gene_lst(I
 del_ind = sum(iNet_Adj~=0)==0;
 Tr_Data = zTr(:, ~del_ind);
 Te_Data = zTe(:, ~del_ind);
-Gene_Name = dataset_info.DatasetTr.Gene_Name(~del_ind);
+Gene_Name = Gene_Name(~del_ind);
 n_gene = size(Tr_Data, 2);
 
 %% Traning the final model

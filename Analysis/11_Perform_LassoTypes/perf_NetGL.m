@@ -35,6 +35,7 @@ zTr(:, del_ind) = [];
 zTe(:, del_ind) = [];
 Gene_Name = dataset_info.DatasetTr.Gene_Name(~del_ind);
 fprintf('#Genes in the network is [%d].\n', size(Net_Adj, 1));
+clear del_ind degree_lst
 
 %% Generate Neighbor Sets
 fprintf('Generating neighbor sets and subnetworks: \n');

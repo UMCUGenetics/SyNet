@@ -68,6 +68,10 @@ switch data_name
         path_str = '../../Networks/BioPlex/BioPlex_GN_Score_Sorted.tsv';
     case 'BioGRID'
         path_str = '../../Networks/BioGRID/BioGRID_GN_Score_Sorted.tsv';
+    case 'CmbNet'
+        path_str = '../../Networks/CmbNet/CmbNet.tsv';
+    case 'StSpNet'
+        path_str = '../../Networks/StSpNet/StSpNet.tsv';
 	otherwise
 		error();
 end

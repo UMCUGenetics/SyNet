@@ -1,5 +1,5 @@
 function S01_GenerateCV(Train_name, Train_Ind, Test_name, Test_Ind, rep_ind)
-% S01_GenerateCV('SyNet', 1:14, 'SyNet', 14, 1)
+% S01_GenerateCV('SyN10', 1:14, 'SyN10', 14, 1)
 
 %% Initialization
 addpath('../_Utilities/');
