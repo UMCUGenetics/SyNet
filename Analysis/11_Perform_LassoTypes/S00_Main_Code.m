@@ -1,9 +1,10 @@
 function S00_Main_Code(Expr_Source, Target_StudyIndex, Target_RepIndex, method_lst, net_lst, MAX_N_SUBNET)
 %% Run
 %{
+expr_src='SyNet';
 for ri in `seq 1 10`; do
 for si in `seq 1 14`; do
-PARAM="'SyNet-SyNet',$si,$ri,{'NetLasso','NetGL','HubGL5'},{'SyNet-AvgSynACr-P50000'}"; sbatch --exclude=maxwell --job-name=NE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code "$PARAM";
+PARAM="'$expr_src-$expr_src',$si,$ri,{'NetLasso','NetGL','HubGL5'},{'$expr_src-AvgSynACr-P50000'}"; sbatch --exclude=maxwell --job-name=NE-$PARAM --output=Logs/NE-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus=1 --cpus-per-task=1 run_Matlab.sh S00_Main_Code "$PARAM";
 done;
 read -p "`date`: $PARAM. Press a key" -t 180
 done
@@ -15,11 +16,11 @@ UMC: PARAM="$si,$ri,{'TAgNMC','TNMC','TLEx','TAgLEx'},{'Random-T00010'},10"; qsu
 % Source_CV = 'SyN100-SyN100';
 if ismac || ispc
     fprintf('*** Warning!: Running on debug mode.\n');
-    Expr_Source = 'SyNet-SyNet';
+    Expr_Source = 'SyN10-SyN10';
     Target_StudyIndex = 5;
     Target_RepIndex = 7;
-    method_lst = {'NetLasso', 'NetGL', 'LExAG', 'HubGL5'};
-    net_lst = {'SyNet-AvgSynACr-P50000'}; % 'SyHub-P00500'
+    method_lst = {'LExAG'}; % , 'HubLasso5', 'NetLasso', 'NetGL', 'HubGL5'
+    net_lst = {'None-G11748'}; % 'SyHub-P00500'
     MAX_N_SUBNET = 500;
 end
 
@@ -144,8 +145,12 @@ for ni=1:n_net
                 result = perf_FERAL(dataset_info, feral_info);
             case {'Lasso'}
                 result = perf_Lasso(dataset_info, opt_info);
-            case {'NetLasso'}
-                result = perf_NetLasso(dataset_info, opt_info);
+            case {'NetLasso', 'HubLasso5'}
+                opt_nl = opt_info;
+                if strcmp(method_lst{mi}(1:8), 'HubLasso') == 1
+                    opt_nl.Net_MinNEdge = str2double(method_lst{mi}(end));
+                end
+                result = perf_NetLasso(dataset_info, opt_nl);
             case 'LExAG'
                 result = perf_LExAG(dataset_info, opt_info);
             case 'TLEx'
