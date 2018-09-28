@@ -18,12 +18,16 @@ res_lst = {
     ''
     'MRK_SyNet-SyNet_CVT01_NetLasso_HBLympNode-P50000_MSN-500.mat'
     'MRK_SyNet-SyNet_CVT01_NetGL_HBLympNode-P50000_MSN-500.mat'
+    
     ''
     'MRK_SyNet-SyNet_CVT01_NetLasso_HBGland-P50000_MSN-500.mat'
     'MRK_SyNet-SyNet_CVT01_NetGL_HBGland-P50000_MSN-500.mat'
     ''
     'MRK_SyNet-SyNet_CVT01_NetLasso_CmbNet-G11748_MSN-500.mat'
     'MRK_SyNet-SyNet_CVT01_NetGL_CmbNet-G11748_MSN-500.mat'
+    ''
+    'MRK_SyNet-SyNet_CVT01_NetLasso_SyNet-FrqNetA3-P100000_MSN-500.mat'
+    'MRK_SyNet-SyNet_CVT01_NetGL_SyNet-FrqNetA3-P100000_MSN-500.mat'
     ''
     'MRK_SyNet-SyNet_CVT01_NetLasso_AvgSynACr-P50000_MSN-500.mat'
     'MRK_SyNet-SyNet_CVT01_NetGL_AvgSynACr-P50000_MSN-500.mat'
@@ -51,7 +55,11 @@ for si=1:n_res
     auc_rep = mean(res_data.AUC_mat, 1);
     res_info = regexp(res_lst{si}, '_', 'split');
     net_info = regexp(res_info{5}, '-', 'Split');
-    [met_clr, met_lbl] = getColor(net_info{1});
+    if numel(net_info) < 3
+        [met_clr, met_lbl] = getColor(net_info{1});
+    else
+        [met_clr, met_lbl] = getColor(net_info{2});
+    end
     
     %     if mod(si, 4)==2
     %         text(si, 0.67, sprintf('%s\n%s', res_info{2}, res_info{5}), 'FontWeight', 'Bold');
