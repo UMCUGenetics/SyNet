@@ -136,7 +136,7 @@ switch 1
             Net_Adj(g_ind, g_ind) = rand(numel(g_ind));
         end
         clear GSet_lst
-    case any(~cellfun('isempty', regexp(Net_Name, {'HB.*','STRING','HPRD','I2D','IntAct','HumanInt','BioPlex','BioGRID','CmbNet','StSpNet'})))
+    case any(~cellfun('isempty', regexp(Net_Name, {'HB.*','STRING','HPRD','I2D','IntAct','HumanInt','BioPlex','BioGRID','CmbNet','FrqNetA3','StSpNet'})))
         net_info.net_path = getPath(Net_Name);
         fid = fopen(net_info.net_path, 'r');
         Header_lst = regexp(fgetl(fid), '\t', 'split');
