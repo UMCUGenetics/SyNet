@@ -1,8 +1,8 @@
-function S01_EvaluateNetOverlap(Ref_Name, net_name, SHUFFLE, LIMIT_GENES)
+function S01_EvaluateNetOverlap(Ref_Name, net_name, SHUFFLE, LIMIT_GENES, MAX_N_PAIR)
 %{ 
 for ni in HumanInt BioPlex BioGRID IntAct STRING HBBrain HBKidney HBOvary HBLympNode HBGland; do 
 for mi in 0 1; do  
-PARAM=\'SyNet\',\'$ni\',$mi; 
+PARAM=\'SyNet\',\'$ni\',$mi,0,100000; 
 echo $PARAM; 
 sbatch --job-name=NO-$PARAM --output=Logs/NO-$PARAM.%J_%a-%N.out --partition=general --qos=short --mem=10GB --time=04:00:00 --ntasks=1 --cpus-per-task=1 run_Matlab.sh S01_EvaluateNetOverlap "$PARAM"; 
 done; done
@@ -12,20 +12,22 @@ clc;
 %% Initialization
 addpath('../../../../Useful_Sample_Codes/ShowProgress');
 addpath('../_Utilities/');
-net_opt.GE_Path = getPath('SyNet');
-ge_data = load(net_opt.GE_Path, 'Gene_Name');
-net_opt.PreferredGenes = ge_data.Gene_Name;
-net_opt.MAX_N_PAIR = 50000;
-SampleSize = 3544;
-N_Ref_lnk = 3544;
-n_rep = 1000;
 if ismac
     Ref_Name = 'SyNet'; %'AvgSyn'
-    net_name = 'HBGland';
+    net_name = 'STRING';
     %net_name = 'AbsCorr';
     SHUFFLE = 0;
     LIMIT_GENES = 1;
+    MAX_N_PAIR = 50000;
 end
+
+net_opt.GE_Path = getPath('SyNet');
+ge_data = load(net_opt.GE_Path, 'Gene_Name');
+net_opt.PreferredGenes = ge_data.Gene_Name;
+net_opt.MAX_N_PAIR = MAX_N_PAIR;
+SampleSize = 3544;
+N_Ref_lnk = 3544;
+n_rep = 1000;
 
 %% Load SyNet
 if strcmp(Ref_Name, 'SyNet')
