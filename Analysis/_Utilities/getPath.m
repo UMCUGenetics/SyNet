@@ -70,6 +70,8 @@ switch data_name
         path_str = '../../Networks/BioGRID/BioGRID_GN_Score_Sorted.tsv';
     case 'CmbNet'
         path_str = '../../Networks/CmbNet/CmbNet.tsv';
+    case 'FrqNetA3'
+        path_str = '../../Networks/CmbNet/FrqNet_AllThree.tsv';
     case 'StSpNet'
         path_str = '../../Networks/StSpNet/StSpNet.tsv';
 	otherwise
